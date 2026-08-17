@@ -50,6 +50,7 @@ export const verifyFirebaseOTP = async (req: Request, res: Response) => {
           phone: user.phone,
           name: user.name,
           role: user.role,
+          kycStatus: user.kycStatus,
           isNewUser
         }
       }
@@ -114,7 +115,8 @@ export const loginWithMPIN = async (req: Request, res: Response) => {
           id: user.id,
           phone: user.phone,
           name: user.name,
-          role: user.role
+          role: user.role,
+          kycStatus: user.kycStatus
         }
       }
     });

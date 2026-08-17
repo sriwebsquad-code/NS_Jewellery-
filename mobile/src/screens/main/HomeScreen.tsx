@@ -82,7 +82,10 @@ const HomeScreen = () => {
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
-          <Crown color={mode === 'dark' ? 'colors.gold' : '#6B4E3D'} size={24} style={{ marginRight: 8 }} />
+          <Image 
+            source={require('../../../assets/rn_logo.png')} 
+            style={{ width: 40, height: 40, resizeMode: 'contain', marginRight: 8 }} 
+          />
           <Text style={[styles.logoText, { color: mode === 'dark' ? 'colors.gold' : '#6B4E3D' }]}>NS JEWELLERY</Text>
         </View>
         

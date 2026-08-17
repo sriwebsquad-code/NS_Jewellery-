@@ -21,6 +21,7 @@ import jewelleryRoutes from './routes/jewellery.routes';
 import digitalRoutes from './routes/digital.routes';
 import plansRoutes from './routes/plans.routes';
 import notificationsRoutes from './routes/notifications.routes';
+import kycRoutes from './routes/kyc.routes';
 import path from 'path';
 
 // Body parsing Middleware
@@ -38,6 +39,7 @@ app.use('/api/jewellery', jewelleryRoutes);
 app.use('/api/digital', digitalRoutes);
 app.use('/api/plans', plansRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/kyc', kycRoutes);
 
 // Health Check Route
 app.get('/health', (req: Request, res: Response) => {

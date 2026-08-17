@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -10,7 +10,7 @@ import { useThemeStore } from '../../store/themeStore';
 const MyPlansScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   
@@ -275,12 +275,25 @@ const MyPlansScreen = () => {
             (!installmentAmount || isNaN(Number(installmentAmount))) && styles.proceedBtnDisabled
           ]}
           disabled={!installmentAmount || isNaN(Number(installmentAmount))}
-          onPress={() => navigation.navigate('Payment', { 
-            amount: Number(installmentAmount),
-            planId: selectedPlanId,
-            planName: selectedPlan?.name,
-            planType: selectedPlan?.type
-          })}
+          onPress={() => {
+            if (user?.kycStatus !== 'VERIFIED') {
+              Alert.alert(
+                "KYC Required",
+                "Please verify your Aadhar to join a Savings Plan.",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Verify Now", onPress: () => navigation.navigate('AadharVerification') }
+                ]
+              );
+              return;
+            }
+            navigation.navigate('Payment', { 
+              amount: Number(installmentAmount),
+              planId: selectedPlanId,
+              planName: selectedPlan?.name,
+              planType: selectedPlan?.type
+            });
+          }}
         >
           <Text style={styles.proceedBtnText}>Proceed</Text>
         </TouchableOpacity>

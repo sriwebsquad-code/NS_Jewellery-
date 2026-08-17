@@ -27,9 +27,10 @@ const LoginMPINScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
-        <View style={styles.profilePlaceholder}>
-          <Text style={styles.profileText}>U</Text>
-        </View>
+        <Image 
+          source={require('../../../assets/rn_logo.png')} 
+          style={{ width: 90, height: 90, resizeMode: 'contain', marginBottom: 20 }} 
+        />
         <Text style={[styles.title, { color: colors.primary }]}>Welcome Back!</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>Enter your MPIN to unlock</Text>
       </View>

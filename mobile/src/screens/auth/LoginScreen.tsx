@@ -27,9 +27,10 @@ const LoginScreen = () => {
     >
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
         {/* Placeholder for App Logo */}
-        <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoText}>NS</Text>
-        </View>
+        <Image 
+          source={require('../../../assets/rn_logo.png')} 
+          style={{ width: 100, height: 100, resizeMode: 'contain', marginBottom: 15 }} 
+        />
         <Text style={[styles.title, { color: colors.primary }]}>NS Jewellery</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>Premium Savings & Digital Gold</Text>
       </View>

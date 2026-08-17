@@ -64,8 +64,22 @@ const DigitalGoldScreen = () => {
     }
   };
 
+  const user = useAuthStore((state) => state.user);
+
   const handleBuy = () => {
     if (!amount || parseFloat(amount) <= 0) return;
+    
+    if (user?.kycStatus !== 'VERIFIED') {
+      Alert.alert(
+        "KYC Required",
+        "Please verify your Aadhar to make purchases.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Verify Now", onPress: () => navigation.navigate('AadharVerification') }
+        ]
+      );
+      return;
+    }
     
     const currentUTC = new Date();
     const currentIST = new Date(currentUTC.getTime() + (5.5 * 60 * 60 * 1000));
