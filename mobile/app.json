@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "NS Jewellery",
+    "slug": "ns-jewellery",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/ns_logo.jpg",
+    "userInterfaceStyle": "light",
+    "primaryColor": "#D4AF37",
+    "splash": {
+      "image": "./assets/ns_logo.jpg",
+      "resizeMode": "contain",
+      "backgroundColor": "#1A1A1A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nsjewellery.app",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.nsjewellery.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#432874"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
