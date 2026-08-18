@@ -7,6 +7,7 @@ import JewelleryManagement from './pages/Jewellery';
 import PlansManagement from './pages/Plans';
 import RatesManagement from './pages/Rates';
 import UsersManagement from './pages/Users';
+import TransactionsManagement from './pages/Transactions';
 import { useAuthStore } from './store/authStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -35,6 +36,7 @@ const App: React.FC = () => {
           <Route path="users" element={<UsersManagement />} />
           <Route path="jewellery" element={<JewelleryManagement />} />
           <Route path="plans" element={<PlansManagement />} />
+          <Route path="transactions" element={<TransactionsManagement />} />
           <Route path="rates" element={<RatesManagement />} />
           <Route path="settings" element={<div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 min-h-[400px]">Settings (Coming Soon)</div>} />
         </Route>

@@ -29,10 +29,27 @@ export const getRates = async (req: Request, res: Response) => {
   }
 };
 
+// Get rate history (for Admin Panel)
+export const getRateHistory = async (req: Request, res: Response) => {
+  try {
+    const history = await prisma.metalRate.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50, // Get last 50 updates
+    });
+    
+    res.status(200).json({
+      success: true,
+      data: history
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Update rates (Admin only in real-world, but we'll leave unprotected for this demo)
 export const updateRates = async (req: Request, res: Response) => {
   try {
-    const { goldRate, silverRate } = req.body;
+    const { goldRate, silverRate, effectiveDate } = req.body;
     
     if (!goldRate || !silverRate) {
       return res.status(400).json({ success: false, message: 'goldRate and silverRate are required' });
@@ -45,6 +62,7 @@ export const updateRates = async (req: Request, res: Response) => {
       data: {
         goldRate: parsedGoldRate,
         silverRate: parsedSilverRate,
+        effectiveDate: effectiveDate ? new Date(effectiveDate) : new Date(),
       }
     });
 

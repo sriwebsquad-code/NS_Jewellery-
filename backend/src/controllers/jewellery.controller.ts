@@ -32,7 +32,7 @@ export const getCategories = async (req: Request, res: Response) => {
 
 export const createJewelleryItem = async (req: Request, res: Response) => {
   try {
-    const { categoryId, name, purity, weight, description, makingCharges } = req.body;
+    const { categoryId, name, purity, weight, description, makingCharges, stock, basePrice } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
     if (!categoryId || !name || !purity || !weight) {
@@ -47,6 +47,8 @@ export const createJewelleryItem = async (req: Request, res: Response) => {
         weight: parseFloat(weight),
         description: description || '',
         makingCharges: makingCharges ? parseFloat(makingCharges) : 0,
+        stock: stock ? parseInt(stock) : 0,
+        basePrice: basePrice ? parseFloat(basePrice) : null,
         images: imagePath ? [imagePath] : []
       }
     });

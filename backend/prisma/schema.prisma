@@ -72,6 +72,7 @@ model User {
   digitalTransactions DigitalTransaction[]
   wishlistItems       Wishlist[]
   notifications       Notification[]
+  auditLogs           AdminAuditLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,6 +97,8 @@ model JewelleryItem {
   weight          Float    // in grams
   description     String
   makingCharges   Float    // percentage or fixed amount
+  stock           Int      @default(0) // stock availability
+  basePrice       Float?   // Optional base price for non-weight based items
   images          String[] // URLs to S3/Cloud Storage
   
   wishlistedBy    Wishlist[]
@@ -195,11 +198,22 @@ model Wishlist {
 }
 
 model MetalRate {
-  id          String   @id @default(uuid())
-  goldRate    Float    // 24K Gold per gram (Base)
-  silverRate  Float    // Pure Silver per gram
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
+  id            String   @id @default(uuid())
+  goldRate      Float    // 24K Gold per gram (Base)
+  silverRate    Float    // Pure Silver per gram
+  effectiveDate DateTime @default(now()) // When this rate took effect
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
+
+model AdminAuditLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id])
+  action    String
+  details   String
+  ipAddress String?
+  createdAt DateTime @default(now())
 }
 
 model Notification {

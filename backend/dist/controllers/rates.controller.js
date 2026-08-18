@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateRates = exports.getRates = void 0;
+exports.updateRates = exports.getRateHistory = exports.getRates = void 0;
 const db_1 = __importDefault(require("../config/db"));
 // Get current rates
 const getRates = async (req, res) => {
@@ -32,10 +32,27 @@ const getRates = async (req, res) => {
     }
 };
 exports.getRates = getRates;
+// Get rate history (for Admin Panel)
+const getRateHistory = async (req, res) => {
+    try {
+        const history = await db_1.default.metalRate.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 50, // Get last 50 updates
+        });
+        res.status(200).json({
+            success: true,
+            data: history
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+exports.getRateHistory = getRateHistory;
 // Update rates (Admin only in real-world, but we'll leave unprotected for this demo)
 const updateRates = async (req, res) => {
     try {
-        const { goldRate, silverRate } = req.body;
+        const { goldRate, silverRate, effectiveDate } = req.body;
         if (!goldRate || !silverRate) {
             return res.status(400).json({ success: false, message: 'goldRate and silverRate are required' });
         }
@@ -45,6 +62,7 @@ const updateRates = async (req, res) => {
             data: {
                 goldRate: parsedGoldRate,
                 silverRate: parsedSilverRate,
+                effectiveDate: effectiveDate ? new Date(effectiveDate) : new Date(),
             }
         });
         // --- SETTLEMENT LOGIC FOR PENDING DIGITAL TRANSACTIONS ---

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LayoutDashboard, Users, Gem, Landmark, ShieldCheck, LogOut, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Users, Gem, Landmark, ShieldCheck, LogOut, TrendingUp, CreditCard } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
   const logout = useAuthStore((state) => state.logout);
@@ -18,6 +18,7 @@ const AdminLayout: React.FC = () => {
     { name: 'Users', path: '/users', icon: <Users size={20} /> },
     { name: 'Jewellery', path: '/jewellery', icon: <Gem size={20} /> },
     { name: 'Savings Plans', path: '/plans', icon: <Landmark size={20} /> },
+    { name: 'Transactions', path: '/transactions', icon: <CreditCard size={20} /> },
     { name: 'Live Rates', path: '/rates', icon: <TrendingUp size={20} /> },
     { name: 'Admin Settings', path: '/settings', icon: <ShieldCheck size={20} /> },
   ];

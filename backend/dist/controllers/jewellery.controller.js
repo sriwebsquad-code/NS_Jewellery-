@@ -36,7 +36,7 @@ const getCategories = async (req, res) => {
 exports.getCategories = getCategories;
 const createJewelleryItem = async (req, res) => {
     try {
-        const { categoryId, name, purity, weight, description, makingCharges } = req.body;
+        const { categoryId, name, purity, weight, description, makingCharges, stock, basePrice } = req.body;
         const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
         if (!categoryId || !name || !purity || !weight) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -49,6 +49,8 @@ const createJewelleryItem = async (req, res) => {
                 weight: parseFloat(weight),
                 description: description || '',
                 makingCharges: makingCharges ? parseFloat(makingCharges) : 0,
+                stock: stock ? parseInt(stock) : 0,
+                basePrice: basePrice ? parseFloat(basePrice) : null,
                 images: imagePath ? [imagePath] : []
             }
         });
