@@ -37,7 +37,7 @@ const MyPlansScreen = () => {
 
   const fetchPlans = async () => {
     try {
-      const API_URL = 'http://10.75.1.170:5000';
+      const API_URL = 'https://ns-jewellery.onrender.com';
       const response = await fetch(`${API_URL}/api/plans`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

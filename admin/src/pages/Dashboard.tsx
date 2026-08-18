@@ -10,7 +10,7 @@ const Dashboard: React.FC = () => {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/admin/dashboard/stats')
+    fetch('https://ns-jewellery.onrender.com/api/admin/dashboard/stats')
       .then(res => res.json())
       .then(data => {
         if (data.success) {

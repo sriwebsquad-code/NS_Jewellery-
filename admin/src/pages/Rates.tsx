@@ -26,7 +26,7 @@ const RatesManagement: React.FC = () => {
 
   const fetchRates = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/rates');
+      const response = await fetch('https://ns-jewellery.onrender.com/api/rates');
       const data = await response.json();
       if (data.success && data.data) {
         setGoldRate(data.data.goldRate.toString());
@@ -40,7 +40,7 @@ const RatesManagement: React.FC = () => {
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/rates/history', {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/rates/history', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -56,7 +56,7 @@ const RatesManagement: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/rates', {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/rates', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

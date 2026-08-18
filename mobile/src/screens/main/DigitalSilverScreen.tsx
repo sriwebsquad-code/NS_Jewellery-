@@ -27,7 +27,7 @@ const DigitalSilverScreen = () => {
 
   const fetchRates = async () => {
     try {
-      const API_URL = 'http://10.75.1.170:5000'; // local backend
+      const API_URL = 'https://ns-jewellery.onrender.com'; // local backend
       const response = await fetch(`${API_URL}/api/rates`);
       const data = await response.json();
       if (data.success && data.data && data.data.silverRate) {

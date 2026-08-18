@@ -28,8 +28,8 @@ const JewelleryManagement: React.FC = () => {
   const fetchData = async () => {
     try {
       const [catRes, itemRes] = await Promise.all([
-        fetch('http://localhost:5000/api/jewellery/categories'),
-        fetch('http://localhost:5000/api/jewellery/items')
+        fetch('https://ns-jewellery.onrender.com/api/jewellery/categories'),
+        fetch('https://ns-jewellery.onrender.com/api/jewellery/items')
       ]);
       const catData = await catRes.json();
       const itemData = await itemRes.json();
@@ -47,7 +47,7 @@ const JewelleryManagement: React.FC = () => {
     if (catImage) formData.append('image', catImage);
 
     try {
-      const res = await fetch('http://localhost:5000/api/jewellery/categories', {
+      const res = await fetch('https://ns-jewellery.onrender.com/api/jewellery/categories', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -79,7 +79,7 @@ const JewelleryManagement: React.FC = () => {
     if (itemImage) formData.append('image', itemImage);
 
     try {
-      const res = await fetch('http://localhost:5000/api/jewellery/items', {
+      const res = await fetch('https://ns-jewellery.onrender.com/api/jewellery/items', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -183,7 +183,7 @@ const JewelleryManagement: React.FC = () => {
               <div key={cat.id} className="flex items-center justify-between p-3 bg-background rounded border border-primary/10 hover:border-primary/30 transition-colors group">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-white rounded overflow-hidden flex items-center justify-center border border-primary/10">
-                    {cat.image ? <img src={`http://localhost:5000${cat.image}`} alt={cat.name} className="w-full h-full object-cover" /> : <ImageIcon className="text-primary/40" />}
+                    {cat.image ? <img src={`https://ns-jewellery.onrender.com${cat.image}`} alt={cat.name} className="w-full h-full object-cover" /> : <ImageIcon className="text-primary/40" />}
                   </div>
                   <span className="font-semibold text-secondary">{cat.name}</span>
                 </div>
@@ -202,7 +202,7 @@ const JewelleryManagement: React.FC = () => {
             {items.map((item) => (
               <div key={item.id} className="flex space-x-4 p-4 bg-background rounded border border-primary/10 hover:border-primary/30 transition-all group">
                 <div className="w-20 h-20 bg-white rounded overflow-hidden flex-shrink-0 border border-primary/10">
-                  {item.images?.[0] ? <img src={`http://localhost:5000${item.images[0]}`} alt={item.name} className="w-full h-full object-cover" /> : <ImageIcon className="text-primary/40 m-auto mt-6" />}
+                  {item.images?.[0] ? <img src={`https://ns-jewellery.onrender.com${item.images[0]}`} alt={item.name} className="w-full h-full object-cover" /> : <ImageIcon className="text-primary/40 m-auto mt-6" />}
                 </div>
                 <div className="flex-1 flex flex-col justify-center">
                   <div className="flex justify-between items-start">

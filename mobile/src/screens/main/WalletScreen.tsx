@@ -27,7 +27,7 @@ const WalletScreen = () => {
   const fetchWallet = async () => {
     setLoading(true);
     try {
-      const API_URL = 'http://10.75.1.170:5000';
+      const API_URL = 'https://ns-jewellery.onrender.com';
       const res = await fetch(`${API_URL}/api/digital/locker`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

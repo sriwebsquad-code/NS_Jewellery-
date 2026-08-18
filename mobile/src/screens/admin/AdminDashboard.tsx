@@ -14,7 +14,7 @@ const AdminDashboard = () => {
 
   const fetchRates = async () => {
     try {
-      const res = await fetch('http://10.75.1.170:5000/api/rates');
+      const res = await fetch('https://ns-jewellery.onrender.com/api/rates');
       const data = await res.json();
       if (data.success && data.data) {
         setRates({
@@ -36,7 +36,7 @@ const AdminDashboard = () => {
     if (!rates.gold24 || !rates.silver) return;
     setLoading(true);
     try {
-      const res = await fetch('http://10.75.1.170:5000/api/rates', {
+      const res = await fetch('https://ns-jewellery.onrender.com/api/rates', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

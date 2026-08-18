@@ -24,7 +24,7 @@ const CatalogueScreen = () => {
 
   const fetchData = async () => {
     try {
-      const API_URL = 'http://10.75.1.170:5000';
+      const API_URL = 'https://ns-jewellery.onrender.com';
       const [catRes, itemRes] = await Promise.all([
         fetch(`${API_URL}/api/jewellery/categories`),
         fetch(`${API_URL}/api/jewellery/items`)
@@ -45,7 +45,7 @@ const CatalogueScreen = () => {
       <TouchableOpacity key={item.id} style={styles.categoryCard}>
         <View style={[styles.categoryIconContainer, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
           {item.image ? (
-            <Image source={{uri: `http://10.75.1.170:5000${item.image}`}} style={styles.categoryImg} />
+            <Image source={{uri: `https://ns-jewellery.onrender.com${item.image}`}} style={styles.categoryImg} />
           ) : (
              <View style={styles.categoryImgPlaceholder} />
           )}
@@ -62,7 +62,7 @@ const CatalogueScreen = () => {
         onPress={() => navigation.navigate('JewelleryDetail', { item })}
       >
         <Image 
-          source={{ uri: item.images?.[0] ? `http://10.75.1.170:5000${item.images[0]}` : 'https://via.placeholder.com/200' }} 
+          source={{ uri: item.images?.[0] ? `https://ns-jewellery.onrender.com${item.images[0]}` : 'https://via.placeholder.com/200' }} 
           style={styles.jewelleryImage} 
         />
         <TouchableOpacity style={styles.wishlistBtn}>

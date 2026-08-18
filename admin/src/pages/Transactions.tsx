@@ -16,7 +16,7 @@ const TransactionsManagement: React.FC = () => {
   const fetchTransactions = async () => {
     setIsLoading(true);
     try {
-      const url = new URL('http://localhost:5000/api/admin/transactions');
+      const url = new URL('https://ns-jewellery.onrender.com/api/admin/transactions');
       if (statusFilter) url.searchParams.append('status', statusFilter);
       
       const response = await fetch(url.toString(), {
@@ -37,7 +37,7 @@ const TransactionsManagement: React.FC = () => {
     if (!window.confirm(`Are you sure you want to mark this transaction as ${status}?`)) return;
     
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/transactions/${id}/verify`, {
+      const response = await fetch(`https://ns-jewellery.onrender.com/api/admin/transactions/${id}/verify`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

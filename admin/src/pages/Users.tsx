@@ -30,7 +30,7 @@ const UsersManagement: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/user', {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/user', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

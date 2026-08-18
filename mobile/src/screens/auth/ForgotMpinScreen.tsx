@@ -27,7 +27,7 @@ const ForgotMpinScreen = () => {
     
     setLoading(true);
     try {
-      const res = await fetch('http://10.75.1.170:5000/api/auth/mpin/request-reset', {
+      const res = await fetch('https://ns-jewellery.onrender.com/api/auth/mpin/request-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone })
@@ -54,7 +54,7 @@ const ForgotMpinScreen = () => {
 
     setLoading(true);
     try {
-      const res = await fetch('http://10.75.1.170:5000/api/auth/mpin/reset', {
+      const res = await fetch('https://ns-jewellery.onrender.com/api/auth/mpin/reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, otp, newMpin })
