@@ -50,56 +50,62 @@ const RatesManagement: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Live Metal Rates</h2>
-        <div className="flex items-center text-sm text-gray-500 space-x-2">
-          <RefreshCw size={14} className="animate-spin-slow" />
+    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
+      <div className="flex justify-between items-center glass-panel p-6 rounded-2xl shadow-sm">
+        <h2 className="text-3xl font-extrabold text-gray-800 tracking-tight">Live Metal Rates</h2>
+        <div className="flex items-center text-sm font-medium text-secondary bg-secondary/10 px-4 py-2 rounded-full space-x-2">
+          <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
           <span>Last updated: {lastUpdated}</span>
         </div>
       </div>
 
-      <form onSubmit={handleUpdate} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3 text-primary">
-              <TrendingUp size={24} />
-              <h3 className="text-xl font-bold text-gray-800">22K Gold Rate</h3>
+      <form onSubmit={handleUpdate} className="glass-card p-8 rounded-3xl shadow-lg border border-white/40 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-primary-light to-secondary" />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 mt-4">
+          <div className="space-y-6 relative p-6 bg-white/40 rounded-2xl border border-white hover:bg-white/60 transition-colors">
+            <div className="flex items-center space-x-4 text-primary">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center shadow-md">
+                <TrendingUp size={24} color="white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 tracking-tight">22K Gold Rate</h3>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Per Gram (₹)</label>
+              <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wider">Per Gram (₹)</label>
               <input
                 type="text"
                 value={goldRate}
                 onChange={(e) => setGoldRate(e.target.value)}
-                className="w-full text-3xl font-bold text-gray-900 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-colors outline-none"
+                className="w-full text-4xl font-black text-gray-900 px-6 py-4 rounded-2xl border-2 border-primary/20 bg-white/80 focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all outline-none shadow-sm"
               />
             </div>
-            <p className="text-sm text-gray-500">Applies to all 22K jewellery and digital gold purchases.</p>
+            <p className="text-sm font-medium text-gray-500">Applies to all 22K jewellery and digital gold purchases.</p>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3 text-gray-400">
-              <TrendingUp size={24} />
-              <h3 className="text-xl font-bold text-gray-800">Pure Silver Rate</h3>
+          <div className="space-y-6 relative p-6 bg-white/40 rounded-2xl border border-white hover:bg-white/60 transition-colors">
+            <div className="flex items-center space-x-4 text-gray-500">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-400 to-gray-300 flex items-center justify-center shadow-md">
+                <TrendingUp size={24} color="white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 tracking-tight">Pure Silver Rate</h3>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Per Gram (₹)</label>
+              <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wider">Per Gram (₹)</label>
               <input
                 type="text"
                 value={silverRate}
                 onChange={(e) => setSilverRate(e.target.value)}
-                className="w-full text-3xl font-bold text-gray-900 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-colors outline-none"
+                className="w-full text-4xl font-black text-gray-900 px-6 py-4 rounded-2xl border-2 border-gray-200 bg-white/80 focus:ring-4 focus:ring-gray-200 focus:border-gray-400 transition-all outline-none shadow-sm"
               />
             </div>
-            <p className="text-sm text-gray-500">Applies to all silver items and digital silver purchases.</p>
+            <p className="text-sm font-medium text-gray-500">Applies to all silver items and digital silver purchases.</p>
           </div>
         </div>
 
-        <div className="flex justify-end pt-6 border-t border-gray-100">
-          <button type="submit" disabled={isLoading} className="bg-secondary text-white px-8 py-3 rounded-xl font-medium flex items-center space-x-2 hover:bg-secondary/90 transition-colors shadow-lg shadow-secondary/20 disabled:opacity-70">
-            <Save size={20} />
-            <span>{isLoading ? 'Updating...' : 'Update Rates'}</span>
+        <div className="flex justify-end pt-8 border-t border-gray-200/50">
+          <button type="submit" disabled={isLoading} className="bg-gradient-to-r from-secondary to-secondary-light text-white px-10 py-4 rounded-2xl font-bold text-lg flex items-center space-x-3 hover:shadow-xl hover:shadow-secondary/30 transition-all transform hover:-translate-y-1 disabled:opacity-70 disabled:transform-none disabled:hover:shadow-none">
+            {isLoading ? <RefreshCw size={20} className="animate-spin" /> : <Save size={20} />}
+            <span>Update Live Rates</span>
           </button>
         </div>
       </form>

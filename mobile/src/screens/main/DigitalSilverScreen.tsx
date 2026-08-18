@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { Menu, Bell, ChevronRight, Coins, Sparkles } from 'lucide-react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
+import { useAuthStore } from '../../store/authStore';
 
 const DigitalSilverScreen = () => {
   const navigation = useNavigation() as any;
@@ -15,6 +16,7 @@ const DigitalSilverScreen = () => {
   const [activeTab, setActiveTab] = useState<'silver'>('silver');
   const [amount, setAmount] = useState('');
   const [weight, setWeight] = useState('');
+  const [lastEdited, setLastEdited] = useState<'amount'|'weight'>('amount');
   
   const [silverRate, setSilverRate] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,16 +27,16 @@ const DigitalSilverScreen = () => {
 
   const fetchRates = async () => {
     try {
-      const API_URL = 'http://10.115.217.171:5000'; // local backend
+      const API_URL = 'http://10.75.1.170:5000'; // local backend
       const response = await fetch(`${API_URL}/api/rates`);
       const data = await response.json();
-      if (data.success && data.data) {
+      if (data.success && data.data && data.data.silverRate) {
         setSilverRate(data.data.silverRate);
       } else {
         setSilverRate(85);
       }
     } catch (error) {
-      console.error('Failed to fetch rates, using fallback:', error);
+      console.log('Failed to fetch rates, using fallback:', error);
       setSilverRate(85);
     } finally {
       setIsLoading(false);
@@ -43,10 +45,22 @@ const DigitalSilverScreen = () => {
 
   const currentRate = silverRate;
 
+  useEffect(() => {
+    if (currentRate) {
+      if (lastEdited === 'amount' && amount && !isNaN(parseFloat(amount))) {
+        setWeight((parseFloat(amount) / currentRate).toFixed(3));
+      } else if (lastEdited === 'weight' && weight && !isNaN(parseFloat(weight))) {
+        setAmount((parseFloat(weight) * currentRate).toFixed(0));
+      }
+    }
+  }, [currentRate]);
+
   const handleAmountChange = (text: string) => {
-    setAmount(text);
-    if (text && currentRate) {
-      const w = (parseFloat(text) / currentRate).toFixed(3);
+    const cleanText = text.replace(/[^0-9.]/g, '');
+    setAmount(cleanText);
+    setLastEdited('amount');
+    if (cleanText && currentRate && !isNaN(parseFloat(cleanText))) {
+      const w = (parseFloat(cleanText) / currentRate).toFixed(3);
       setWeight(w);
     } else {
       setWeight('');
@@ -54,9 +68,11 @@ const DigitalSilverScreen = () => {
   };
 
   const handleWeightChange = (text: string) => {
-    setWeight(text);
-    if (text && currentRate) {
-      const a = (parseFloat(text) * currentRate).toFixed(0);
+    const cleanText = text.replace(/[^0-9.]/g, '');
+    setWeight(cleanText);
+    setLastEdited('weight');
+    if (cleanText && currentRate && !isNaN(parseFloat(cleanText))) {
+      const a = (parseFloat(cleanText) * currentRate).toFixed(0);
       setAmount(a);
     } else {
       setAmount('');
@@ -68,16 +84,32 @@ const DigitalSilverScreen = () => {
   const handleBuy = () => {
     if (!amount || parseFloat(amount) <= 0) return;
     
-    if (user?.kycStatus !== 'VERIFIED') {
-      Alert.alert(
-        "KYC Required",
-        "Please verify your Aadhar to make purchases.",
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Verify Now", onPress: () => navigation.navigate('AadharVerification') }
-        ]
-      );
-      return;
+    const amountNum = parseFloat(amount);
+    
+    if (amountNum > 200000) {
+      if (user?.panStatus !== 'VERIFIED') {
+        Alert.alert(
+          "PAN Verification Required",
+          "Purchases above ₹2 Lakhs require PAN verification.",
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Verify PAN Now", onPress: () => navigation.navigate('PanVerification') }
+          ]
+        );
+        return;
+      }
+    } else {
+      if (user?.kycStatus !== 'VERIFIED') {
+        Alert.alert(
+          "KYC Required",
+          "Please verify your Aadhar to make purchases.",
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Verify Now", onPress: () => navigation.navigate('AadharVerification') }
+          ]
+        );
+        return;
+      }
     }
     
     const currentUTC = new Date();
@@ -111,7 +143,7 @@ const DigitalSilverScreen = () => {
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         {/* Premium Dark Banner */}
         <View style={styles.banner}>
-          <Sparkles color={COLORS.lightGray} size={60} style={{ position: 'absolute', top: -20, right: -20, opacity: 0.1 }} />
+          <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -20, bottom: -20, width: 140, height: 140, opacity: 0.15, resizeMode: 'contain' }} />
           
           <View style={styles.bannerTopRow}>
             <Text style={styles.bannerTitle}>Digital Silver</Text>
@@ -127,7 +159,7 @@ const DigitalSilverScreen = () => {
               onPress={() => setActiveTab('silver')}
             >
               <View style={[styles.metalIconContainer, activeTab === 'silver' && styles.metalIconActive]}>
-                <Coins color={COLORS.white} size={32} />
+                <Image source={require('../../../assets/silver_coin.png')} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
               </View>
               <Text style={[styles.metalLabel, activeTab === 'silver' && styles.metalLabelActive]}>999 Silver</Text>
               <Text style={styles.metalPrice}>{silverRate ? `₹${silverRate}/g` : '₹ ---'}</Text>
@@ -145,7 +177,7 @@ const DigitalSilverScreen = () => {
                 <Text style={[styles.currencySymbol, { color: colors.text }]}>₹</Text>
                 <TextInput 
                   style={[styles.textInput, { color: colors.text }]}
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                   value={amount}
                   onChangeText={handleAmountChange}
                   placeholder="0"
@@ -164,7 +196,7 @@ const DigitalSilverScreen = () => {
               <View style={styles.inputField}>
                 <TextInput 
                   style={[styles.textInput, {textAlign: 'right', color: colors.text }]}
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                   value={weight}
                   onChangeText={handleWeightChange}
                   placeholder="0"
@@ -176,7 +208,17 @@ const DigitalSilverScreen = () => {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.howItWorks}>
+          <TouchableOpacity 
+            style={styles.howItWorks}
+            onPress={() => Alert.alert(
+              "How to Buy Digital Silver",
+              "1. Enter the amount in Rupees you wish to invest, or the weight in grams you wish to buy.\n\n" +
+              "2. The equivalent silver weight or amount will be automatically calculated based on the live market rate.\n\n" +
+              "3. Click 'Buy Now' to proceed to the secure payment gateway.\n\n" +
+              "4. Once purchased, the digital silver will be instantly credited to your secure Digital Locker.\n\n" +
+              "5. You can redeem your accumulated digital silver for physical items at our NS Jewellery showroom at any time!"
+            )}
+          >
             <Text style={styles.howItWorksText}>How it works?</Text>
           </TouchableOpacity>
 
@@ -191,14 +233,10 @@ const DigitalSilverScreen = () => {
                 <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>Silver Value</Text>
                 <Text style={[styles.summaryValue, { color: colors.text }]}>₹{parseFloat(amount).toLocaleString('en-IN')}</Text>
               </View>
-              <View style={styles.summaryRow}>
-                <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>GST (3%)</Text>
-                <Text style={[styles.summaryValue, { color: colors.text }]}>₹{(parseFloat(amount) * 0.03).toLocaleString('en-IN', {maximumFractionDigits:2})}</Text>
-              </View>
               <View style={[styles.summaryRow, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10, marginTop: 5 }]}>
                 <Text style={[styles.summaryLabel, { fontWeight: 'bold', color: colors.text }]}>Total Payable</Text>
                 <Text style={[styles.summaryValue, { fontWeight: 'bold', fontSize: 18, color: colors.text }]}>
-                  ₹{(parseFloat(amount) * 1.03).toLocaleString('en-IN', {maximumFractionDigits:2})}
+                  ₹{parseFloat(amount).toLocaleString('en-IN')}
                 </Text>
               </View>
             </View>

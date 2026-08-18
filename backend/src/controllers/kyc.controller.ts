@@ -5,7 +5,7 @@ import prisma from '../config/db';
 export const sendAadharOTP = async (req: Request, res: Response): Promise<void> => {
   try {
     const { aadharNumber } = req.body;
-    const userId = req.user?.id;
+    const userId = req.user?.userId;
 
     if (!userId) {
       res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -37,7 +37,7 @@ export const sendAadharOTP = async (req: Request, res: Response): Promise<void> 
 export const verifyAadharOTP = async (req: Request, res: Response): Promise<void> => {
   try {
     const { aadharNumber, otp, referenceId } = req.body;
-    const userId = req.user?.id;
+    const userId = req.user?.userId;
 
     if (!userId) {
       res.status(401).json({ success: false, message: 'Unauthorized' });

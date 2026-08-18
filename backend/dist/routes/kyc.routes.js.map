@@ -1,0 +1,1 @@
+{"version":3,"file":"kyc.routes.js","sourceRoot":"","sources":["../../src/routes/kyc.routes.ts"],"names":[],"mappings":";;;;;AAAA,sDAA8B;AAC9B,kEAA+E;AAC/E,oEAA8D;AAE9D,MAAM,MAAM,GAAG,iBAAO,CAAC,MAAM,EAAE,CAAC;AAEhC,MAAM,CAAC,IAAI,CAAC,kBAAkB,EAAE,8BAAY,EAAE,8BAAa,CAAC,CAAC;AAC7D,MAAM,CAAC,IAAI,CAAC,gBAAgB,EAAE,8BAAY,EAAE,gCAAe,CAAC,CAAC;kBAE9C,MAAM"}

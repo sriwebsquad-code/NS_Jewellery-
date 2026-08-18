@@ -25,7 +25,7 @@ const CustomDrawer = (props: any) => {
         {/* Custom Navigation Items */}
         <View style={styles.navSection}>
           <DrawerItem label="Home" icon={Home} isFocused={props.state.index === 0} onPress={() => props.navigation.navigate('MainTab')} />
-          <DrawerItem label="Live Rates" icon={TrendingUp} isFocused={false} onPress={() => props.navigation.navigate('Live Rates')} />
+
           <DrawerItem label="My Account" icon={User} isFocused={false} onPress={() => props.navigation.navigate('MyAccountScreen')} />
           <DrawerItem label="My Advance Bookings" icon={Calendar} isFocused={false} onPress={() => props.navigation.navigate('AdvanceBookingsScreen')} />
           <DrawerItem label="Jewellery" icon={BookOpen} isFocused={props.state.index === 1} onPress={() => props.navigation.navigate('CatalogueScreen')} />

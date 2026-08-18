@@ -1,4 +1,5 @@
 import React from 'react';
+import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { COLORS } from '../constants/theme';
 
@@ -31,8 +32,22 @@ const BottomTabNavigator = () => {
           let IconComponent;
           if (route.name === 'Home') IconComponent = Home;
           else if (route.name === 'Jewellery') IconComponent = BookOpen;
-          else if (route.name === 'Digi Gold') IconComponent = Coins;
-          else if (route.name === 'Digi Silver') IconComponent = CircleDollarSign;
+          else if (route.name === 'Digi Gold') {
+            return (
+              <Image 
+                source={require('../../assets/gold_coin.png')} 
+                style={{ width: size, height: size, resizeMode: 'contain', opacity: focused ? 1 : 0.6 }} 
+              />
+            );
+          }
+          else if (route.name === 'Digi Silver') {
+            return (
+              <Image 
+                source={require('../../assets/silver_coin.png')} 
+                style={{ width: size, height: size, resizeMode: 'contain', opacity: focused ? 1 : 0.6 }} 
+              />
+            );
+          }
           else if (route.name === 'My Plans') IconComponent = Calendar;
           
           return IconComponent ? <IconComponent color={color} size={24} /> : null;

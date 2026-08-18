@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 const Login: React.FC = () => {
-  const [phone, setPhone] = useState('');
-  const [mpin, setMpin] = useState('');
+  const [adminId, setAdminId] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
@@ -13,13 +13,13 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
     
-    // Hardcoded for demo since we haven't wired the API yet
-    // In production, this will hit POST /api/auth/mpin/login
-    if (phone === '9999999999' && mpin === '1234') {
-      login({ id: '1', name: 'Admin', phone, role: 'ADMIN' }, 'fake-jwt-token');
+    // In production, this will hit POST /api/admin/login
+    // Default admin credentials
+    if (adminId === 'admin' && password === 'admin123') {
+      login({ id: '1', name: 'Admin', phone: '0000000000', role: 'ADMIN' }, 'fake-jwt-token');
       navigate('/');
     } else {
-      setError('Invalid Phone or MPIN');
+      setError('Invalid Admin ID or Password');
     }
   };
 
@@ -39,25 +39,24 @@ const Login: React.FC = () => {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Admin ID</label>
             <input
               type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={adminId}
+              onChange={(e) => setAdminId(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors outline-none"
-              placeholder="Enter admin phone"
+              placeholder="Enter Admin ID"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">4-Digit MPIN</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
               type="password"
-              maxLength={4}
-              value={mpin}
-              onChange={(e) => setMpin(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors outline-none tracking-widest text-lg"
-              placeholder="••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors outline-none tracking-widest"
+              placeholder="••••••••"
               required
             />
           </div>

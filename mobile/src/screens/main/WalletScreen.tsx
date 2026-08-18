@@ -27,7 +27,7 @@ const WalletScreen = () => {
   const fetchWallet = async () => {
     setLoading(true);
     try {
-      const API_URL = 'http://10.115.217.171:5000';
+      const API_URL = 'http://10.75.1.170:5000';
       const res = await fetch(`${API_URL}/api/digital/locker`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

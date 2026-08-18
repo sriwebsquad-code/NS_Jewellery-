@@ -28,8 +28,8 @@ const LoginScreen = () => {
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
         {/* Placeholder for App Logo */}
         <Image 
-          source={require('../../../assets/rn_logo.png')} 
-          style={{ width: 100, height: 100, resizeMode: 'contain', marginBottom: 15 }} 
+          source={require('../../../assets/icon_circle.png')} 
+          style={{ width: 100, height: 100, resizeMode: 'cover', marginBottom: 15, alignSelf: 'center' }} 
         />
         <Text style={[styles.title, { color: colors.primary }]}>NS Jewellery</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>Premium Savings & Digital Gold</Text>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.primary,
     fontSize: SIZES.h1,
-    fontWeight: '900',
+    fontWeight: 'bold',
     fontFamily: 'serif',
   },
   subtitle: {

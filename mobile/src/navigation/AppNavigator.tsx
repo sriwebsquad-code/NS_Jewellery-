@@ -19,6 +19,7 @@ import LiveRateScreen from '../screens/main/LiveRateScreen';
 import WalletScreen from '../screens/main/WalletScreen';
 import NotificationScreen from '../screens/main/NotificationScreen';
 import AadharVerificationScreen from '../screens/main/AadharVerificationScreen';
+import PanVerificationScreen from '../screens/main/PanVerificationScreen';
 import AdminDashboard from '../screens/admin/AdminDashboard';
 
 const Stack = createNativeStackNavigator();
@@ -63,6 +64,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Payment" component={PaymentScreen} />
         <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
         <Stack.Screen name="AadharVerification" component={AadharVerificationScreen} />
+        <Stack.Screen name="PanVerification" component={PanVerificationScreen} />
         <Stack.Screen name="Live Rates" component={LiveRateScreen} />
         <Stack.Screen name="Notifications" component={NotificationScreen} />
         <Stack.Screen name="Gold Wallet" component={WalletScreen} initialParams={{ metalType: 'GOLD' }} />

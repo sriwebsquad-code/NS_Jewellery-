@@ -60,3 +60,28 @@ export const updateProfile = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Failed to update profile', error: error.message });
   }
 };
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        phone: true,
+        name: true,
+        email: true,
+        address: true,
+        city: true,
+        state: true,
+        pincode: true,
+        role: true,
+        kycStatus: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.status(200).json({ success: true, data: users });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Failed to fetch users', error: error.message });
+  }
+};

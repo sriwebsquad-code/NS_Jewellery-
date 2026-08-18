@@ -41,7 +41,7 @@ const HomeScreen = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const API_URL = 'http://10.115.217.171:5000';
+      const API_URL = 'http://10.75.1.170:5000';
       const res = await fetch(`${API_URL}/api/digital/locker`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -83,10 +83,10 @@ const HomeScreen = () => {
         
         <View style={styles.logoContainer}>
           <Image 
-            source={require('../../../assets/rn_logo.png')} 
-            style={{ width: 40, height: 40, resizeMode: 'contain', marginRight: 8 }} 
+            source={require('../../../assets/icon.png')} 
+            style={{ width: 40, height: 40, borderRadius: 20, resizeMode: 'cover', marginRight: 8 }} 
           />
-          <Text style={[styles.logoText, { color: mode === 'dark' ? 'colors.gold' : '#6B4E3D' }]}>NS JEWELLERY</Text>
+          <Text style={[styles.logoText, { color: mode === 'dark' ? 'colors.gold' : '#6B4E3D', fontWeight: 'bold' }]}>NS JEWELLERY</Text>
         </View>
         
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuIcon}>
@@ -95,15 +95,14 @@ const HomeScreen = () => {
           <View style={{ position: 'absolute', right: 4, top: 4, width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, borderWidth: 1, borderColor: colors.background }} />
         </TouchableOpacity>
       </View>
-
-      <View style={styles.ratesRow}>
+      <View style={[styles.ratesRow, { marginTop: 10, paddingBottom: 10 }]}>
         {/* Gold Rate Card */}
         <View style={[styles.rateCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: mode === 'dark' ? 1 : 0 }]}>
-          <Text style={[styles.rateTitle, { color: colors.textMuted }]}>Gold Rate</Text>
+          <Text style={[styles.rateTitle, { color: '#C89F7A' }]}>Gold Rate</Text>
           <View style={styles.rateContent}>
-            <View style={[styles.coinIcon, { backgroundColor: 'colors.gold' }]} />
+            <Image source={require('../../../assets/gold_coin.png')} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={[styles.rateValue, { color: colors.text }]}>₹{rates.goldRate}</Text>
+              <Text style={[styles.rateValue, { color: '#C89F7A' }]}>₹{rates.goldRate}</Text>
               <Text style={[styles.rateSubtitle, { color: colors.textMuted }]}>22KT Per gram</Text>
             </View>
           </View>
@@ -111,22 +110,17 @@ const HomeScreen = () => {
 
         {/* Silver Rate Card */}
         <View style={[styles.rateCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: mode === 'dark' ? 1 : 0 }]}>
-          <Text style={[styles.rateTitle, { color: colors.textMuted }]}>Silver Rate</Text>
+          <Text style={[styles.rateTitle, { color: '#8C92AC' }]}>Silver Rate</Text>
           <View style={styles.rateContent}>
-            <View style={[styles.coinIcon, { backgroundColor: '#E0E0E0' }]} />
+            <Image source={require('../../../assets/silver_coin.png')} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={[styles.rateValue, { color: colors.text }]}>₹{rates.silverRate}</Text>
+              <Text style={[styles.rateValue, { color: '#8C92AC' }]}>₹{rates.silverRate}</Text>
               <Text style={[styles.rateSubtitle, { color: colors.textMuted }]}>Per gram</Text>
             </View>
           </View>
         </View>
       </View>
-
-      {/* Update Time */}
-      <Text style={[styles.updateText, { color: mode === 'dark' ? 'colors.gold' : '#6B4E3D' }]}>Rate updated on {updatedDate}</Text>
-
-
-
+      <Text style={[styles.updateText, { color: mode === 'dark' ? 'colors.gold' : '#6B4E3D', marginBottom: 15 }]}>Rate updated on {updatedDate}</Text>
       <ScrollView 
         style={{ flex: 1 }} 
         showsVerticalScrollIndicator={false}
@@ -157,9 +151,9 @@ const HomeScreen = () => {
                 {/* Card 1: 11 Month Gold Scheme */}
                 <View style={styles.carouselItem}>
                   <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
-                    <Coins color="rgba(107, 78, 61, 0.15)" size={120} style={{ position: 'absolute', right: -20, bottom: -20 }} />
+                    <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Crown color="#6B4E3D" size={24} style={{ marginRight: 6 }} />
+                      <Image source={require('../../../assets/icon.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
                       <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
@@ -176,9 +170,9 @@ const HomeScreen = () => {
                 {/* Card 2: Gold 11 Scheme */}
                 <View style={styles.carouselItem}>
                   <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
-                    <Coins color="rgba(107, 78, 61, 0.15)" size={120} style={{ position: 'absolute', right: -20, bottom: -20 }} />
+                    <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Crown color="#6B4E3D" size={24} style={{ marginRight: 6 }} />
+                      <Image source={require('../../../assets/icon.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
                       <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
@@ -195,9 +189,9 @@ const HomeScreen = () => {
                 {/* Card 3: Gold Wallet */}
                 <View style={styles.carouselItem}>
                   <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
-                    <Coins color="rgba(107, 78, 61, 0.15)" size={120} style={{ position: 'absolute', right: -20, bottom: -20 }} />
+                    <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Crown color="#6B4E3D" size={24} style={{ marginRight: 6 }} />
+                      <Image source={require('../../../assets/icon.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
                       <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
@@ -225,9 +219,9 @@ const HomeScreen = () => {
                 {/* Card 4: 11 Month Silver Scheme */}
                 <View style={styles.carouselItem}>
                   <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
-                    <Coins color="rgba(44, 62, 80, 0.1)" size={120} style={{ position: 'absolute', right: -20, bottom: -20 }} />
+                    <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Crown color="#2C3E50" size={24} style={{ marginRight: 6 }} />
+                      <Image source={require('../../../assets/icon.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
                       <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
@@ -244,9 +238,9 @@ const HomeScreen = () => {
                 {/* Card 5: Silver 11 Scheme */}
                 <View style={styles.carouselItem}>
                   <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
-                    <Coins color="rgba(44, 62, 80, 0.1)" size={120} style={{ position: 'absolute', right: -20, bottom: -20 }} />
+                    <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Crown color="#2C3E50" size={24} style={{ marginRight: 6 }} />
+                      <Image source={require('../../../assets/icon.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
                       <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
@@ -263,9 +257,9 @@ const HomeScreen = () => {
                 {/* Card 6: Silver Wallet */}
                 <View style={styles.carouselItem}>
                   <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
-                    <Coins color="rgba(44, 62, 80, 0.1)" size={120} style={{ position: 'absolute', right: -20, bottom: -20 }} />
+                    <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Crown color="#2C3E50" size={24} style={{ marginRight: 6 }} />
+                      <Image source={require('../../../assets/icon.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
                       <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
@@ -281,6 +275,9 @@ const HomeScreen = () => {
               </ScrollView>
 
             </View>
+
+
+
           </>
         )}
       </ScrollView>

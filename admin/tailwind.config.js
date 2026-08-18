@@ -7,8 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#D4AF37', // Gold
-        secondary: '#432874', // Royal Purple
+        primary: '#B48C51', // Elegant Gold
+        secondary: '#3D3329', // Dark Brown
+        background: '#FDFBF7', // Cream
       }
     },
   },

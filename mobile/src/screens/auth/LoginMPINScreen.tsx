@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { Colors } from '../../constants/Colors';
@@ -28,8 +28,8 @@ const LoginMPINScreen = () => {
     >
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
         <Image 
-          source={require('../../../assets/rn_logo.png')} 
-          style={{ width: 90, height: 90, resizeMode: 'contain', marginBottom: 20 }} 
+          source={require('../../../assets/icon.png')} 
+          style={{ width: 90, height: 90, borderRadius: 45, resizeMode: 'cover', marginBottom: 20, alignSelf: 'center' }} 
         />
         <Text style={[styles.title, { color: colors.primary }]}>Welcome Back!</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>Enter your MPIN to unlock</Text>
@@ -98,10 +98,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   title: {
-    color: COLORS.white,
-    fontSize: SIZES.h2,
+    color: COLORS.primary,
+    fontSize: SIZES.h1,
     fontWeight: 'bold',
-    marginBottom: 5,
+    fontFamily: 'serif',
   },
   subtitle: {
     color: COLORS.lightGray,

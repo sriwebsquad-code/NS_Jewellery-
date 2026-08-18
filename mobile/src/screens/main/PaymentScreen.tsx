@@ -24,7 +24,7 @@ const PaymentScreen = () => {
     setLoading(true);
     
     try {
-      const API_URL = 'http://10.115.217.171:5000';
+      const API_URL = 'http://10.75.1.170:5000';
       const response = await fetch(`${API_URL}/api/plans/purchase`, {
         method: 'POST',
         headers: {

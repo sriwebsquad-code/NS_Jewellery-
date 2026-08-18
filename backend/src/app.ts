@@ -22,6 +22,7 @@ import digitalRoutes from './routes/digital.routes';
 import plansRoutes from './routes/plans.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import kycRoutes from './routes/kyc.routes';
+import adminRoutes from './routes/admin.routes';
 import path from 'path';
 
 // Body parsing Middleware
@@ -40,6 +41,7 @@ app.use('/api/digital', digitalRoutes);
 app.use('/api/plans', plansRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/kyc', kycRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health Check Route
 app.get('/health', (req: Request, res: Response) => {

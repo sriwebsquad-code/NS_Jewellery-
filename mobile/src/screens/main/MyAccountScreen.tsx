@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
-import { Menu, User, Mail, FileText, CheckCircle2 } from 'lucide-react-native';
+import { Menu, User, Mail, FileText, CheckCircle2, Calendar, MapPin, UserCircle2 } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
@@ -25,7 +25,7 @@ const MyAccountScreen = () => {
         <View style={{ width: 28 }} />
       </View>
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={[styles.profileCard, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{user?.name?.charAt(0)?.toUpperCase() || 'C'}</Text>
@@ -52,8 +52,58 @@ const MyAccountScreen = () => {
               <Mail color={colors.primary} size={20} />
             </View>
             <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Email Address (Gmail)</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.email || 'customer@gmail.com'}</Text>
+              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Email Address</Text>
+              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.email || 'Not Provided'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
+              <Calendar color={colors.primary} size={20} />
+            </View>
+            <View style={styles.detailInfo}>
+              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Date of Birth</Text>
+              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.dob || 'Not Provided'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
+              <UserCircle2 color={colors.primary} size={20} />
+            </View>
+            <View style={styles.detailInfo}>
+              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Gender</Text>
+              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.gender || 'Not Provided'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
+              <MapPin color={colors.primary} size={20} />
+            </View>
+            <View style={styles.detailInfo}>
+              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Address</Text>
+              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.address || 'Not Provided'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
+              <MapPin color={colors.primary} size={20} />
+            </View>
+            <View style={styles.detailInfo}>
+              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>State</Text>
+              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.state || 'Not Provided'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
+              <MapPin color={colors.primary} size={20} />
+            </View>
+            <View style={styles.detailInfo}>
+              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Pincode</Text>
+              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.pincode || 'Not Provided'}</Text>
             </View>
           </View>
 
@@ -63,15 +113,46 @@ const MyAccountScreen = () => {
             </View>
             <View style={styles.detailInfo}>
               <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Aadhar Verification</Text>
-              <View style={styles.verificationBadge}>
-                <CheckCircle2 color={COLORS.success} size={16} />
-                <Text style={styles.verifiedText}>Verified</Text>
-              </View>
+              {user?.kycStatus === 'VERIFIED' ? (
+                <View style={styles.verificationBadge}>
+                  <CheckCircle2 color={COLORS.success} size={16} />
+                  <Text style={styles.verifiedText}>Verified</Text>
+                </View>
+              ) : (
+                <TouchableOpacity 
+                  style={[styles.verificationBadge, { backgroundColor: 'rgba(255, 99, 71, 0.1)' }]}
+                  onPress={() => navigation.navigate('AadharVerification')}
+                >
+                  <Text style={[styles.verifiedText, { color: 'tomato' }]}>Verify Now</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
+              <FileText color={colors.primary} size={20} />
+            </View>
+            <View style={styles.detailInfo}>
+              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>PAN Verification</Text>
+              {user?.panStatus === 'VERIFIED' ? (
+                <View style={styles.verificationBadge}>
+                  <CheckCircle2 color={COLORS.success} size={16} />
+                  <Text style={styles.verifiedText}>Verified</Text>
+                </View>
+              ) : (
+                <TouchableOpacity 
+                  style={[styles.verificationBadge, { backgroundColor: 'rgba(255, 99, 71, 0.1)' }]}
+                  onPress={() => navigation.navigate('PanVerification')}
+                >
+                  <Text style={[styles.verifiedText, { color: 'tomato' }]}>Verify Now</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
 
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
