@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import prisma from '../config/db';
+import { db } from '../config/firebase';
 
 // Simulate daily market fluctuation at 11:00 AM everyday
 export const initRatesCron = () => {
@@ -8,15 +8,17 @@ export const initRatesCron = () => {
       console.log('Running daily metal rates update cron job...');
 
       // Fetch the latest rate to base the fluctuation on
-      const latestRate = await prisma.metalRate.findFirst({
-        orderBy: { createdAt: 'desc' }
-      });
+      const snapshot = await db.collection('metalRates')
+        .orderBy('createdAt', 'desc')
+        .limit(1)
+        .get();
 
       // Default base rates
       let baseGold = 7250;
       let baseSilver = 85;
 
-      if (latestRate) {
+      if (!snapshot.empty) {
+        const latestRate = snapshot.docs[0]!.data();
         baseGold = latestRate.goldRate;
         baseSilver = latestRate.silverRate;
       }
@@ -28,11 +30,13 @@ export const initRatesCron = () => {
       const newGold = Math.round(baseGold * goldFluctuation * 100) / 100;
       const newSilver = Math.round(baseSilver * silverFluctuation * 100) / 100;
 
-      await prisma.metalRate.create({
-        data: {
-          goldRate: newGold,
-          silverRate: newSilver,
-        }
+      const docRef = db.collection('metalRates').doc();
+      await docRef.set({
+        id: docRef.id,
+        goldRate: newGold,
+        silverRate: newSilver,
+        effectiveDate: new Date().toISOString(),
+        createdAt: new Date().toISOString()
       });
 
       console.log(`Successfully updated rates: Gold (₹${newGold}), Silver (₹${newSilver})`);

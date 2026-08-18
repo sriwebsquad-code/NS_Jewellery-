@@ -11,10 +11,20 @@ const LoginScreen = () => {
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
 
-  const handleSendOTP = () => {
-    // In production: trigger Firebase OTP
+  const handleSendOTP = async () => {
     if (phone.length === 10) {
-      navigation.navigate('OTP', { phone });
+      try {
+        // TODO: Replace with your Firebase Phone Auth code
+        // Example: const confirmation = await auth().signInWithPhoneNumber(`+91${phone}`);
+        // navigation.navigate('OTP', { phone, confirmation });
+        
+        // Demo Mode Fallback
+        console.log('Sending OTP in demo mode to', phone);
+        navigation.navigate('OTP', { phone });
+      } catch (error) {
+        alert('Failed to send OTP. Please try again.');
+        console.error(error);
+      }
     } else {
       alert('Please enter a valid 10-digit phone number');
     }

@@ -1,32 +1,22 @@
 import { Request, Response } from 'express';
-import prisma from '../config/db';
+import { db } from '../config/firebase';
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        phone: true,
-        name: true,
-        email: true,
-        address: true,
-        city: true,
-        state: true,
-        pincode: true,
-        role: true,
-        createdAt: true,
-      }
-    });
-
-    if (!user) {
+    const doc = await db.collection('users').doc(userId).get();
+    
+    if (!doc.exists) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    res.status(200).json({ success: true, data: user });
+    const userData = doc.data() as any;
+    // Don't send mpin back
+    delete userData.mpin;
+
+    res.status(200).json({ success: true, data: { id: doc.id, ...userData } });
   } catch (error: any) {
     res.status(500).json({ success: false, message: 'Failed to fetch profile', error: error.message });
   }
@@ -37,25 +27,25 @@ export const updateProfile = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
-    const { name, email, address, city, state, pincode } = req.body;
+    const { name, email, address, city, state, pincode, dob, gender } = req.body;
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { name, email, address, city, state, pincode },
-      select: {
-        id: true,
-        phone: true,
-        name: true,
-        email: true,
-        address: true,
-        city: true,
-        state: true,
-        pincode: true,
-        role: true,
-      }
-    });
+    const dataToUpdate: any = {};
+    if (name) dataToUpdate.name = name;
+    if (email) dataToUpdate.email = email;
+    if (address) dataToUpdate.address = address;
+    if (city) dataToUpdate.city = city;
+    if (state) dataToUpdate.state = state;
+    if (pincode) dataToUpdate.pincode = pincode;
+    if (dob) dataToUpdate.dob = dob;
+    if (gender) dataToUpdate.gender = gender;
 
-    res.status(200).json({ success: true, message: 'Profile updated successfully', data: updatedUser });
+    await db.collection('users').doc(userId).update(dataToUpdate);
+
+    const updatedDoc = await db.collection('users').doc(userId).get();
+    const userData = updatedDoc.data() as any;
+    delete userData.mpin;
+
+    res.status(200).json({ success: true, message: 'Profile updated successfully', data: { id: updatedDoc.id, ...userData } });
   } catch (error: any) {
     res.status(500).json({ success: false, message: 'Failed to update profile', error: error.message });
   }
@@ -63,21 +53,15 @@ export const updateProfile = async (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        phone: true,
-        name: true,
-        email: true,
-        address: true,
-        city: true,
-        state: true,
-        pincode: true,
-        role: true,
-        kycStatus: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' }
+    const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+    
+    const users = snapshot.docs.map(doc => {
+      const data = doc.data();
+      delete data.mpin; // Don't send passwords
+      return {
+        id: doc.id,
+        ...data
+      };
     });
 
     res.status(200).json({ success: true, data: users });

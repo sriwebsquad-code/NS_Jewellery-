@@ -1,16 +1,15 @@
 import express from 'express';
-import { getPlans, purchasePlan, payInstallment, seedPlans } from '../controllers/plans.controller';
-import { authenticate } from '../middlewares/auth.middleware';
+import { getPlans, createPlan, joinPlan, payInstallment, getUserPlans } from '../controllers/plans.controller';
+import { authenticate, authorizeAdmin } from '../middlewares/auth.middleware';
 
 const router = express.Router();
 
-// Public / Dev routes
-router.get('/seed', seedPlans);
 router.get('/', getPlans);
 
-// Protected routes
 router.use(authenticate);
-router.post('/purchase', purchasePlan);
+router.post('/join', joinPlan);
 router.post('/pay', payInstallment);
+router.get('/my-plans', getUserPlans);
+router.post('/create', authorizeAdmin, createPlan);
 
 export default router;

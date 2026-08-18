@@ -1,16 +1,16 @@
 import 'dotenv/config';
 
 import app from './app';
-import prisma from './config/db';
+import { db } from './config/firebase';
 import { initRatesCron } from './services/cron.service';
 
 const PORT = process.env.PORT || 5000;
 
 async function startServer() {
   try {
-    // Check database connection
-    await prisma.$connect();
-    console.log('✅ Database connected successfully');
+    // Check Firestore connection (simple test query)
+    await db.listCollections();
+    console.log('✅ Firebase connected successfully');
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

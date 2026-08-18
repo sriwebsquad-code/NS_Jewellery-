@@ -23,13 +23,29 @@ const OTPScreen = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleVerify = () => {
-    // In production: verify OTP via Firebase and check backend if user is new/existing
-    if (otp === '123456') { // Demo static OTP
-      // For demo, assume new user, so hasMpin = false
-      setLogin('fake-jwt-token', false);
-    } else {
-      alert('Invalid OTP');
+  const handleVerify = async () => {
+    try {
+      // TODO: Replace with actual Firebase OTP verification
+      // Example:
+      // await confirmation.confirm(otp); 
+      // const idToken = await auth().currentUser.getIdToken();
+      // const response = await fetch('YOUR_RENDER_URL/api/auth/verify-firebase', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ idToken })
+      // });
+      // const data = await response.json();
+      // setLogin(data.token, !data.user.mpin);
+      
+      // Demo Mode Fallback
+      if (otp === '123456') { 
+        setLogin('fake-jwt-token', false);
+      } else {
+        alert('Invalid OTP');
+      }
+    } catch (error) {
+      alert('Verification failed');
+      console.error(error);
     }
   };
 

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import prisma from '../config/db';
+import { db } from '../config/firebase';
 
 /**
  * Middleware to log admin actions (POST, PUT, DELETE)
@@ -14,15 +14,16 @@ export const auditLog = async (req: Request, res: Response, next: NextFunction) 
       const user = (req as any).user;
       
       // If a user is logged in (should be admin due to requireAdmin middleware)
-      if (user && user.id) {
+      if (user && user.userId) {
         // Asynchronously log the action
-        prisma.adminAuditLog.create({
-          data: {
-            adminId: user.id,
-            action: `${req.method} ${req.originalUrl}`,
-            details: JSON.stringify(req.body || {}),
-            ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
-          }
+        const docRef = db.collection('adminAuditLogs').doc();
+        docRef.set({
+          id: docRef.id,
+          adminId: user.userId,
+          action: `${req.method} ${req.originalUrl}`,
+          details: JSON.stringify(req.body || {}),
+          ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+          createdAt: new Date().toISOString()
         }).catch(err => {
           console.error('Failed to write audit log:', err);
         });

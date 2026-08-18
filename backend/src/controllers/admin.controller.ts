@@ -1,33 +1,30 @@
 import { Request, Response } from 'express';
-import prisma from '../config/db';
+import { db } from '../config/firebase';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
-    const totalUsers = await prisma.user.count({
-      where: { role: 'CUSTOMER' }
-    });
+    const usersSnapshot = await db.collection('users').where('role', '==', 'CUSTOMER').get();
+    const totalUsers = usersSnapshot.size;
 
-    const activePlans = await prisma.userPlan.count({
-      where: { status: 'ACTIVE' }
-    });
+    const plansSnapshot = await db.collection('userPlans').where('status', '==', 'ACTIVE').get();
+    const activePlans = plansSnapshot.size;
 
-    const totalJewellery = await prisma.jewelleryItem.count();
+    const jewellerySnapshot = await db.collection('jewelleryItems').get();
+    const totalJewellery = jewellerySnapshot.size;
 
-    // For Monthly Revenue, let's just mock it or calculate sum of paid installments in the last month
-    // Wait, the schema has Installment model
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const paidInstallments = await prisma.installment.aggregate({
-      _sum: { amount: true },
-      where: {
-        status: 'PAID',
-        paidAt: { gte: startOfMonth }
-      }
-    });
+    const installmentsSnapshot = await db.collection('installments')
+      .where('status', '==', 'PAID')
+      .where('paidAt', '>=', startOfMonth.toISOString())
+      .get();
 
-    const monthlyRevenue = paidInstallments._sum.amount || 0;
+    let monthlyRevenue = 0;
+    installmentsSnapshot.forEach(doc => {
+      monthlyRevenue += (doc.data().amount || 0);
+    });
 
     res.status(200).json({
       success: true,
@@ -48,52 +45,76 @@ export const getTransactions = async (req: Request, res: Response) => {
     const status = req.query.status as string | undefined;
     const type = req.query.type as string | undefined;
 
-    let installmentsQuery: any = {};
-    if (status) installmentsQuery.status = status;
-    
-    let digitalQuery: any = {};
-    if (status) digitalQuery.status = status;
-    if (type) digitalQuery.type = type;
+    let installmentsRef: any = db.collection('installments');
+    if (status) installmentsRef = installmentsRef.where('status', '==', status);
 
-    // Fetch Installments (Schemes)
-    const installments = await prisma.installment.findMany({
-      where: installmentsQuery,
-      include: { user: { select: { name: true, phone: true } }, userPlan: { include: { plan: { select: { name: true } } } } },
-      orderBy: { createdAt: 'desc' },
-      take: 100
-    });
+    let digitalRef: any = db.collection('digitalTransactions');
+    if (status) digitalRef = digitalRef.where('status', '==', status);
+    if (type) digitalRef = digitalRef.where('type', '==', type);
 
-    // Fetch Digital Transactions
-    const digitalTxns = await prisma.digitalTransaction.findMany({
-      where: digitalQuery,
-      include: { user: { select: { name: true, phone: true } } },
-      orderBy: { createdAt: 'desc' },
-      take: 100
-    });
+    const [installmentsSnap, digitalSnap] = await Promise.all([
+      installmentsRef.limit(100).get(),
+      digitalRef.limit(100).get()
+    ]);
 
-    // Format them to be unified
-    const unified = [
-      ...installments.map(i => ({
-        id: i.id,
-        user: i.user,
+    // Manual population of user details since it's NoSQL
+    const userCache: any = {};
+    const getUser = async (userId: string) => {
+      if (userCache[userId]) return userCache[userId];
+      const userDoc = await db.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        userCache[userId] = { name: userDoc.data()?.name, phone: userDoc.data()?.phone };
+      } else {
+        userCache[userId] = { name: 'Unknown', phone: 'Unknown' };
+      }
+      return userCache[userId];
+    };
+
+    const formattedInstallments = [];
+    for (const doc of installmentsSnap.docs) {
+      const data = doc.data();
+      const user = await getUser(data.userId);
+      
+      let details = 'Scheme Installment';
+      if (data.userPlanId) {
+        const userPlanDoc = await db.collection('userPlans').doc(data.userPlanId).get();
+        if (userPlanDoc.exists && userPlanDoc.data()?.planId) {
+          const planDoc = await db.collection('plans').doc(userPlanDoc.data()?.planId).get();
+          details = planDoc.exists ? planDoc.data()?.name : details;
+        }
+      }
+
+      formattedInstallments.push({
+        id: doc.id,
+        user,
         type: 'SCHEME_INSTALLMENT',
-        details: i.userPlan.plan.name,
-        amount: i.amount,
-        status: i.status,
-        date: i.createdAt,
+        details,
+        amount: data.amount,
+        status: data.status,
+        date: data.createdAt,
         model: 'installment'
-      })),
-      ...digitalTxns.map(d => ({
-        id: d.id,
-        user: d.user,
-        type: `DIGITAL_${d.metalType}_${d.type}`,
-        details: `${d.weight.toFixed(2)}g`,
-        amount: d.amount,
-        status: d.status,
-        date: d.createdAt,
+      });
+    }
+
+    const formattedDigital = [];
+    for (const doc of digitalSnap.docs) {
+      const data = doc.data();
+      const user = await getUser(data.userId);
+      
+      formattedDigital.push({
+        id: doc.id,
+        user,
+        type: `DIGITAL_${data.metalType}_${data.type}`,
+        details: `${(data.weight || 0).toFixed(2)}g`,
+        amount: data.amount,
+        status: data.status,
+        date: data.createdAt,
         model: 'digitalTransaction'
-      }))
-    ].sort((a, b) => b.date.getTime() - a.date.getTime());
+      });
+    }
+
+    const unified = [...formattedInstallments, ...formattedDigital]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     res.status(200).json({ success: true, data: unified });
   } catch (error: any) {
@@ -103,20 +124,16 @@ export const getTransactions = async (req: Request, res: Response) => {
 
 export const verifyTransaction = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { model, status } = req.body;
 
     if (model === 'installment') {
-      await prisma.installment.update({
-        where: { id: id as string },
-        data: { status: status as any, paidAt: status === 'PAID' ? new Date() : null }
+      await db.collection('installments').doc(id).update({
+        status,
+        paidAt: status === 'PAID' ? new Date().toISOString() : null
       });
     } else if (model === 'digitalTransaction') {
-      await prisma.digitalTransaction.update({
-        where: { id: id as string },
-        data: { status: status as any }
-      });
-      // Further logic for locking digital balance happens in rates/settlement, or could happen here if not rate pending
+      await db.collection('digitalTransactions').doc(id).update({ status });
     } else {
       return res.status(400).json({ success: false, message: 'Invalid model type' });
     }

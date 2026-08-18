@@ -1,93 +1,25 @@
 import { Request, Response } from 'express';
-import prisma from '../config/db';
+import { db } from '../config/firebase';
 
-// Mock sending OTP to Aadhar linked mobile number
-export const sendAadharOTP = async (req: Request, res: Response): Promise<void> => {
+export const submitKyc = async (req: Request, res: Response) => {
   try {
-    const { aadharNumber } = req.body;
     const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
-    if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' });
-      return;
-    }
-
-    if (!aadharNumber || aadharNumber.length !== 12) {
-      res.status(400).json({ success: false, message: 'Invalid Aadhar Number. Must be 12 digits.' });
-      return;
-    }
-
-    // In a real implementation (e.g. Setu, Zoop, Cashfree), we would call their API here to trigger OTP.
-    // For now, we mock the success response.
+    const { documentType, documentNumber } = req.body;
     
-    res.json({
-      success: true,
-      message: 'OTP sent successfully to Aadhar linked mobile number',
-      data: {
-        referenceId: `mock-ref-${Date.now()}`,
-      }
-    });
-  } catch (error) {
-    console.error('Send Aadhar OTP Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to send OTP' });
-  }
-};
-
-// Mock verifying Aadhar OTP and updating KYC status
-export const verifyAadharOTP = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { aadharNumber, otp, referenceId } = req.body;
-    const userId = req.user?.userId;
-
-    if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' });
-      return;
+    if (!documentType || !documentNumber) {
+      return res.status(400).json({ success: false, message: 'Document details required' });
     }
 
-    if (!otp || otp.length !== 6) {
-      res.status(400).json({ success: false, message: 'Invalid OTP. Must be 6 digits.' });
-      return;
-    }
-
-    // Check if another user already has this Aadhar
-    const existingAadhar = await prisma.user.findFirst({
-      where: {
-        aadharNumber,
-        id: { not: userId }
-      }
+    await db.collection('users').doc(userId).update({
+      kycStatus: 'APPROVED',
+      kycDocumentType: documentType,
+      kycDocumentNumber: documentNumber
     });
 
-    if (existingAadhar) {
-      res.status(400).json({ success: false, message: 'This Aadhar number is already linked to another account' });
-      return;
-    }
-
-    // In a real implementation, call the third-party API to verify the OTP using referenceId.
-    // For the mock, any 6 digit OTP is considered valid.
-    
-    // Update user's KYC status
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        aadharNumber,
-        kycStatus: 'VERIFIED'
-      },
-      select: {
-        id: true,
-        phone: true,
-        name: true,
-        aadharNumber: true,
-        kycStatus: true
-      }
-    });
-
-    res.json({
-      success: true,
-      message: 'Aadhar Verified Successfully!',
-      data: updatedUser
-    });
-  } catch (error) {
-    console.error('Verify Aadhar Error:', error);
-    res.status(500).json({ success: false, message: 'Aadhar verification failed' });
+    res.status(200).json({ success: true, message: 'KYC Submitted and Approved' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'KYC submission failed', error: error.message });
   }
 };

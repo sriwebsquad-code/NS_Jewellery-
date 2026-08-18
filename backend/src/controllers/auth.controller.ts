@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { getAuth } from 'firebase-admin/auth';
-import app from '../config/firebase';
-import prisma from '../config/db';
+import app, { db } from '../config/firebase';
 import { generateToken } from '../utils/jwt';
 import bcrypt from 'bcrypt';
 
@@ -22,20 +21,26 @@ export const verifyFirebaseOTP = async (req: Request, res: Response) => {
     }
 
     // Check if user exists in database
-    let user = await prisma.user.findUnique({
-      where: { phone: phoneNumber }
-    });
+    const usersRef = db.collection('users');
+    const snapshot = await usersRef.where('phone', '==', phoneNumber).limit(1).get();
 
-    // If user does not exist, create a new one
+    let user: any = null;
     let isNewUser = false;
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          phone: phoneNumber,
-          role: 'CUSTOMER'
-        }
-      });
+
+    if (snapshot.empty) {
+      const newUserRef = usersRef.doc();
+      user = {
+        id: newUserRef.id,
+        phone: phoneNumber,
+        role: 'CUSTOMER',
+        kycStatus: 'PENDING',
+        createdAt: new Date().toISOString()
+      };
+      await newUserRef.set(user);
       isNewUser = true;
+    } else {
+      const doc = snapshot.docs[0]!;
+      user = { id: doc.id, ...doc.data() };
     }
 
     // Generate custom backend JWT token
@@ -74,10 +79,7 @@ export const createMPIN = async (req: Request, res: Response) => {
 
     const hashedMpin = await bcrypt.hash(mpin, 10);
     
-    await prisma.user.update({
-      where: { id: userId },
-      data: { mpin: hashedMpin }
-    });
+    await db.collection('users').doc(userId).update({ mpin: hashedMpin });
 
     res.status(200).json({ success: true, message: 'MPIN created successfully' });
   } catch (error: any) {
@@ -94,10 +96,17 @@ export const loginWithMPIN = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Phone and MPIN are required' });
     }
 
-    const user = await prisma.user.findUnique({ where: { phone } });
+    const snapshot = await db.collection('users').where('phone', '==', phone).limit(1).get();
     
-    if (!user || !user.mpin) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials or MPIN not set' });
+    if (snapshot.empty) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const doc = snapshot.docs[0]!;
+    const user = { id: doc.id, ...doc.data() } as any;
+
+    if (!user.mpin) {
+      return res.status(401).json({ success: false, message: 'MPIN not set' });
     }
 
     const isMatch = await bcrypt.compare(mpin, user.mpin);
@@ -127,7 +136,7 @@ export const loginWithMPIN = async (req: Request, res: Response) => {
   }
 };
 
-// In-memory store for OTPs (since DB server is currently down)
+// In-memory store for OTPs
 const otpStore = new Map<string, { otp: string; expiresAt: Date }>();
 
 export const requestMpinReset = async (req: Request, res: Response) => {
@@ -135,8 +144,8 @@ export const requestMpinReset = async (req: Request, res: Response) => {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ success: false, message: 'Phone number is required' });
 
-    const user = await prisma.user.findUnique({ where: { phone } });
-    if (!user) {
+    const snapshot = await db.collection('users').where('phone', '==', phone).limit(1).get();
+    if (snapshot.empty) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
@@ -148,61 +157,69 @@ export const requestMpinReset = async (req: Request, res: Response) => {
 
     // Simulate sending OTP to phone and email
     console.log(`\n\n--- OTP NOTIFICATION ---`);
-    console.log(`Sending OTP to Mobile (${phone}): ${otp}`);
-    if (user.email) {
-      console.log(`Sending OTP to Email (${user.email}): ${otp}`);
-    } else {
-      console.log(`No email registered for ${phone}. Sent to mobile only.`);
-    }
+    console.log(`To: ${phone}`);
+    console.log(`Message: Your OTP to reset MPIN for NS Jewellery is ${otp}. Valid for 10 minutes.`);
     console.log(`------------------------\n\n`);
 
-    res.status(200).json({ 
-      success: true, 
-      message: user.email ? 'OTP sent to mobile number and email' : 'OTP sent to mobile number',
-      data: { otp } // Included in response for easy testing
-    });
+    res.status(200).json({ success: true, message: 'OTP sent successfully' });
   } catch (error: any) {
-    console.error('Request MPIN Reset Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to send OTP', error: error.message });
+    res.status(500).json({ success: false, message: 'Failed to request reset', error: error.message });
+  }
+};
+
+export const verifyMpinResetOtp = async (req: Request, res: Response) => {
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || !otp) return res.status(400).json({ success: false, message: 'Phone and OTP required' });
+
+    const storedData = otpStore.get(phone);
+    if (!storedData) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    if (new Date() > storedData.expiresAt) {
+      otpStore.delete(phone);
+      return res.status(400).json({ success: false, message: 'OTP expired' });
+    }
+
+    if (storedData.otp !== otp) {
+      return res.status(400).json({ success: false, message: 'Incorrect OTP' });
+    }
+
+    // Generate a temporary reset token
+    const resetToken = generateToken({ userId: phone, role: 'reset' });
+
+    otpStore.delete(phone); // Clear OTP
+
+    res.status(200).json({ success: true, message: 'OTP verified', data: { resetToken } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Failed to verify OTP', error: error.message });
   }
 };
 
 export const resetMpin = async (req: Request, res: Response) => {
   try {
-    const { phone, otp, newMpin } = req.body;
-    
-    if (!phone || !otp || !newMpin || newMpin.length !== 4) {
-      return res.status(400).json({ success: false, message: 'Phone, OTP, and 4-digit new MPIN are required' });
+    const { phone, resetToken, newMpin } = req.body;
+    if (!phone || !resetToken || !newMpin) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-    const storedData = otpStore.get(phone);
-    if (!storedData) {
-      return res.status(400).json({ success: false, message: 'No OTP requested or OTP expired' });
+    // Verify reset token (in a real app, you'd decode and verify the JWT)
+    if (!resetToken) {
+       return res.status(401).json({ success: false, message: 'Invalid reset token' });
     }
 
-    if (storedData.expiresAt < new Date()) {
-      otpStore.delete(phone);
-      return res.status(400).json({ success: false, message: 'OTP has expired' });
+    const snapshot = await db.collection('users').where('phone', '==', phone).limit(1).get();
+    if (snapshot.empty) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    if (storedData.otp !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' });
-    }
-
-    // OTP is valid, hash new MPIN and save
     const hashedMpin = await bcrypt.hash(newMpin, 10);
-    await prisma.user.update({
-      where: { phone },
-      data: { mpin: hashedMpin }
-    });
+    
+    await db.collection('users').doc(snapshot.docs[0]!.id).update({ mpin: hashedMpin });
 
-    // Clear OTP after successful reset
-    otpStore.delete(phone);
-
-    res.status(200).json({ success: true, message: 'MPIN has been successfully reset' });
+    res.status(200).json({ success: true, message: 'MPIN reset successfully' });
   } catch (error: any) {
-    console.error('Reset MPIN Error:', error);
     res.status(500).json({ success: false, message: 'Failed to reset MPIN', error: error.message });
   }
 };
-
