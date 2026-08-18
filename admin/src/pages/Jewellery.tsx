@@ -179,7 +179,7 @@ const JewelleryManagement: React.FC = () => {
         <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-primary/10">
           <h3 className="text-xl font-serif text-secondary mb-6 border-b border-primary/10 pb-4">Categories</h3>
           <div className="space-y-3">
-            {categories.map((cat, index) => (
+            {categories.map((cat) => (
               <div key={cat.id} className="flex items-center justify-between p-3 bg-background rounded border border-primary/10 hover:border-primary/30 transition-colors group">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-white rounded overflow-hidden flex items-center justify-center border border-primary/10">
