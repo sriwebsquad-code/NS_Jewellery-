@@ -26,7 +26,7 @@ const AboutUsScreen = () => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           <Image 
-            source={require('../../../assets/icon.png')} 
+            source={require('../../../assets/rn_logo.png')} 
             style={{ width: 80, height: 80, borderRadius: 40, alignSelf: 'center', marginBottom: 20 }} 
           />
           <Text style={[styles.title, { color: colors.primary }]}>NS Mahaveer Jewellery</Text>
