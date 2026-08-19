@@ -24,7 +24,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   }
 
   if (token === 'fake-jwt-token' || token === 'null') {
-    req.user = { userId: 'demo-user-id', role: 'USER' };
+    req.user = { userId: 'demo-user-id', role: 'ADMIN' };
     return next();
   }
 
