@@ -4,11 +4,11 @@
     "slug": "ns-jewellery",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/rn_logo.png",
+    "icon": "./assets/icon_circle_final.png",
     "userInterfaceStyle": "light",
     "primaryColor": "#D4AF37",
     "splash": {
-      "image": "./assets/rn_logo.png",
+      "image": "./assets/icon_circle_final.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
@@ -21,7 +21,7 @@
       "package": "com.nsjewellery.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/rn_logo.png",
+        "foregroundImage": "./assets/icon_circle_final.png",
         "backgroundColor": "#FFFFFF"
       },
       "predictiveBackGestureEnabled": false
