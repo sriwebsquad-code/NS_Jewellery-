@@ -72,14 +72,14 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={[styles.mainContainer, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Top Yellow Background (Banner) */}
-      <View style={[styles.topYellowBg, { backgroundColor: mode === 'dark' ? '#3A3633' : 'colors.gold', overflow: 'hidden' }]}>
+      <View style={[styles.topYellowBg, { backgroundColor: mode === 'dark' ? '#3A3633' : colors.gold, overflow: 'hidden' }]}>
         <Image source={{ uri: 'https://img.icons8.com/color/150/gold-coin.png' }} style={{ position: 'absolute', top: 40, left: -20, opacity: 0.3, width: 120, height: 120, transform: [{ rotate: '15deg' }] }} />
         <Image source={{ uri: 'https://img.icons8.com/color/150/silver-coin.png' }} style={{ position: 'absolute', top: 100, right: -20, opacity: 0.3, width: 100, height: 100, transform: [{ rotate: '-15deg' }] }} />
       </View>
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.menuIcon}>
-          <Menu color={mode === 'dark' ? 'colors.gold' : '#6B4E3D'} size={32} />
+          <Menu color={mode === 'dark' ? colors.gold : '#6B4E3D'} size={32} />
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
@@ -87,11 +87,11 @@ const HomeScreen = () => {
             source={require('../../../assets/icon.png')} 
             style={{ width: 40, height: 40, borderRadius: 20, resizeMode: 'cover', marginRight: 8 }} 
           />
-          <Text style={[styles.logoText, { color: mode === 'dark' ? 'colors.gold' : '#6B4E3D', fontWeight: 'bold' }]}>NS JEWELLERY</Text>
+          <Text style={[styles.logoText, { color: mode === 'dark' ? colors.gold : '#6B4E3D', fontWeight: 'bold' }]}>NS JEWELLERY</Text>
         </View>
         
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuIcon}>
-          <BellRing color={mode === 'dark' ? 'colors.gold' : '#6B4E3D'} size={28} />
+          <BellRing color={mode === 'dark' ? colors.gold : '#6B4E3D'} size={28} />
           {/* Unread badge indicator */}
           <View style={{ position: 'absolute', right: 4, top: 4, width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, borderWidth: 1, borderColor: colors.background }} />
         </TouchableOpacity>
@@ -121,7 +121,7 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
-      <Text style={[styles.updateText, { color: mode === 'dark' ? 'colors.gold' : '#6B4E3D', marginBottom: 15 }]}>Rate updated on {updatedDate}</Text>
+      <Text style={[styles.updateText, { color: mode === 'dark' ? colors.gold : '#6B4E3D', marginBottom: 15 }]}>Rate updated on {updatedDate}</Text>
       <ScrollView 
         style={{ flex: 1 }} 
         showsVerticalScrollIndicator={false}
@@ -297,7 +297,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     left: 0,
     right: 0,
     height: 320,
-    backgroundColor: 'colors.gold',
+    backgroundColor: colors.gold,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
   },
@@ -445,7 +445,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     flexWrap: 'wrap',
   },
   cardHighlight: {
-    color: 'colors.gold',
+    color: colors.gold,
     fontSize: 14,
     fontWeight: 'bold',
     marginTop: 15,

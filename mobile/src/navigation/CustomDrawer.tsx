@@ -48,7 +48,7 @@ const CustomDrawer = (props: any) => {
         <Switch 
           value={mode === 'dark'}
           onValueChange={toggleTheme}
-          trackColor={{ false: '#767577', true: 'colors.gold' }}
+          trackColor={{ false: '#767577', true: colors.gold }}
           thumbColor={mode === 'dark' ? '#FFF' : '#f4f3f4'}
         />
       </View>
