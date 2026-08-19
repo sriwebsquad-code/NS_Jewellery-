@@ -26,6 +26,9 @@
       },
       "predictiveBackGestureEnabled": false
     },
+    "androidStatusBar": {
+      "hidden": true
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },

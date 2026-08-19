@@ -300,6 +300,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     backgroundColor: colors.gold,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    zIndex: -1,
   },
   header: {
     flexDirection: 'row',

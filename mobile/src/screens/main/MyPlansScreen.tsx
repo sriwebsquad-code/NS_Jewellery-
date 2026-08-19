@@ -314,9 +314,9 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: colors.border,
   },
   iconBtn: {
     padding: 5,
@@ -326,7 +326,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     fontFamily: 'serif',
-    color: '#6C1B1B',
+    color: mode === 'dark' ? colors.primary : '#6C1B1B',
     letterSpacing: 1,
   },
   content: {
@@ -462,28 +462,28 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   bottomBar: {
     padding: 20,
     paddingBottom: Platform.OS === 'ios' ? 30 : 20,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: colors.border,
   },
   proceedBtn: {
-    backgroundColor: '#F1C40F', // vibrant yellow
+    backgroundColor: mode === 'dark' ? colors.primary : '#F1C40F', // vibrant yellow
     borderRadius: 30,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#F1C40F',
+    shadowColor: mode === 'dark' ? colors.primary : '#F1C40F',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   proceedBtnDisabled: {
-    backgroundColor: '#E5E7E9',
+    backgroundColor: mode === 'dark' ? colors.border : '#E5E7E9',
     shadowOpacity: 0,
     elevation: 0,
   },
   proceedBtnText: {
-    color: '#FFF',
+    color: mode === 'dark' ? '#000000' : '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
     letterSpacing: 1,
