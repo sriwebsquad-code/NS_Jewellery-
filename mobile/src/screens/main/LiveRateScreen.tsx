@@ -15,7 +15,7 @@ const LiveRateScreen = () => {
   const styles = getStyles(colors, mode);
 
   const [loading, setLoading] = useState(false);
-  const [rates, setRates] = useState<any>({ goldRate24k: 7250, goldRate22k: 6650, silverRate: 85, lastUpdated: new Date() });
+  const [rates, setRates] = useState<any>({ goldRate22k: 6650, silverRate: 85, lastUpdated: new Date() });
 
   const fetchRates = async () => {
     setLoading(true);
@@ -25,7 +25,6 @@ const LiveRateScreen = () => {
       const data = await res.json();
       if (data.success && data.data) {
         setRates({
-          goldRate24k: Math.round(data.data.goldRate * 1.0917),
           goldRate22k: data.data.goldRate,
           silverRate: data.data.silverRate,
           lastUpdated: data.data.updatedAt ? new Date(data.data.updatedAt) : new Date()
@@ -64,17 +63,7 @@ const LiveRateScreen = () => {
           <Text style={[styles.updateTime, { color: colors.text }]}>{rates.lastUpdated.toLocaleString('en-IN')}</Text>
         </View>
 
-        {/* 24K Gold Card */}
-        <View style={[styles.rateCard, { backgroundColor: colors.cardBackground, borderColor: 'rgba(212, 175, 55, 0.4)' }]}>
-          <View style={styles.rateHeader}>
-            <Text style={[styles.metalTitle, { color: '#FFD700' }]}>24K Gold</Text>
-            <View style={styles.changeTag}>
-              <TrendingUp color="#32CD32" size={14} />
-              <Text style={styles.changeText}>+0.5%</Text>
-            </View>
-          </View>
-          <Text style={[styles.rateValue, { color: colors.text }]}>₹{rates.goldRate24k.toLocaleString('en-IN', { maximumFractionDigits: 2 })} <Text style={[styles.perGram, { color: colors.textMuted }]}>/ gram</Text></Text>
-        </View>
+
 
         {/* 22K Gold Card */}
         <View style={[styles.rateCard, { backgroundColor: colors.cardBackground, borderColor: 'rgba(212, 175, 55, 0.4)' }]}>

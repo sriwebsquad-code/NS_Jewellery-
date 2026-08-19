@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   const { token } = useAuthStore();
   const [loading, setLoading] = useState(false);
   
-  const [rates, setRates] = useState({ gold22: '', gold24: '', silver: '' });
+  const [rates, setRates] = useState({ gold22: '', silver: '' });
 
   const fetchRates = async () => {
     try {
@@ -18,7 +18,6 @@ const AdminDashboard = () => {
       const data = await res.json();
       if (data.success && data.data) {
         setRates({
-          gold24: Math.round(data.data.goldRate * 1.0917).toString(),
           gold22: data.data.goldRate.toString(),
           silver: data.data.silverRate.toString()
         });
@@ -33,7 +32,7 @@ const AdminDashboard = () => {
   }, []);
 
   const handleUpdateRates = async () => {
-    if (!rates.gold24 || !rates.silver) return;
+    if (!rates.gold22 || !rates.silver) return;
     setLoading(true);
     try {
       const res = await fetch('https://ns-jewellery.onrender.com/api/rates', {
@@ -43,7 +42,7 @@ const AdminDashboard = () => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          goldRate: parseFloat(rates.gold24),
+          goldRate: parseFloat(rates.gold22),
           silverRate: parseFloat(rates.silver)
         })
       });
@@ -78,20 +77,12 @@ const AdminDashboard = () => {
           </View>
           
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>24K Gold Rate (₹/g)</Text>
+            <Text style={styles.inputLabel}>22K Gold Rate (₹/g)</Text>
             <TextInput
               style={styles.textInput}
               keyboardType="numeric"
-              value={rates.gold24}
-              onChangeText={(t) => setRates({...rates, gold24: t ? Math.round(parseFloat(t)*1.0917).toString() : '', gold22: t})}
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>22K Gold Rate (₹/g) - Auto Calculated</Text>
-            <TextInput
-              style={[styles.textInput, {backgroundColor: 'rgba(255,255,255,0.02)', color: '#AAA'}]}
               value={rates.gold22}
-              editable={false}
+              onChangeText={(t) => setRates({...rates, gold22: t})}
             />
           </View>
           <View style={styles.inputGroup}>

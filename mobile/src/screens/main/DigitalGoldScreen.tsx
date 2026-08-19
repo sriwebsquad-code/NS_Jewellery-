@@ -14,7 +14,7 @@ const DigitalGoldScreen = () => {
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
 
-  const [activeTab, setActiveTab] = useState<'gold22'|'gold24'>('gold22');
+  const [activeTab, setActiveTab] = useState('gold22');
   const [amount, setAmount] = useState('');
   const [weight, setWeight] = useState('');
   const [lastEdited, setLastEdited] = useState<'amount'|'weight'>('amount');
