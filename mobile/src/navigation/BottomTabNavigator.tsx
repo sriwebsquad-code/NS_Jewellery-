@@ -1,7 +1,8 @@
 import React from 'react';
 import { Image } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { COLORS } from '../constants/theme';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { Colors } from '../constants/Colors';
+import { useThemeStore } from '../store/themeStore';
 
 // Screens
 import HomeScreen from '../screens/main/HomeScreen';
@@ -12,23 +13,35 @@ import MyPlansScreen from '../screens/main/MyPlansScreen';
 
 import { Home, BookOpen, Coins, Calendar, CircleDollarSign } from 'lucide-react-native';
 
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialTopTabNavigator();
 
 const BottomTabNavigator = () => {
+  const { mode } = useThemeStore();
+  const colors = mode === 'dark' ? Colors.dark : Colors.light;
+
   return (
     <Tab.Navigator
+      tabBarPosition="bottom"
       screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarShowIcon: true,
+        tabBarShowLabel: true,
         tabBarStyle: {
-          backgroundColor: COLORS.white,
+          backgroundColor: colors.cardBackground,
           borderTopWidth: 1,
-          borderTopColor: COLORS.lightGray,
-          paddingBottom: 5,
-          height: 60,
+          borderTopColor: colors.border,
+          height: 65,
         },
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarLabelStyle: {
+          fontSize: 10,
+          marginTop: 2,
+        },
+        tabBarIndicatorStyle: {
+          backgroundColor: colors.primary,
+          top: 0,
+        },
+        tabBarIcon: ({ focused, color, size = 24 }: any) => {
           let IconComponent;
           if (route.name === 'Home') IconComponent = Home;
           else if (route.name === 'Jewellery') IconComponent = BookOpen;
