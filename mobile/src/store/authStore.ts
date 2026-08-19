@@ -9,8 +9,8 @@ interface AuthState {
   setMpinCreated: () => void;
   setKycStatus: (status: string) => void;
   setPanStatus: (status: string) => void;
+  updateUser: (data: any) => void;
   logout: () => void;
-}
 
 export const useAuthStore = create<AuthState>((set) => ({
   isLoggedIn: false,
@@ -19,7 +19,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: { name: 'Customer', phone: '+91 9876543210', kycStatus: 'PENDING', panStatus: 'PENDING' }, // Default mock user
   setLogin: (token, hasMpin, user) => set((state) => ({ isLoggedIn: true, token, hasMpin, user: user || state.user })),
   setMpinCreated: () => set({ hasMpin: true }),
-  setKycStatus: (status) => set((state) => ({ user: state.user ? { ...state.user, kycStatus: status } : null })),
-  setPanStatus: (status) => set((state) => ({ user: state.user ? { ...state.user, panStatus: status } : null })),
+  setKycStatus: (status) => set((state) => ({ user: { ...state.user, kycStatus: status } as any })),
+  setPanStatus: (status) => set((state) => ({ user: { ...state.user, panStatus: status } as any })),
+  updateUser: (data) => set((state) => ({ user: { ...state.user, ...data } as any })),
   logout: () => set({ isLoggedIn: false, hasMpin: false, token: null, user: null }),
 }));
