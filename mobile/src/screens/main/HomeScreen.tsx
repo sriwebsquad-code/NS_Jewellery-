@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Menu, Crown, Coins, BellRing, Clock } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
@@ -15,6 +15,7 @@ const HomeScreen = () => {
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
+  const insets = useSafeAreaInsets();
 
   const [rates, setRates] = useState<any>({ goldRate: 7250, silverRate: 85, updatedAt: new Date() });
   const [lockerData, setLockerData] = useState<any>(null);
@@ -70,14 +71,14 @@ const HomeScreen = () => {
   });
 
   return (
-    <SafeAreaView style={[styles.mainContainer, { backgroundColor: colors.background }]} edges={['top']}>
+    <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
       {/* Top Yellow Background (Banner) */}
       <View style={[styles.topYellowBg, { backgroundColor: mode === 'dark' ? '#3A3633' : colors.gold, overflow: 'hidden' }]}>
         <Image source={{ uri: 'https://img.icons8.com/color/150/gold-coin.png' }} style={{ position: 'absolute', top: 40, left: -20, opacity: 0.3, width: 120, height: 120, transform: [{ rotate: '15deg' }] }} />
         <Image source={{ uri: 'https://img.icons8.com/color/150/silver-coin.png' }} style={{ position: 'absolute', top: 100, right: -20, opacity: 0.3, width: 100, height: 100, transform: [{ rotate: '-15deg' }] }} />
       </View>
 
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.menuIcon}>
           <Menu color={mode === 'dark' ? colors.gold : '#6B4E3D'} size={32} />
         </TouchableOpacity>
@@ -282,7 +283,7 @@ const HomeScreen = () => {
           </>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
