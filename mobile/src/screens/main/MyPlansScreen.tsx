@@ -119,6 +119,12 @@ const MyPlansScreen = () => {
     } catch (e) {
       parsedBenefits = [selectedPlan.benefits];
     }
+    
+    if (selectedPlan.type === 'GOLD' || selectedPlan.type === 'SILVER') {
+      parsedBenefits.unshift(`WEIGHT-BASED PLAN: Your monthly installment is instantly converted into grams of ${selectedPlan.type.toLowerCase()} based on the live rate on the day of payment. You accumulate physical weight, protecting you against future price increases!`);
+    } else if (selectedPlan.type === 'AMOUNT') {
+      parsedBenefits.unshift(`VALUE-BASED PLAN: Your monthly installment accumulates as cash value in your wallet. At the end of 11 months, your total saved cash is used to purchase jewellery based on the live rate on that final maturity day.`);
+    }
   }
 
   // Handle Category selection
