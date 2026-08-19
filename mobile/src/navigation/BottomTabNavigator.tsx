@@ -63,7 +63,7 @@ const BottomTabNavigator = () => {
           }
           else if (route.name === 'My Plans') IconComponent = Calendar;
           
-          return IconComponent ? <IconComponent color={color} size={24} /> : null;
+          return IconComponent ? <IconComponent color={color} size={24} /> : <></>;
         }
       })}
     >
