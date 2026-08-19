@@ -4,11 +4,11 @@
     "slug": "ns-jewellery",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon_circle_final.png",
+    "icon": "./assets/gold icon.png",
     "userInterfaceStyle": "light",
     "primaryColor": "#D4AF37",
     "splash": {
-      "image": "./assets/icon_circle_final.png",
+      "image": "./assets/gold icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
@@ -21,7 +21,7 @@
       "package": "com.nsjewellery.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon_circle_final.png",
+        "foregroundImage": "./assets/gold icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "predictiveBackGestureEnabled": false
