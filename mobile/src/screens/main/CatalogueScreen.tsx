@@ -11,6 +11,7 @@ const CatalogueScreen = () => {
   const navigation = useNavigation() as any;
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const [search, setSearch] = useState('');
   
@@ -140,10 +141,10 @@ const CatalogueScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   iconBtn: {
     width: 40,
@@ -172,12 +173,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     borderRadius: 30,
     marginHorizontal: 20,
     marginTop: 15,
     height: 55,
-    shadowColor: COLORS.black,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.black,
+    color: colors.text,
     paddingHorizontal: 15,
   },
   categoriesContainer: {
@@ -204,10 +205,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
-    shadowColor: COLORS.black,
+    borderColor: colors.border,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 5,
@@ -251,7 +252,7 @@ const styles = StyleSheet.create({
     height: 180,
     borderRadius: 16,
     resizeMode: 'cover',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   wishlistBtn: {
     position: 'absolute',

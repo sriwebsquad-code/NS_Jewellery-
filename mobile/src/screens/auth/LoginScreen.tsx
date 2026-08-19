@@ -10,6 +10,7 @@ const LoginScreen = () => {
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const handleSendOTP = async () => {
     if (phone.length === 10) {
@@ -76,10 +77,10 @@ const LoginScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   header: {
     flex: 1,
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   logoText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: SIZES.h1,
     fontWeight: '900',
     fontFamily: 'serif',
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
     fontFamily: 'serif',
   },
   subtitle: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: SIZES.h4,
     marginTop: 5,
   },
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: SIZES.h4,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     marginBottom: 10,
     fontWeight: '500',
   },
@@ -130,22 +131,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
+    borderColor: colors.border,
     borderRadius: SIZES.radius,
     paddingHorizontal: 15,
     height: 55,
-    backgroundColor: COLORS.gray,
+    backgroundColor: colors.background,
   },
   prefix: {
     fontSize: SIZES.h3,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     marginRight: 10,
     fontWeight: 'bold',
   },
   input: {
     flex: 1,
     fontSize: SIZES.h3,
-    color: COLORS.black,
+    color: colors.text,
   },
   button: {
     height: 55,
@@ -158,10 +159,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   buttonDisabled: {
-    backgroundColor: COLORS.lightGray,
+    backgroundColor: colors.border,
   },
   buttonText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: SIZES.h3,
     fontWeight: 'bold',
   },

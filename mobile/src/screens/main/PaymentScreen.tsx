@@ -13,6 +13,7 @@ const PaymentScreen = () => {
   const { token } = useAuthStore();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
   
   const amount = route.params?.amount || 0;
   const planId = route.params?.planId;
@@ -120,30 +121,30 @@ const PaymentScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.gray },
-  header: { padding: 20, paddingTop: 60, backgroundColor: COLORS.white },
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  header: { padding: 20, paddingTop: 60, backgroundColor: colors.cardBackground },
   headerTitle: { fontSize: 24, fontWeight: '900', color: COLORS.secondary, fontFamily: 'serif' },
   content: { padding: 20, flex: 1 },
-  summaryCard: { backgroundColor: COLORS.white, padding: 20, borderRadius: 16, marginBottom: 30, shadowColor: COLORS.black, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 },
+  summaryCard: { backgroundColor: colors.cardBackground, padding: 20, borderRadius: 16, marginBottom: 30, shadowColor: colors.text, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 },
   summaryTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.secondary, marginBottom: 15 },
   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  label: { color: COLORS.darkGray, fontSize: 15 },
+  label: { color: colors.textMuted, fontSize: 15 },
   value: { color: COLORS.secondary, fontWeight: '600', fontSize: 15 },
   divider: { height: 1, backgroundColor: '#EEE', marginVertical: 15 },
   totalLabel: { fontSize: 16, fontWeight: 'bold', color: COLORS.secondary },
   totalValue: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary },
   metalInfoBox: { marginTop: 15, padding: 12, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 8 },
   metalInfoText: { color: '#B8860B', fontSize: 12, textAlign: 'center', lineHeight: 18 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: COLORS.darkGray, marginBottom: 15, marginLeft: 5 },
-  paymentMethod: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: COLORS.white, padding: 18, borderRadius: 12, marginBottom: 10 },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: colors.textMuted, marginBottom: 15, marginLeft: 5 },
+  paymentMethod: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.cardBackground, padding: 18, borderRadius: 12, marginBottom: 10 },
   methodText: { fontSize: 16, color: COLORS.secondary, fontWeight: '500' },
   radioSelected: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
   radioSelectedInner: { width: 12, height: 12, borderRadius: 6, backgroundColor: COLORS.primary },
   radioUnselected: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: '#DDD' },
   payBtn: { backgroundColor: COLORS.primary, padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 'auto', marginBottom: 20 },
   payBtnDisabled: { opacity: 0.7 },
-  payBtnText: { color: COLORS.white, fontSize: 18, fontWeight: 'bold' }
+  payBtnText: { color: colors.cardBackground, fontSize: 18, fontWeight: 'bold' }
 });
 
 export default PaymentScreen;

@@ -12,6 +12,7 @@ const LoginMPINScreen = () => {
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const handleLogin = () => {
     if (mpin === '1234') { // Demo static MPIN
@@ -70,10 +71,10 @@ const LoginMPINScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   header: {
     flex: 1,
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   profileText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: SIZES.h2,
     fontWeight: 'bold',
   },
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     fontFamily: 'serif',
   },
   subtitle: {
-    color: COLORS.lightGray,
+    color: colors.border,
     fontSize: SIZES.h4,
   },
   formContainer: {
@@ -114,16 +115,16 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
+    borderColor: colors.border,
     borderRadius: SIZES.radius,
     height: 60,
-    backgroundColor: COLORS.gray,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     marginHorizontal: 40,
   },
   input: {
     fontSize: 30,
-    color: COLORS.black,
+    color: colors.text,
     letterSpacing: 20,
     fontWeight: 'bold',
   },
@@ -138,10 +139,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   buttonDisabled: {
-    backgroundColor: COLORS.lightGray,
+    backgroundColor: colors.border,
   },
   buttonText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: SIZES.h3,
     fontWeight: 'bold',
   },

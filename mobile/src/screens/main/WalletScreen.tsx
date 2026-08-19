@@ -15,6 +15,7 @@ const WalletScreen = () => {
   const { token } = useAuthStore();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const [loading, setLoading] = useState(false);
   const [lockerData, setLockerData] = useState<any>(null);
@@ -133,7 +134,7 @@ const WalletScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0F0F11' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingBottom: 20, paddingHorizontal: 20 },
   backBtn: { padding: 5 },

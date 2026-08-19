@@ -18,6 +18,7 @@ const AadharVerificationScreen = () => {
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
   const setKycStatus = useAuthStore((state) => state.setKycStatus);
 
   const handleSendOTP = async () => {
@@ -157,7 +158,7 @@ const AadharVerificationScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
   },

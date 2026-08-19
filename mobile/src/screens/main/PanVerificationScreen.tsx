@@ -18,6 +18,7 @@ const PanVerificationScreen = () => {
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
   const setPanStatus = useAuthStore((state) => state.setPanStatus);
 
   const handleSendOTP = async () => {
@@ -158,7 +159,7 @@ const PanVerificationScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
   },

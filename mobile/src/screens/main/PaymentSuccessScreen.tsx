@@ -9,6 +9,7 @@ const PaymentSuccessScreen = () => {
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -48,20 +49,20 @@ const PaymentSuccessScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.white, justifyContent: 'center', alignItems: 'center', padding: SIZES.padding },
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.cardBackground, justifyContent: 'center', alignItems: 'center', padding: SIZES.padding },
   iconContainer: { width: 100, height: 100, borderRadius: 50, backgroundColor: COLORS.success, justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
-  checkIcon: { color: COLORS.white, fontSize: 50, fontWeight: 'bold' },
+  checkIcon: { color: colors.cardBackground, fontSize: 50, fontWeight: 'bold' },
   title: { fontSize: SIZES.h2, fontWeight: 'bold', color: COLORS.secondary, marginBottom: 10 },
-  subtitle: { fontSize: SIZES.h4, color: COLORS.darkGray, textAlign: 'center', marginBottom: 30, lineHeight: 22 },
-  detailsCard: { width: '100%', backgroundColor: COLORS.gray, padding: 20, borderRadius: SIZES.radius, marginBottom: 30, shadowColor: COLORS.black, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 },
+  subtitle: { fontSize: SIZES.h4, color: colors.textMuted, textAlign: 'center', marginBottom: 30, lineHeight: 22 },
+  detailsCard: { width: '100%', backgroundColor: colors.background, padding: 20, borderRadius: SIZES.radius, marginBottom: 30, shadowColor: colors.text, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 },
   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
-  label: { color: COLORS.darkGray },
-  value: { fontWeight: 'bold', color: COLORS.black },
+  label: { color: colors.textMuted },
+  value: { fontWeight: 'bold', color: colors.text },
   downloadBtn: { padding: 15, borderRadius: SIZES.radius, borderWidth: 1, borderColor: COLORS.primary, width: '100%', alignItems: 'center', marginBottom: 15 },
   downloadText: { color: COLORS.primary, fontWeight: 'bold', fontSize: SIZES.h4 },
   homeBtn: { backgroundColor: COLORS.secondary, padding: 15, borderRadius: SIZES.radius, width: '100%', alignItems: 'center' },
-  homeBtnText: { color: COLORS.white, fontWeight: 'bold', fontSize: SIZES.h4 }
+  homeBtnText: { color: colors.cardBackground, fontWeight: 'bold', fontSize: SIZES.h4 }
 });
 
 export default PaymentSuccessScreen;

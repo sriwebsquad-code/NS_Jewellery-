@@ -12,6 +12,7 @@ const LiveRateScreen = () => {
   const { token } = useAuthStore();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const [loading, setLoading] = useState(false);
   const [rates, setRates] = useState<any>({ goldRate24k: 7250, goldRate22k: 6650, silverRate: 85, lastUpdated: new Date() });
@@ -104,7 +105,7 @@ const LiveRateScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0F0F11' },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -113,11 +114,11 @@ const styles = StyleSheet.create({
   },
   backBtn: { padding: 5 },
   refreshBtn: { padding: 5 },
-  headerTitle: { fontSize: 20, fontWeight: '900', color: COLORS.white, fontFamily: 'serif' },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: colors.cardBackground, fontFamily: 'serif' },
   content: { padding: 20 },
   updateCard: { alignItems: 'center', marginBottom: 30 },
   updateLabel: { color: '#AAB7B8', fontSize: 14, marginBottom: 5 },
-  updateTime: { color: COLORS.white, fontSize: 16, fontWeight: '600' },
+  updateTime: { color: colors.cardBackground, fontSize: 16, fontWeight: '600' },
   rateCard: {
     backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, padding: 20, marginBottom: 20,
     borderWidth: 1
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
   metalTitle: { fontSize: 22, fontWeight: 'bold', fontFamily: 'serif' },
   changeTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(50,205,50,0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
   changeText: { color: '#32CD32', fontSize: 12, fontWeight: 'bold', marginLeft: 4 },
-  rateValue: { fontSize: 32, fontWeight: 'bold', color: COLORS.white },
+  rateValue: { fontSize: 32, fontWeight: 'bold', color: colors.cardBackground },
   perGram: { fontSize: 16, color: '#AAB7B8', fontWeight: 'normal' }
 });
 

@@ -12,6 +12,7 @@ const DigitalGoldScreen = () => {
   const navigation = useNavigation() as any;
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const [activeTab, setActiveTab] = useState<'gold22'|'gold24'>('gold22');
   const [amount, setAmount] = useState('');
@@ -264,10 +265,10 @@ const DigitalGoldScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -275,7 +276,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   headerLogo: {
     fontSize: 22,
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
     marginBottom: 35,
   },
   bannerTitle: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: 22,
     fontWeight: '900',
     letterSpacing: 0.5,
@@ -357,22 +358,22 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   metalLabelActive: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontWeight: 'bold',
   },
   metalPrice: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: 14,
     fontWeight: '900',
     textAlign: 'center',
   },
   inputCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     marginHorizontal: 15,
     marginTop: -20,
     borderRadius: 24,
     padding: 25,
-    shadowColor: COLORS.black,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
     shadowRadius: 20,
@@ -393,7 +394,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputLabel: {
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: '600',
     marginBottom: 10,
@@ -419,12 +420,12 @@ const styles = StyleSheet.create({
   dashedLine: {
     height: 1,
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
+    borderColor: colors.border,
     borderStyle: 'solid', 
     marginTop: 8,
   },
   orBadge: {
-    backgroundColor: COLORS.gray,
+    backgroundColor: colors.background,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
@@ -432,7 +433,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   orText: {
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: 'bold',
   },
@@ -461,7 +462,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   cancelBtn: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     borderWidth: 1,
     borderColor: COLORS.secondary,
     shadowOpacity: 0,
@@ -470,12 +471,12 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   buyBtnDisabled: {
-    backgroundColor: COLORS.lightGray,
+    backgroundColor: colors.border,
     shadowOpacity: 0,
     elevation: 0,
   },
   buyBtnText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 1,
@@ -495,7 +496,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
   },
   summaryValue: {
     fontSize: 14,

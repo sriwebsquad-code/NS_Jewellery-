@@ -11,6 +11,7 @@ const ForgotMpinScreen = () => {
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const [step, setStep] = useState(1); // 1: Phone, 2: OTP & Reset
   const [phone, setPhone] = useState('');
@@ -187,7 +188,7 @@ const ForgotMpinScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: { flex: 1 },
   header: {
     flexDirection: 'row',
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 18,
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   submitButtonText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 0.5,

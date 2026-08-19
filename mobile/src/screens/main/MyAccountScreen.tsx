@@ -13,6 +13,7 @@ const MyAccountScreen = () => {
   const { user, token, updateUser } = useAuthStore() as any;
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const [isEditModalVisible, setIsEditModalVisible] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -248,37 +249,37 @@ const MyAccountScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '900',
     fontFamily: 'serif',
-    color: COLORS.black,
+    color: colors.text,
   },
   content: {
     padding: 20,
   },
   profileCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     borderRadius: 15,
     padding: 20,
     alignItems: 'center',
     marginBottom: 20,
     elevation: 2,
-    shadowColor: COLORS.black,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -293,26 +294,26 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   avatarText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: 32,
     fontWeight: 'bold',
   },
   name: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.black,
+    color: colors.text,
     marginBottom: 5,
   },
   phone: {
     fontSize: 14,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
   },
   detailsContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     borderRadius: 15,
     padding: 20,
     elevation: 2,
-    shadowColor: COLORS.black,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -342,13 +343,13 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 12,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     marginBottom: 5,
   },
   detailValue: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.black,
+    color: colors.text,
   },
   verificationBadge: {
     flexDirection: 'row',
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   saveBtnText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontWeight: 'bold',
     fontSize: 16,
   }

@@ -11,6 +11,7 @@ const TermsPrivacyScreen = () => {
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -74,29 +75,29 @@ const TermsPrivacyScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '900',
     fontFamily: 'serif',
-    color: COLORS.black,
+    color: colors.text,
   },
   content: {
     padding: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   sectionTitle: {
     fontSize: 18,
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
   },
   paragraph: {
     fontSize: 14,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     lineHeight: 22,
     marginBottom: 10,
     textAlign: 'justify',

@@ -11,6 +11,7 @@ const CreateMPINScreen = () => {
   const setMpinCreated = useAuthStore((state) => state.setMpinCreated);
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   const handleCreate = () => {
     if (mpin === confirmMpin) {
@@ -76,10 +77,10 @@ const CreateMPINScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   header: {
     flex: 1,
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subtitle: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: SIZES.h4,
   },
   formContainer: {
@@ -106,23 +107,23 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: SIZES.h4,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     marginBottom: 10,
     fontWeight: '500',
     textAlign: 'center',
   },
   inputContainer: {
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
+    borderColor: colors.border,
     borderRadius: SIZES.radius,
     height: 60,
-    backgroundColor: COLORS.gray,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     marginHorizontal: 40,
   },
   input: {
     fontSize: 30,
-    color: COLORS.black,
+    color: colors.text,
     letterSpacing: 20,
     fontWeight: 'bold',
   },
@@ -137,10 +138,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   buttonDisabled: {
-    backgroundColor: COLORS.lightGray,
+    backgroundColor: colors.border,
   },
   buttonText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: SIZES.h3,
     fontWeight: 'bold',
   },

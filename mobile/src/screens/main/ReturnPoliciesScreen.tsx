@@ -11,6 +11,7 @@ const ReturnPoliciesScreen = () => {
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -31,10 +32,10 @@ const ReturnPoliciesScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   header: {
     flexDirection: 'row',
@@ -42,13 +43,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '900',
     fontFamily: 'serif',
-    color: COLORS.black,
+    color: colors.text,
   },
   content: {
     flex: 1,
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
   }
 });
 

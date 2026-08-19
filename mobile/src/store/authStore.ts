@@ -11,6 +11,7 @@ interface AuthState {
   setPanStatus: (status: string) => void;
   updateUser: (data: any) => void;
   logout: () => void;
+}
 
 export const useAuthStore = create<AuthState>((set) => ({
   isLoggedIn: false,

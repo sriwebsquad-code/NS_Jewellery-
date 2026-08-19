@@ -14,6 +14,7 @@ const JewelleryDetailScreen = () => {
 
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -80,10 +81,10 @@ const JewelleryDetailScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
   },
   header: {
     paddingHorizontal: 20,
@@ -96,10 +97,10 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     height: 450,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
-    shadowColor: COLORS.black,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
     shadowRadius: 15,
@@ -127,11 +128,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
+    borderBottomColor: colors.border,
   },
   label: {
     fontSize: 15,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     fontWeight: '500',
   },
   value: {
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
   description: {
     marginTop: 8,
     fontSize: 14,
-    color: COLORS.darkGray,
+    color: colors.textMuted,
     lineHeight: 24,
   },
   bottomBar: {
@@ -156,13 +157,13 @@ const styles = StyleSheet.create({
   },
   likeBtn: {
     width: 60,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.cardBackground,
     alignItems: 'center',
     justifyContent: 'center',
     height: 55,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
+    borderColor: colors.border,
     marginRight: 15,
   },
   quoteBtn: {
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   btnText: {
-    color: COLORS.white,
+    color: colors.cardBackground,
     fontSize: 15,
     fontWeight: '700',
     letterSpacing: 1,
