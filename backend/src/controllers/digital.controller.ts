@@ -69,3 +69,20 @@ export const createTransaction = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Transaction failed', error: error.message });
   }
 };
+
+export const getLockerDashboard = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+    const lockerDoc = await db.collection('digitalBalances').doc(userId).get();
+    const locker = lockerDoc.exists ? lockerDoc.data() : { goldBalance: 0, silverBalance: 0 };
+
+    const rateSnapshot = await db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
+    const currentRates = rateSnapshot.empty ? { goldRate: 0, silverRate: 0, updatedAt: new Date() } : rateSnapshot.docs[0]!.data();
+
+    res.status(200).json({ success: true, data: { locker, currentRates, installments: [] } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Failed to fetch locker dashboard', error: error.message });
+  }
+};
