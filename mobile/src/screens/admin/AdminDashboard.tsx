@@ -18,8 +18,8 @@ const AdminDashboard = () => {
       const data = await res.json();
       if (data.success && data.data) {
         setRates({
-          gold24: data.data.goldRate.toString(),
-          gold22: Math.round(data.data.goldRate * 0.916).toString(),
+          gold24: Math.round(data.data.goldRate * 1.0917).toString(),
+          gold22: data.data.goldRate.toString(),
           silver: data.data.silverRate.toString()
         });
       }
@@ -83,7 +83,7 @@ const AdminDashboard = () => {
               style={styles.textInput}
               keyboardType="numeric"
               value={rates.gold24}
-              onChangeText={(t) => setRates({...rates, gold24: t, gold22: t ? Math.round(parseFloat(t)*0.916).toString() : ''})}
+              onChangeText={(t) => setRates({...rates, gold24: t ? Math.round(parseFloat(t)*1.0917).toString() : '', gold22: t})}
             />
           </View>
           <View style={styles.inputGroup}>

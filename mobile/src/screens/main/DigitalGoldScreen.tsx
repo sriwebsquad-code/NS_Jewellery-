@@ -44,7 +44,7 @@ const DigitalGoldScreen = () => {
     }
   };
 
-  const currentRate = activeTab === 'gold22' ? (goldRate ? Math.round(goldRate * 0.916) : null) : goldRate;
+  const currentRate = goldRate;
 
   useEffect(() => {
     if (currentRate) {
@@ -163,7 +163,7 @@ const DigitalGoldScreen = () => {
                 <Image source={require('../../../assets/gold_coin.png')} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
               </View>
               <Text style={[styles.metalLabel, activeTab === 'gold22' && styles.metalLabelActive]}>22K Gold</Text>
-              <Text style={styles.metalPrice}>{goldRate ? `₹${(goldRate*0.916).toFixed(0)}/g` : '₹ ---'}</Text>
+              <Text style={styles.metalPrice}>{goldRate ? `₹${goldRate}/g` : '₹ ---'}</Text>
             </TouchableOpacity>
           </View>
         </View>

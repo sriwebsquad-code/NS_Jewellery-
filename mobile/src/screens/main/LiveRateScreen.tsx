@@ -25,8 +25,8 @@ const LiveRateScreen = () => {
       const data = await res.json();
       if (data.success && data.data) {
         setRates({
-          goldRate24k: data.data.goldRate,
-          goldRate22k: data.data.goldRate * 0.916, // Approx 22K from 24K
+          goldRate24k: Math.round(data.data.goldRate * 1.0917),
+          goldRate22k: data.data.goldRate,
           silverRate: data.data.silverRate,
           lastUpdated: data.data.updatedAt ? new Date(data.data.updatedAt) : new Date()
         });
