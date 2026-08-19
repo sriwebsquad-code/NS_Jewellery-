@@ -6,6 +6,13 @@ export const getProfile = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
+    if (userId === 'demo-user-id') {
+      return res.status(200).json({ 
+        success: true, 
+        data: { id: userId, name: 'Parthiban (Demo)', email: 'demo@nsjewellery.com', phone: '+91 9876543210' } 
+      });
+    }
+
     const doc = await db.collection('users').doc(userId).get();
     
     if (!doc.exists) {
@@ -26,6 +33,14 @@ export const updateProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+    if (userId === 'demo-user-id') {
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Profile updated successfully (Demo Mode)', 
+        data: { id: userId, ...req.body } 
+      });
+    }
 
     const { name, email, address, city, state, pincode, dob, gender } = req.body;
 
