@@ -13,7 +13,11 @@ interface RateHistory {
 const RatesManagement: React.FC = () => {
   const [goldRate, setGoldRate] = useState('7,250');
   const [silverRate, setSilverRate] = useState('85');
-  const [effectiveDate, setEffectiveDate] = useState(new Date().toISOString().slice(0, 16));
+  const getLocalDatetimeStr = () => {
+    const now = new Date();
+    return new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+  };
+  const [effectiveDate, setEffectiveDate] = useState(getLocalDatetimeStr());
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleString());
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState<RateHistory[]>([]);
@@ -31,7 +35,7 @@ const RatesManagement: React.FC = () => {
       if (data.success && data.data) {
         setGoldRate(data.data.goldRate.toString());
         setSilverRate(data.data.silverRate.toString());
-        setLastUpdated(new Date(data.data.updatedAt).toLocaleString());
+        setLastUpdated(new Date(data.data.createdAt || data.data.effectiveDate).toLocaleString());
       }
     } catch (error) {
       console.error('Failed to fetch rates:', error);
@@ -66,7 +70,7 @@ const RatesManagement: React.FC = () => {
       });
       const data = await response.json();
       if (data.success) {
-        setLastUpdated(new Date(data.data.updatedAt).toLocaleString());
+        setLastUpdated(new Date(data.data.createdAt).toLocaleString());
         fetchHistory(); // Refresh history table
         alert('Rates updated successfully!');
       } else {
