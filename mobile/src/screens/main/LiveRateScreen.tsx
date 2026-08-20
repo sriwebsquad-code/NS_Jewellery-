@@ -27,7 +27,7 @@ const LiveRateScreen = () => {
         setRates({
           goldRate22k: data.data.goldRate,
           silverRate: data.data.silverRate,
-          lastUpdated: data.data.createdAt ? new Date(data.data.createdAt) : new Date()
+          lastUpdated: data.data.effectiveDate ? new Date(data.data.effectiveDate) : (data.data.createdAt ? new Date(data.data.createdAt) : new Date())
         });
       }
     } catch (error) {
