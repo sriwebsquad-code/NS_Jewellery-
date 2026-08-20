@@ -4,11 +4,11 @@
     "slug": "ns-jewellery",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/gold icon.png",
+    "icon": "./assets/ns_app_icon.jpg",
     "userInterfaceStyle": "light",
     "primaryColor": "#D4AF37",
     "splash": {
-      "image": "./assets/gold icon.png",
+      "image": "./assets/ns_app_icon.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -21,7 +21,7 @@
       "package": "com.anonymous.nsjewellery",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive_foreground.png",
+        "foregroundImage": "./assets/ns_app_icon.jpg",
         "backgroundColor": "#000000"
       },
       "predictiveBackGestureEnabled": false,
