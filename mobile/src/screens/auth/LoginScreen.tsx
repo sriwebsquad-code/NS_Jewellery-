@@ -15,18 +15,13 @@ const LoginScreen = () => {
   const handleSendOTP = async () => {
     if (phone.length === 10) {
       try {
-        // TODO: Replace with your Firebase Phone Auth code
-        // Example: const confirmation = await auth().signInWithPhoneNumber(`+91${phone}`);
-        // navigation.navigate('OTP', { phone, confirmation });
-        
-        // Demo Mode Fallback
-        console.log('Sending OTP in demo mode to', phone);
-        navigation.navigate('OTP', { phone });
+        const { auth } = require('../../config/firebase');
+        const confirmation = await auth().signInWithPhoneNumber(`+91${phone}`);
+        navigation.navigate('OTP', { phone, confirmation });
       } catch (error) {
         alert('Failed to send OTP. Please try again.');
         console.error(error);
       }
-    } else {
       alert('Please enter a valid 10-digit phone number');
     }
   };

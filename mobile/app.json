@@ -18,13 +18,14 @@
       "buildNumber": "1"
     },
     "android": {
-      "package": "com.nsjewellery.app",
+      "package": "com.anonymous.nsjewellery",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive_foreground.png",
         "backgroundColor": "#000000"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./google-services.json"
     },
     "androidStatusBar": {
       "hidden": true
@@ -39,6 +40,20 @@
       "eas": {
         "projectId": "246bb4d2-78a9-4bf3-8377-58bf356e3bd4"
       }
-    }
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 21,
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0"
+          }
+        }
+      ]
+    ]
   }
 }

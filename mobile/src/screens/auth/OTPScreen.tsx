@@ -11,7 +11,7 @@ const OTPScreen = () => {
   const [timer, setTimer] = useState(30);
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { phone } = route.params;
+  const { phone, confirmation } = route.params;
   const setLogin = useAuthStore((state) => state.setLogin);
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
@@ -26,26 +26,23 @@ const OTPScreen = () => {
 
   const handleVerify = async () => {
     try {
-      // TODO: Replace with actual Firebase OTP verification
-      // Example:
-      // await confirmation.confirm(otp); 
-      // const idToken = await auth().currentUser.getIdToken();
-      // const response = await fetch('YOUR_RENDER_URL/api/auth/verify-firebase', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ idToken })
-      // });
-      // const data = await response.json();
-      // setLogin(data.token, !data.user.mpin);
+      await confirmation.confirm(otp); 
+      const { auth } = require('../../config/firebase');
+      const idToken = await auth().currentUser.getIdToken();
+      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+      const data = await response.json();
       
-      // Demo Mode Fallback
-      if (otp === '123456') { 
-        setLogin('fake-jwt-token', false);
+      if (data.success) {
+        setLogin(data.token, !data.user.mpin);
       } else {
-        alert('Invalid OTP');
+        alert('Authentication failed on server.');
       }
     } catch (error) {
-      alert('Verification failed');
+      alert('Invalid OTP or Verification failed');
       console.error(error);
     }
   };
