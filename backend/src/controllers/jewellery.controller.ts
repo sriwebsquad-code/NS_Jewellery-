@@ -12,7 +12,14 @@ export const createCategory = async (req: Request, res: Response) => {
     let imagePath = null;
 
     if (req.file) {
-      console.log('Skipping image upload for category');
+      const fileName = `categories/${Date.now()}-${req.file.originalname}`;
+      const fileUpload = storage.file(fileName);
+      
+      await fileUpload.save(req.file.buffer, {
+        metadata: { contentType: req.file.mimetype }
+      });
+      
+      imagePath = `https://firebasestorage.googleapis.com/v0/b/${storage.name}/o/${encodeURIComponent(fileName)}?alt=media`;
     }
 
     const docRef = db.collection('jewelleryCategories').doc();
@@ -53,7 +60,14 @@ export const createJewelleryItem = async (req: Request, res: Response) => {
     let imagePath = null;
 
     if (req.file) {
-      console.log('Skipping image upload for item');
+      const fileName = `items/${Date.now()}-${req.file.originalname}`;
+      const fileUpload = storage.file(fileName);
+      
+      await fileUpload.save(req.file.buffer, {
+        metadata: { contentType: req.file.mimetype }
+      });
+      
+      imagePath = `https://firebasestorage.googleapis.com/v0/b/${storage.name}/o/${encodeURIComponent(fileName)}?alt=media`;
     }
 
     const docRef = db.collection('jewelleryItems').doc();

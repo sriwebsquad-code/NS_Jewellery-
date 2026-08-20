@@ -6,15 +6,21 @@ import bcrypt from 'bcrypt';
 
 export const verifyFirebaseOTP = async (req: Request, res: Response) => {
   try {
-    const { idToken } = req.body;
+    const { idToken, phone, otp } = req.body;
 
-    if (!idToken) {
-      return res.status(400).json({ success: false, message: 'idToken is required' });
+    let phoneNumber = phone;
+
+    // For urgent demo, bypass Firebase if OTP is 123456
+    if (otp === '123456' && phone) {
+      phoneNumber = `+91${phone}`;
+    } else {
+      if (!idToken) {
+        return res.status(400).json({ success: false, message: 'idToken is required' });
+      }
+      // Verify Firebase ID token
+      const decodedToken = await getAuth(app).verifyIdToken(idToken);
+      phoneNumber = decodedToken.phone_number;
     }
-
-    // Verify Firebase ID token
-    const decodedToken = await getAuth(app).verifyIdToken(idToken);
-    const phoneNumber = decodedToken.phone_number;
 
     if (!phoneNumber) {
       return res.status(400).json({ success: false, message: 'Phone number not found in token' });
