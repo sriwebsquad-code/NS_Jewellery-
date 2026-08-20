@@ -33,9 +33,9 @@ const AdminLayout: React.FC = () => {
       <aside className="w-64 bg-white m-4 rounded-xl flex flex-col z-10 overflow-hidden shadow-sm border border-primary/10">
         <div className="p-8 border-b border-primary/10 flex flex-col items-center justify-center bg-white">
           <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-sm mb-4 animate-slide-up overflow-hidden border border-primary/20 p-2">
-            <img src="/rn_logo.png" alt="RN Logo" className="w-full h-full object-cover" />
+            <img src="/ns_logo.jpg" alt="RN Logo" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-2xl font-serif text-secondary text-center">RN Jewellery</h1>
+          <h1 className="text-2xl font-serif text-secondary text-center">NS Jewellery</h1>
           <p className="text-[10px] text-gray-400 font-medium mt-1 uppercase tracking-widest">Admin Portal</p>
         </div>
         

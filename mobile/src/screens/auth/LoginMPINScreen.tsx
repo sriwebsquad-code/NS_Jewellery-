@@ -29,7 +29,7 @@ const LoginMPINScreen = () => {
     >
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
         <Image 
-          source={require('../../../assets/rn_logo.png')} 
+          source={require('../../../assets/ns_logo.jpg')} 
           style={{ width: 90, height: 90, borderRadius: 45, resizeMode: 'cover', marginBottom: 20, alignSelf: 'center' }} 
         />
         <Text style={[styles.title, { color: colors.primary }]}>Welcome Back!</Text>
