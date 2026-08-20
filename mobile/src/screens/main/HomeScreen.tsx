@@ -50,7 +50,7 @@ const HomeScreen = () => {
       const data = await res.json();
       if (data.success && data.data) {
         setLockerData(data.data.locker);
-        setRates(data.data.currentRates || { goldRate: 7250, silverRate: 85, updatedAt: new Date() });
+        setRates(data.data.currentRates || { goldRate: 7250, silverRate: 85, createdAt: new Date() });
         setInstallments(data.data.installments || []);
       }
     } catch (error) {
@@ -66,7 +66,7 @@ const HomeScreen = () => {
     fetchDashboardData();
   };
 
-  const updatedDate = new Date(rates.updatedAt || new Date()).toLocaleString('en-IN', {
+  const updatedDate = new Date(rates.createdAt || new Date()).toLocaleString('en-IN', {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
   });
 
