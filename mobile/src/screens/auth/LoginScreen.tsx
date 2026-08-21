@@ -1,22 +1,17 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Phone } from 'lucide-react-native';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import { signInWithPhoneNumber } from 'firebase/auth';
-import { auth, firebaseConfig } from '../../config/firebase';
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
   const navigation = useNavigation<any>();
-  const recaptchaVerifier = useRef(null);
 
   const handleSendOTP = async () => {
     if (phone.length === 10) {
       try {
-        // If testing demo, you can still optionally skip by typing 123456 in OTP
-        const phoneNumber = `+91${phone}`;
-        const confirmation = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier.current as any);
+        // Mocking firebase auth for urgent demo
+        const confirmation = { verificationId: 'demo-123456' };
         navigation.navigate('OTP', { phone, confirmation });
       } catch (error) {
         alert('Failed to send OTP. Please try again.');
@@ -32,10 +27,6 @@ const LoginScreen = () => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={firebaseConfig}
-      />
       <StatusBar barStyle="dark-content" backgroundColor="#FFF8F0" />
       
       {/* Top Logo Section */}

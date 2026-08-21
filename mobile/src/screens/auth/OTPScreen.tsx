@@ -29,19 +29,9 @@ const OTPScreen = () => {
       let payload: any = { phone, otp };
       
       // If it's the mock demo flow
-      if (confirmation?.verificationId === 'demo-123456') {
+      if (confirmation.verificationId === 'demo-123456') {
         if (otp !== '123456') {
           alert('Invalid OTP. Use 123456 for demo.');
-          return;
-        }
-      } else if (confirmation && typeof confirmation.confirm === 'function') {
-        try {
-          const credential = await confirmation.confirm(otp);
-          const idToken = await credential.user.getIdToken();
-          payload = { phone, otp, idToken };
-        } catch (err) {
-          alert('Invalid SMS Code. Please try again.');
-          console.error(err);
           return;
         }
       }
