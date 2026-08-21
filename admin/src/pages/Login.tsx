@@ -27,7 +27,7 @@ const Login: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-secondary mb-2">NS Jewellery</h1>
+          <h1 className="text-3xl font-bold text-secondary mb-2">NS MAHAVEER JEWELLERY</h1>
           <p className="text-gray-500">Admin Portal Login</p>
         </div>
         
@@ -73,3 +73,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+

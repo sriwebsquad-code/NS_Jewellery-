@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Calendar, X, Layers, Coins, Users as UsersIcon, ChevronDown, ChevronUp, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Trash2, Calendar, X, Layers, Coins, Users as UsersIcon, ChevronDown, ChevronUp, CheckCircle, Clock, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 interface PlansManagementProps {
@@ -50,6 +50,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter }) => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleCreatePlan = async (e: React.FormEvent) => {
     e.preventDefault();
     try {

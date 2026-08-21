@@ -137,7 +137,8 @@ export const getDigitalUsers = async (req: Request, res: Response) => {
 
 export const getUserMetalTransactions = async (req: Request, res: Response) => {
   try {
-    const { userId, metalType } = req.params;
+    const userId = String(req.params.userId);
+    const metalType = String(req.params.metalType);
 
     const snapshot = await db.collection('digitalTransactions')
       .where('userId', '==', userId)
@@ -160,7 +161,8 @@ export const getUserMetalTransactions = async (req: Request, res: Response) => {
 
 export const redeemUserMetal = async (req: Request, res: Response) => {
   try {
-    const { userId, metalType } = req.params;
+    const userId = String(req.params.userId);
+    const metalType = String(req.params.metalType);
     const type = metalType.toUpperCase();
 
     const balanceRef = db.collection('digitalBalances').doc(userId);

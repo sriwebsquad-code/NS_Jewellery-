@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image, Modal, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
-import { Menu, ArrowRight, TrendingUp } from 'lucide-react-native';
+import { Menu, ArrowRight, TrendingUp, ChevronDown, CheckCircle2, Circle } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 
@@ -17,6 +17,9 @@ const MyLockerScreen = () => {
   const [loading, setLoading] = useState(true);
   const [lockerData, setLockerData] = useState<any>(null);
   const [userPlans, setUserPlans] = useState<any[]>([]);
+  
+  const [filterStatus, setFilterStatus] = useState<string>('All');
+  const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
 
   useEffect(() => {
     fetchData();
@@ -60,46 +63,24 @@ const MyLockerScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Menu color={colors.text} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>My Digital Locker</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>My Locker</Text>
         <View style={{ width: 28 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Wealth Card */}
-        <View style={styles.wealthCard}>
-          <Text style={styles.wealthTitle}>Total Wealth Accumulated</Text>
-          <View style={styles.wealthContent}>
-            <View style={styles.wealthItem}>
-              <View style={styles.coinIcon}>
-                <Image source={require('../../assets/gold_coin.png')} style={{width: 30, height: 30}} />
-              </View>
-              <Text style={styles.metalLabel}>24K Gold</Text>
-              <Text style={styles.metalWeight}>{goldBalance.toFixed(3)}g</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.wealthItem}>
-              <View style={styles.coinIcon}>
-                <Image source={require('../../assets/silver_coin.png')} style={{width: 30, height: 30}} />
-              </View>
-              <Text style={styles.metalLabel}>999 Silver</Text>
-              <Text style={styles.metalWeight}>{silverBalance.toFixed(3)}g</Text>
-            </View>
-          </View>
-        </View>
-
         {/* Tab Switcher */}
         <View style={[styles.tabContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
           <TouchableOpacity 
             style={[styles.tabBtn, activeTab === 'COINS' && styles.activeTabBtn]} 
             onPress={() => setActiveTab('COINS')}
           >
-            <Text style={[styles.tabText, activeTab === 'COINS' && styles.activeTabText]}>Digital Coins</Text>
+            <Text style={[styles.tabText, activeTab === 'COINS' && styles.activeTabText]}>Digi Coins</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tabBtn, activeTab === 'PLANS' && styles.activeTabBtn]} 
             onPress={() => setActiveTab('PLANS')}
           >
-            <Text style={[styles.tabText, activeTab === 'PLANS' && styles.activeTabText]}>Jewellery Plans</Text>
+            <Text style={[styles.tabText, activeTab === 'PLANS' && styles.activeTabText]}>Schemes</Text>
           </TouchableOpacity>
         </View>
 
@@ -110,59 +91,62 @@ const MyLockerScreen = () => {
         ) : (
           <View style={styles.tabContent}>
             {activeTab === 'COINS' ? (
-              <View>
+              <View style={styles.gridContainer}>
                 <TouchableOpacity 
-                  style={[styles.assetCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+                  style={[styles.gridBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
                   onPress={() => navigation.navigate('TransactionsScreen', { type: 'DIGITAL_GOLD', title: 'Digital Gold' })}
                 >
-                  <View style={styles.assetLeft}>
-                    <View style={styles.assetIconWrapper}>
-                      <TrendingUp size={20} color="#F5B041" />
-                    </View>
-                    <View>
-                      <Text style={[styles.assetName, { color: colors.text }]}>Digital Gold</Text>
-                      <Text style={[styles.assetDate, { color: colors.textMuted }]}>View History</Text>
-                    </View>
-                  </View>
-                  <View style={styles.assetRight}>
-                    <Text style={[styles.assetValue, { color: '#8D6E63' }]}>+{goldBalance.toFixed(3)}g</Text>
-                    <ArrowRight size={16} color={colors.textMuted} />
-                  </View>
+                  <Text style={[styles.gridTitle, { color: colors.text }]}>Gold</Text>
+                  <Text style={[styles.gridValue, { color: '#8D6E63' }]}>{goldBalance.toFixed(3)}g</Text>
+                  <Text style={[styles.gridSubtext, { color: colors.textMuted }]}>if click Give transaction history</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={[styles.assetCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+                  style={[styles.gridBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
                   onPress={() => navigation.navigate('TransactionsScreen', { type: 'DIGITAL_SILVER', title: 'Digital Silver' })}
                 >
-                  <View style={styles.assetLeft}>
-                    <View style={styles.assetIconWrapper}>
-                      <TrendingUp size={20} color="#BDC3C7" />
-                    </View>
-                    <View>
-                      <Text style={[styles.assetName, { color: colors.text }]}>Digital Silver</Text>
-                      <Text style={[styles.assetDate, { color: colors.textMuted }]}>View History</Text>
-                    </View>
-                  </View>
-                  <View style={styles.assetRight}>
-                    <Text style={[styles.assetValue, { color: '#8D6E63' }]}>+{silverBalance.toFixed(3)}g</Text>
-                    <ArrowRight size={16} color={colors.textMuted} />
-                  </View>
+                  <Text style={[styles.gridTitle, { color: colors.text }]}>Silver</Text>
+                  <Text style={[styles.gridValue, { color: '#8D6E63' }]}>{silverBalance.toFixed(3)}g</Text>
+                  <Text style={[styles.gridSubtext, { color: colors.textMuted }]}>if click Give transaction history</Text>
                 </TouchableOpacity>
               </View>
             ) : (
               <View>
-                {userPlans.length === 0 ? (
-                  <View style={styles.emptyState}>
-                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>You are not enrolled in any plans.</Text>
+                {userPlans.length > 0 && (
+                  <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 15 }}>
                     <TouchableOpacity 
-                      style={styles.exploreBtn}
-                      onPress={() => navigation.navigate('MainTab', { screen: 'My Plans' })}
+                      onPress={() => setShowFilterModal(true)}
+                      style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cardBackground, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: colors.border }}
                     >
-                      <Text style={styles.exploreBtnText}>Explore Plans</Text>
+                      <Text style={{ color: colors.text, marginRight: 6, fontWeight: '500' }}>{filterStatus}</Text>
+                      <ChevronDown size={16} color={colors.text} />
                     </TouchableOpacity>
                   </View>
-                ) : (
-                  userPlans.map((up) => {
+                )}
+                {(() => {
+                  const filteredPlans = filterStatus === 'All' 
+                    ? userPlans 
+                    : userPlans.filter(p => p.status?.toUpperCase() === filterStatus.toUpperCase());
+                  
+                  if (filteredPlans.length === 0) {
+                    return (
+                      <View style={styles.emptyState}>
+                        <Text style={[styles.emptyText, { color: colors.textMuted }]}>
+                          {filterStatus === 'All' ? 'You are not enrolled in any plans.' : `No ${filterStatus.toLowerCase()} plans found.`}
+                        </Text>
+                        {filterStatus === 'All' && (
+                          <TouchableOpacity 
+                            style={styles.exploreBtn}
+                            onPress={() => navigation.navigate('MainTab', { screen: 'My Plans' })}
+                          >
+                            <Text style={styles.exploreBtnText}>Explore Plans</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    );
+                  }
+
+                  return filteredPlans.map((up) => {
                     const isValueBased = up.plan?.schemeType === 'VALUE_BASED';
                     return (
                       <TouchableOpacity 
@@ -181,7 +165,7 @@ const MyLockerScreen = () => {
                         </View>
                         <View style={styles.assetRight}>
                           {isValueBased ? (
-                            <Text style={[styles.assetValue, { color: '#8D6E63' }]}>₹{up.totalPaid}</Text>
+                            <Text style={[styles.assetValue, { color: '#8D6E63' }]}>Rs.{up.totalPaid}</Text>
                           ) : (
                             <Text style={[styles.assetValue, { color: '#8D6E63' }]}>{((up.totalWeight || 0).toFixed(3))}g</Text>
                           )}
@@ -189,13 +173,43 @@ const MyLockerScreen = () => {
                         </View>
                       </TouchableOpacity>
                     );
-                  })
-                )}
+                  });
+                })()}
               </View>
             )}
           </View>
         )}
       </ScrollView>
+
+      {/* Filter Modal */}
+      <Modal visible={showFilterModal} transparent={true} animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setShowFilterModal(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+                {['All', 'Active', 'Completed', 'Cancelled'].map((status, index, arr) => (
+                  <TouchableOpacity 
+                    key={status}
+                    style={[styles.modalOption, index !== arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}
+                    onPress={() => {
+                      setFilterStatus(status);
+                      setShowFilterModal(false);
+                    }}
+                  >
+                    <Text style={[styles.modalOptionText, { color: colors.text }]}>{status}</Text>
+                    {filterStatus === status ? (
+                       <CheckCircle2 color="#4285F4" size={24} />
+                    ) : (
+                       <Circle color={colors.textMuted} size={24} />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
     </SafeAreaView>
   );
 };
@@ -215,52 +229,33 @@ const styles = StyleSheet.create({
     fontFamily: 'serif',
   },
   content: { padding: 20 },
-  wealthCard: {
-    backgroundColor: '#6D4C41',
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  wealthTitle: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  wealthContent: {
+  gridContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%',
+    marginTop: 10,
   },
-  wealthItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  divider: {
-    width: 1,
-    height: 60,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  coinIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+  gridBox: {
+    width: '48%',
+    aspectRatio: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
   },
-  metalLabel: {
-    color: '#E0E0E0',
-    fontSize: 12,
-    marginBottom: 4,
-  },
-  metalWeight: {
-    color: '#FFF',
+  gridTitle: {
     fontSize: 22,
     fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  gridValue: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  gridSubtext: {
+    fontSize: 10,
+    textAlign: 'center',
   },
   tabContainer: {
     flexDirection: 'row',
@@ -346,6 +341,29 @@ const styles = StyleSheet.create({
   exploreBtnText: {
     color: '#FFF',
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  modalOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+  },
+  modalOptionText: {
+    fontSize: 18,
+    fontWeight: '500',
   }
 });
 

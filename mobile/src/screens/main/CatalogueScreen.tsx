@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, TextInput, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -16,6 +16,7 @@ const CatalogueScreen = () => {
   const [search, setSearch] = useState('');
   
   const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,16 +43,26 @@ const CatalogueScreen = () => {
   };
 
   const renderCategoryItem = (item: any, index: number) => {
+    const isSelected = selectedCategory === item.id;
     return (
-      <TouchableOpacity key={item.id} style={styles.categoryCard}>
-        <View style={[styles.categoryIconContainer, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
+      <TouchableOpacity 
+        key={item.id} 
+        style={styles.categoryCard}
+        onPress={() => setSelectedCategory(item.id)}
+      >
+        <View style={[styles.categoryIconContainer, { 
+          backgroundColor: isSelected ? colors.primary : colors.cardBackground, 
+          borderColor: isSelected ? colors.primary : colors.border,
+          borderWidth: 1,
+          shadowColor: mode === 'dark' ? '#000' : COLORS.black 
+        }]}>
           {item.image ? (
             <Image source={{uri: `https://ns-jewellery.onrender.com${item.image}`}} style={styles.categoryImg} />
           ) : (
              <View style={styles.categoryImgPlaceholder} />
           )}
         </View>
-        <Text style={[styles.categoryText, { color: colors.text }]}>{item.name}</Text>
+        <Text style={[styles.categoryText, { color: isSelected ? colors.primary : colors.text, fontWeight: isSelected ? 'bold' : 'normal' }]}>{item.name}</Text>
       </TouchableOpacity>
     );
   };
@@ -88,7 +99,7 @@ const CatalogueScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.iconBtn}>
           <Menu color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={[styles.headerLogo, { color: colors.text }]}>NS Collection</Text>
+        <Text style={[styles.headerLogo, { color: colors.text }]}>NS Mahaveer Collection</Text>
         <TouchableOpacity style={styles.iconBtn}>
           <Heart color={colors.text} size={24} />
         </TouchableOpacity>
@@ -112,11 +123,16 @@ const CatalogueScreen = () => {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
             {categories.map((cat, idx) => renderCategoryItem(cat, idx))}
             
-            <TouchableOpacity style={styles.categoryCard}>
-              <View style={[styles.categoryIconContainer, { backgroundColor: colors.cardBackground, borderWidth: 1, borderColor: colors.border, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
-                 <Sparkles color={colors.primary} size={20} />
+            <TouchableOpacity style={styles.categoryCard} onPress={() => setSelectedCategory('All')}>
+              <View style={[styles.categoryIconContainer, { 
+                backgroundColor: selectedCategory === 'All' ? colors.primary : colors.cardBackground, 
+                borderWidth: 1, 
+                borderColor: selectedCategory === 'All' ? colors.primary : colors.border, 
+                shadowColor: mode === 'dark' ? '#000' : COLORS.black 
+              }]}>
+                 <Sparkles color={selectedCategory === 'All' ? '#FFF' : colors.primary} size={20} />
               </View>
-              <Text style={[styles.categoryText, { color: colors.text }]}>All</Text>
+              <Text style={[styles.categoryText, { color: selectedCategory === 'All' ? colors.primary : colors.text, fontWeight: selectedCategory === 'All' ? 'bold' : 'normal' }]}>All</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -127,7 +143,11 @@ const CatalogueScreen = () => {
           </View>
         ) : (
           <FlatList
-            data={items.filter(i => i.name.toLowerCase().includes(search.toLowerCase()) || i.category?.name?.toLowerCase().includes(search.toLowerCase()))}
+            data={items.filter(i => {
+              const matchesSearch = i.name.toLowerCase().includes(search.toLowerCase()) || i.category?.name?.toLowerCase().includes(search.toLowerCase());
+              const matchesCategory = selectedCategory === 'All' || i.categoryId === selectedCategory;
+              return matchesSearch && matchesCategory;
+            })}
             keyExtractor={(item) => item.id}
             renderItem={renderJewelleryItem}
             numColumns={2}
@@ -287,3 +307,4 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
 });
 
 export default CatalogueScreen;
+

@@ -27,17 +27,17 @@ const TermsPrivacyScreen = () => {
         
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Introduction:</Text>
         <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-          At NS Jewellery, your privacy and trust are secured and given utmost importance. This Privacy Policy is carefully made to help you understand how your data is received, stored and used by NS Jewellery. You expressly consent to use & disclose your personal information in accordance with this Privacy Policy by logging into any of NS Jewellery's platforms on any medium. Note: Our privacy policy may change at any time without prior notification. Kindly review the privacy policy to be updated with this Privacy Policy. It shall apply uniformly against all of NS Jewellery's mode of transmission of portal.
+          At NS MAHAVEER JEWELLERY, your privacy and trust are secured and given utmost importance. This Privacy Policy is carefully made to help you understand how your data is received, stored and used by NS MAHAVEER JEWELLERY. You expressly consent to use & disclose your personal information in accordance with this Privacy Policy by logging into any of NS MAHAVEER JEWELLERY's platforms on any medium. Note: Our privacy policy may change at any time without prior notification. Kindly review the privacy policy to be updated with this Privacy Policy. It shall apply uniformly against all of NS MAHAVEER JEWELLERY's mode of transmission of portal.
         </Text>
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>General:</Text>
         <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-          NS Jewellery warrants and covenants not to sell, rent or share for benefit, any of the personal data of the user so as to make it available for subscription for promotional advertisements/unsolicited enquiries by way of emails/calls. NS Jewellery further warrants that any email/call from it shall only be in connection with its services as mentioned in the terms and policy. NS Jewellery may reveal general statistical information about NS Jewellery & its users, on the average traffic on its website along with purchase trend on NS Jewellery etc. All the legal compliant requests for disclosures of personal data shall be accepted by NS Jewellery and it shall not amount to violation of privacy of the user.
+          NS MAHAVEER JEWELLERY warrants and covenants not to sell, rent or share for benefit, any of the personal data of the user so as to make it available for subscription for promotional advertisements/unsolicited enquiries by way of emails/calls. NS MAHAVEER JEWELLERY further warrants that any email/call from it shall only be in connection with its services as mentioned in the terms and policy. NS MAHAVEER JEWELLERY may reveal general statistical information about NS MAHAVEER JEWELLERY & its users, on the average traffic on its website along with purchase trend on NS MAHAVEER JEWELLERY etc. All the legal compliant requests for disclosures of personal data shall be accepted by NS MAHAVEER JEWELLERY and it shall not amount to violation of privacy of the user.
         </Text>
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Personal Data:</Text>
         <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-          Personal Information means and includes all information such as name, address, mailing id, telephone number, all the details on the credit/debit card, UPI, account details, information about mobile phone and any other details that may have been voluntarily provide by the user in connection with availing any of the services on NS Jewellery. In addition, information regarding the domain, server, host providing the internet. IP address of the system/ISP and any other anonymous site data may be accessed by NS Jewellery.
+          Personal Information means and includes all information such as name, address, mailing id, telephone number, all the details on the credit/debit card, UPI, account details, information about mobile phone and any other details that may have been voluntarily provide by the user in connection with availing any of the services on NS MAHAVEER JEWELLERY. In addition, information regarding the domain, server, host providing the internet. IP address of the system/ISP and any other anonymous site data may be accessed by NS MAHAVEER JEWELLERY.
         </Text>
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Use of Personal Information</Text>
@@ -46,7 +46,7 @@ const TermsPrivacyScreen = () => {
           {'\n'}a. To resolve any technical snag, troubleshoot concerns, promote safe services, to perform financial transactions if any, measure consumer statistics in our services.
           {'\n'}b. To inform you about offers, products, services, updates, customize your experience, detect & protect us against error, fraud and other criminal activity, enforce our terms and conditions, etc.
           {'\n'}c. To send you offers based on your previous orders and interests.
-          {'\n'}d. To customize your experience at NS Jewellery, by providing you with content that we think you might be interested in and to display content according to your preferences.
+          {'\n'}d. To customize your experience at NS MAHAVEER JEWELLERY, by providing you with content that we think you might be interested in and to display content according to your preferences.
         </Text>
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Cookies</Text>
@@ -56,17 +56,17 @@ const TermsPrivacyScreen = () => {
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Security</Text>
         <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-          NS Jewellery has installed a secure server with stringent security measures in place to safeguard user's personal data from misuse, destruction and alteration of the information. Once your information is in our possession we adhere to strict security guidelines, protecting it against unauthorized access.
+          NS MAHAVEER JEWELLERY has installed a secure server with stringent security measures in place to safeguard user's personal data from misuse, destruction and alteration of the information. Once your information is in our possession we adhere to strict security guidelines, protecting it against unauthorized access.
         </Text>
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Links to Other Sites</Text>
         <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-          NS Jewellery may have linked up with a few websites to carry out the functions at its optimum. Therefore, is not responsible for the privacy policy or the content of the other websites linked/to be linked on NS Jewellery.
+          NS MAHAVEER JEWELLERY may have linked up with a few websites to carry out the functions at its optimum. Therefore, is not responsible for the privacy policy or the content of the other websites linked/to be linked on NS MAHAVEER JEWELLERY.
         </Text>
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Consent</Text>
         <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-          By using NS Jewellery and/or by providing your information, you consent to the collection, storage and use of the information you disclose on NS Jewellery in accordance with this Privacy Policy, including but not limited to your consent for sharing your information as per this privacy policy.
+          By using NS MAHAVEER JEWELLERY and/or by providing your information, you consent to the collection, storage and use of the information you disclose on NS MAHAVEER JEWELLERY in accordance with this Privacy Policy, including but not limited to your consent for sharing your information as per this privacy policy.
         </Text>
         
         <View style={{ height: 40 }} />
@@ -116,3 +116,4 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
 });
 
 export default TermsPrivacyScreen;
+

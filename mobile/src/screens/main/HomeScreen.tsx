@@ -85,10 +85,10 @@ const HomeScreen = () => {
         
         <View style={styles.logoContainer}>
           <Image 
-            source={require('../../../assets/ns_logo.jpg')} 
-            style={{ width: 40, height: 40, borderRadius: 20, resizeMode: 'cover', marginRight: 8 }} 
+            source={require('../../../assets/rn_logo.png')} 
+            style={{ width: 35, height: 35, resizeMode: 'contain', marginRight: 8 }} 
           />
-          <Text style={[styles.logoText, { color: mode === 'dark' ? colors.gold : '#6B4E3D', fontWeight: 'bold' }]}>NS JEWELLERY</Text>
+          <Text style={[styles.logoText, { color: mode === 'dark' ? colors.gold : '#6B4E3D', fontWeight: 'bold' }]}>NS MAHAVEER JEWELLERY</Text>
         </View>
         
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuIcon}>
@@ -155,8 +155,8 @@ const HomeScreen = () => {
                   <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
                     <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/ns_logo.jpg')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS JEWELLERY</Text>
+                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
+                      <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
                       <Text style={[styles.cardMainTitle, { color: '#6B4E3D' }]}>11 Month</Text>
@@ -174,8 +174,8 @@ const HomeScreen = () => {
                   <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
                     <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/ns_logo.jpg')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS JEWELLERY</Text>
+                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
+                      <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
                       <Text style={[styles.cardMainTitle, { color: '#6B4E3D' }]}>Gold 11</Text>
@@ -193,8 +193,8 @@ const HomeScreen = () => {
                   <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
                     <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/ns_logo.jpg')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS JEWELLERY</Text>
+                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
+                      <Text style={[styles.cardLogoText, { color: '#6B4E3D' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
                       <Text style={[styles.cardMainTitle, { color: '#6B4E3D' }]}>Digital</Text>
@@ -223,8 +223,8 @@ const HomeScreen = () => {
                   <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
                     <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/ns_logo.jpg')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS JEWELLERY</Text>
+                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
+                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
                       <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>11 Month</Text>
@@ -242,8 +242,8 @@ const HomeScreen = () => {
                   <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
                     <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/ns_logo.jpg')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS JEWELLERY</Text>
+                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
+                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
                       <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>Silver 11</Text>
@@ -261,8 +261,8 @@ const HomeScreen = () => {
                   <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
                     <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/ns_logo.jpg')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS JEWELLERY</Text>
+                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
+                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
                       <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>Digital</Text>
@@ -472,3 +472,4 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
 });
 
 export default HomeScreen;
+

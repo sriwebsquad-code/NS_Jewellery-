@@ -86,7 +86,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
         if (!activeSchemesMap[up.userId]) {
           activeSchemesMap[up.userId] = [];
         }
-        activeSchemesMap[up.userId].push({
+        activeSchemesMap[up.userId]!.push({
           id: doc.id,
           ...up,
           planDetails: plansMap[up.planId] || null

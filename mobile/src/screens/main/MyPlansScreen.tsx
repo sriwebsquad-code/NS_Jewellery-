@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -21,6 +21,7 @@ const MyPlansScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>(route.params?.defaultCategory || 'Gold Schemes');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [installmentAmount, setInstallmentAmount] = useState<string>('');
+  const [liveRates, setLiveRates] = useState<{gold: number, silver: number}>({ gold: 0, silver: 0 });
   
   // Show dropdown toggles
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -34,7 +35,23 @@ const MyPlansScreen = () => {
 
   useEffect(() => {
     fetchPlans();
+    fetchRates();
   }, []);
+
+  const fetchRates = async () => {
+    try {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/rates');
+      const data = await response.json();
+      if (data.success && data.data && data.data.currentRates) {
+        setLiveRates({
+          gold: data.data.currentRates.goldRate,
+          silver: data.data.currentRates.silverRate
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch rates for plans:', err);
+    }
+  };
 
   const fetchPlans = async () => {
     try {
@@ -163,7 +180,7 @@ const MyPlansScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.iconBtn}>
           <Menu color={colors.text} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerLogo, { color: colors.text }]}>NS JEWELLERY</Text>
+        <Text style={[styles.headerLogo, { color: colors.text }]}>NS Mahaveer Schemes</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -233,7 +250,7 @@ const MyPlansScreen = () => {
 
           {/* Monthly Installment Amount */}
           <Text style={[styles.label, { color: colors.text }]}>Monthly Installment Amount (₹)</Text>
-          <View style={[styles.dropdownField, styles.inputFieldContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          <View style={[styles.dropdownField, styles.inputFieldContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginBottom: 5 }]}>
             <Text style={[styles.rupeeIcon, { color: colors.text }]}>₹</Text>
             <TextInput
               style={[styles.textInput, { color: colors.text }]}
@@ -244,6 +261,31 @@ const MyPlansScreen = () => {
               onChangeText={setInstallmentAmount}
             />
           </View>
+          
+          {/* Estimated Weight Calculator */}
+          {selectedPlan && (selectedPlan.type === 'GOLD' || selectedPlan.type === 'SILVER') && (
+            <View style={{ marginBottom: 20, paddingHorizontal: 5 }}>
+              {installmentAmount && !isNaN(Number(installmentAmount)) && Number(installmentAmount) > 0 ? (
+                <Text style={{ color: titleColor, fontSize: 13, fontWeight: 'bold', textAlign: 'right' }}>
+                  ≈ {
+                    selectedPlan.type === 'GOLD' && liveRates.gold > 0
+                      ? (Number(installmentAmount) / liveRates.gold).toFixed(3) + 'g Gold'
+                      : selectedPlan.type === 'SILVER' && liveRates.silver > 0
+                      ? (Number(installmentAmount) / liveRates.silver).toFixed(3) + 'g Silver'
+                      : 'Calculating...'
+                  }
+                </Text>
+              ) : (
+                <Text style={{ color: colors.textMuted, fontSize: 12, textAlign: 'right', fontStyle: 'italic' }}>
+                  Enter amount to see estimated {selectedPlan.type === 'GOLD' ? 'Gold' : 'Silver'} weight
+                </Text>
+              )}
+            </View>
+          )}
+          
+          {selectedPlan && selectedPlan.type === 'AMOUNT' && (
+             <View style={{ marginBottom: 20 }} />
+          )}
 
           {/* Duration Indicator */}
           {selectedPlan && (
@@ -497,4 +539,5 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
 });
 
 export default MyPlansScreen;
+
 

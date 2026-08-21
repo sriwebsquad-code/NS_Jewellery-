@@ -164,7 +164,7 @@ export const requestMpinReset = async (req: Request, res: Response) => {
     // Simulate sending OTP to phone and email
     console.log(`\n\n--- OTP NOTIFICATION ---`);
     console.log(`To: ${phone}`);
-    console.log(`Message: Your OTP to reset MPIN for NS Jewellery is ${otp}. Valid for 10 minutes.`);
+    console.log(`Message: Your OTP to reset MPIN for NS MAHAVEER JEWELLERY is ${otp}. Valid for 10 minutes.`);
     console.log(`------------------------\n\n`);
 
     res.status(200).json({ success: true, message: 'OTP sent successfully' });
@@ -229,3 +229,4 @@ export const resetMpin = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Failed to reset MPIN', error: error.message });
   }
 };
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput, Image } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -135,7 +135,7 @@ const DigitalGoldScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Menu color={colors.text} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerLogo, { color: colors.text }]}>NS JEWELLERY</Text>
+        <Text style={[styles.headerLogo, { color: colors.text }]}>NS Mahaveer DigiGold</Text>
         <TouchableOpacity>
           <Bell color={colors.text} size={24} />
         </TouchableOpacity>
@@ -217,7 +217,7 @@ const DigitalGoldScreen = () => {
               "2. The equivalent gold weight or amount will be automatically calculated based on the live market rate.\n\n" +
               "3. Click 'Buy Now' to proceed to the secure payment gateway.\n\n" +
               "4. Once purchased, the digital gold will be instantly credited to your secure Digital Locker.\n\n" +
-              "5. You can redeem your accumulated digital gold for physical jewellery at our NS Jewellery showroom at any time!"
+              "5. You can redeem your accumulated digital gold for physical jewellery at our NS MAHAVEER JEWELLERY showroom at any time!"
             )}
           >
             <Text style={styles.howItWorksText}>How it works?</Text>
@@ -510,3 +510,4 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
 });
 
 export default DigitalGoldScreen;
+

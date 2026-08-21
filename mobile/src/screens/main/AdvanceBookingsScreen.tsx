@@ -45,140 +45,21 @@ const AdvanceBookingsScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.iconBtn}>
           <Menu color={COLORS.black} size={28} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Digital Locker</Text>
+        <Text style={styles.headerTitle}>My Advance Bookings</Text>
         <TouchableOpacity style={styles.iconBtn}>
-          <Lock color={COLORS.primary} size={24} />
+          <Calendar color={COLORS.primary} size={24} />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         
-        {/* Premium Balances Card */}
-        <View style={styles.balancesCard}>
-          <Sparkles color={COLORS.primary} size={50} style={{ position: 'absolute', top: -15, right: -15, opacity: 0.15 }} />
-          <Text style={styles.balancesTitle}>Total Wealth Accumulated</Text>
-          <View style={styles.balancesRow}>
-            <View style={styles.balanceItem}>
-              <View style={styles.balanceIconContainer}>
-                <Coins color={COLORS.primary} size={24} />
-              </View>
-              <Text style={styles.balanceLabel}>24K Gold</Text>
-              <Text style={styles.balanceValueGold}>
-                {isLoading ? '---' : (lockerData?.goldBalance || 0).toFixed(3)}g
-              </Text>
-            </View>
-            <View style={styles.balanceDivider} />
-            <View style={styles.balanceItem}>
-              <View style={[styles.balanceIconContainer, { backgroundColor: 'rgba(192,192,192,0.1)' }]}>
-                <Coins color="#E5E4E2" size={24} />
-              </View>
-              <Text style={styles.balanceLabel}>999 Silver</Text>
-              <Text style={styles.balanceValueSilver}>
-                {isLoading ? '---' : (lockerData?.silverBalance || 0).toFixed(3)}g
-              </Text>
-            </View>
-          </View>
+        {/* Placeholder for bookings */}
+        <View style={{ padding: 20, alignItems: 'center', marginTop: 100 }}>
+           <Text style={{ fontSize: 16, color: COLORS.darkGray, textAlign: 'center' }}>
+             Your advance bookings will appear here.
+           </Text>
         </View>
-
-        {/* Premium Tabs */}
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity 
-            style={[styles.tab, activeTab === 'DAILY' && styles.activeTab]}
-            onPress={() => setActiveTab('DAILY')}
-          >
-            <Text style={[styles.tabText, activeTab === 'DAILY' && styles.activeTabText]}>Digital Coins</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.tab, activeTab === 'PLAN' && styles.activeTab]}
-            onPress={() => setActiveTab('PLAN')}
-          >
-            <Text style={[styles.tabText, activeTab === 'PLAN' && styles.activeTabText]}>Jewellery Plans</Text>
-          </TouchableOpacity>
-        </View>
-
-        {isLoading ? (
-          <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
-        ) : activeTab === 'DAILY' ? (
-          // DAILY BUYS
-          transactions.length === 0 ? (
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconBg}>
-                <Coins color={COLORS.primary} size={40} />
-              </View>
-              <Text style={styles.emptyTitle}>No Digital Assets</Text>
-              <Text style={styles.emptyText}>Start your wealth journey today.</Text>
-              <TouchableOpacity 
-                style={styles.exploreButton}
-                onPress={() => navigation.navigate('Digital Coin')}
-              >
-                <Text style={styles.exploreButtonText}>Buy Digital Gold</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            transactions.map((txn, index) => (
-              <View key={index} style={styles.transactionCard}>
-                <View style={styles.txnIcon}>
-                  <TrendingUp color={COLORS.primary} size={20} />
-                </View>
-                <View style={styles.txnDetails}>
-                  <Text style={styles.txnTitle}>
-                    Digital {txn.metalType === 'GOLD' ? 'Gold' : 'Silver'}
-                  </Text>
-                  <Text style={styles.txnDate}>
-                    {new Date(txn.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </Text>
-                </View>
-                <View style={styles.txnAmounts}>
-                  <Text style={[styles.txnWeight, { color: txn.metalType === 'GOLD' ? COLORS.primary : COLORS.darkGray }]}>
-                    +{txn.weight.toFixed(3)}g
-                  </Text>
-                  <Text style={styles.txnPrice}>₹{txn.amount.toLocaleString('en-IN')}</Text>
-                </View>
-              </View>
-            ))
-          )
-        ) : (
-          // PLAN INSTALLMENTS
-          installments.length === 0 ? (
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconBg}>
-                <Calendar color={COLORS.primary} size={40} />
-              </View>
-              <Text style={styles.emptyTitle}>No Active Plans</Text>
-              <Text style={styles.emptyText}>Secure your future with our 11-month plan.</Text>
-              <TouchableOpacity 
-                style={styles.exploreButton}
-                onPress={() => navigation.navigate('My Plans')}
-              >
-                <Text style={styles.exploreButtonText}>Explore Schemes</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            installments.map((inst, index) => (
-              <View key={index} style={styles.transactionCard}>
-                <View style={styles.txnIcon}>
-                  <Calendar color={COLORS.primary} size={20} />
-                </View>
-                <View style={styles.txnDetails}>
-                  <Text style={styles.txnTitle}>
-                    {inst.userPlan?.plan?.name || 'Jewellery Plan'}
-                  </Text>
-                  <Text style={styles.txnDate}>
-                    Paid: {inst.paidAt ? new Date(inst.paidAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Pending'}
-                  </Text>
-                </View>
-                <View style={styles.txnAmounts}>
-                  <View style={[styles.statusBadge, { backgroundColor: inst.status === 'PAID' ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.1)' }]}>
-                    <Text style={[styles.txnStatus, { color: inst.status === 'PAID' ? '#27ae60' : '#e74c3c' }]}>{inst.status}</Text>
-                  </View>
-                  <Text style={styles.txnPrice}>₹{inst.amount.toLocaleString('en-IN')}</Text>
-                </View>
-              </View>
-            ))
-          )
-        )}
         
-        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );

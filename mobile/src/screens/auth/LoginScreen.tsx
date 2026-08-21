@@ -35,10 +35,10 @@ const LoginScreen = () => {
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
         {/* Placeholder for App Logo */}
         <Image 
-          source={require('../../../assets/ns_logo.jpg')} 
+          source={require('../../../assets/rn_logo.png')} 
           style={{ width: 100, height: 100, resizeMode: 'cover', marginBottom: 15, alignSelf: 'center' }} 
         />
-        <Text style={[styles.title, { color: colors.primary }]}>NS Jewellery</Text>
+        <Text style={[styles.title, { color: colors.primary }]}>NS MAHAVEER JEWELLERY</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>Premium Savings & Digital Gold</Text>
       </View>
 
@@ -171,3 +171,4 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
 });
 
 export default LoginScreen;
+
