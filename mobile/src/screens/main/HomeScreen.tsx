@@ -84,7 +84,10 @@ const HomeScreen = () => {
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
-          <Text style={[styles.logoText, { color: mode === 'dark' ? colors.gold : '#6B4E3D', fontWeight: 'bold' }]}>NS MAHAVEER JEWELLERY</Text>
+          <Image 
+            source={require('../../../assets/transparent_logo.png')} 
+            style={{ width: 180, height: 60, resizeMode: 'contain' }} 
+          />
         </View>
         
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuIcon}>
