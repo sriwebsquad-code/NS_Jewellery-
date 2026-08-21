@@ -60,13 +60,14 @@ const RatesManagement: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      const isoEffectiveDate = effectiveDate ? new Date(effectiveDate).toISOString() : new Date().toISOString();
       const response = await fetch('https://ns-jewellery.onrender.com/api/rates', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ goldRate, silverRate, effectiveDate })
+        body: JSON.stringify({ goldRate, silverRate, effectiveDate: isoEffectiveDate })
       });
       const data = await response.json();
       if (data.success) {
