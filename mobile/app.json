@@ -24,8 +24,7 @@
         "foregroundImage": "./assets/app_logo.jpg",
         "backgroundColor": "#FFFFFF"
       },
-      "predictiveBackGestureEnabled": false,
-      "googleServicesFile": "./google-services.json"
+      "predictiveBackGestureEnabled": false
     },
     "androidStatusBar": {
       "hidden": true
