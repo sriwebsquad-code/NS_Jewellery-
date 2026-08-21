@@ -64,9 +64,7 @@ const LoginScreen = () => {
           <Text style={styles.buttonText}>SEND OTP</Text>
         </TouchableOpacity>
 
-        <Text style={styles.bottomText}>
-          Don't have an account? <Text style={styles.bottomTextLink}>Create Account</Text>
-        </Text>
+
       </View>
     </KeyboardAvoidingView>
   );
