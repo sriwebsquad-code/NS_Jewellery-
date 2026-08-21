@@ -11,12 +11,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter }) => {
   const [isAddingPlan, setIsAddingPlan] = useState(false);
   const token = useAuthStore(state => state.token);
 
-  // New Plan State
-  const [name, setName] = useState('');
-  const [durationMonths, setDurationMonths] = useState('11');
-  const [minAmount, setMinAmount] = useState('1000');
-  const [schemeType, setSchemeType] = useState(typeFilter);
-  const [metalType, setMetalType] = useState('GOLD');
+
 
   // View Customers State
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
@@ -32,7 +27,6 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter }) => {
 
   useEffect(() => {
     fetchPlans();
-    setSchemeType(typeFilter);
     // When tab changes, close modal and form
     setIsAddingPlan(false);
     setIsModalOpen(false);
@@ -50,34 +44,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter }) => {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleCreatePlan = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch('https://ns-jewellery.onrender.com/api/plans', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ name, durationMonths, minAmount, schemeType, metalType })
-      });
-      if (res.ok) {
-        setIsAddingPlan(false);
-        setName('');
-        setDurationMonths('11');
-        setMinAmount('1000');
-        setSchemeType('VALUE_BASED');
-        setMetalType('GOLD');
-        fetchPlans();
-      } else {
-        alert('Failed to create plan');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Failed to connect');
-    }
-  };
+
 
   const handleViewCustomers = async (plan: any) => {
     setSelectedPlan(plan);
