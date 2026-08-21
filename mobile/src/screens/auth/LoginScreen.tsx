@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image, StatusBar, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Phone } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react-native';
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
@@ -10,7 +10,6 @@ const LoginScreen = () => {
   const handleSendOTP = async () => {
     if (phone.length === 10) {
       try {
-        // Mocking firebase auth for urgent demo
         const confirmation = { verificationId: 'demo-123456' };
         navigation.navigate('OTP', { phone, confirmation });
       } catch (error) {
@@ -23,141 +22,205 @@ const LoginScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <StatusBar barStyle="light-content" backgroundColor="#0F0F0F" />
-      
-      {/* Top Logo Section */}
-      <View style={styles.logoSection}>
-        <Image 
-          source={require('../../../assets/app_logo.jpg')} 
-          style={[styles.logo, { borderRadius: 20 }]} 
-        />
-        <Text style={styles.logoText}>NS MAHAVEER</Text>
-        <Text style={styles.logoSubText}>JEWELLERY</Text>
-      </View>
-
-      {/* Form Section */}
-      <View style={styles.formSection}>
-        <Text style={styles.loginHeading}>LOGIN</Text>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Mobile Number"
-            placeholderTextColor="#999"
-            keyboardType="numeric"
-            maxLength={10}
-            value={phone}
-            onChangeText={setPhone}
-          />
-          <Phone color="#000" size={20} />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#D4AF37" />
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <ArrowLeft color="#FFF" size={24} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>OTP Verification</Text>
+          <View style={{ width: 24 }} />
         </View>
 
-        <TouchableOpacity 
-          style={[styles.button, phone.length === 10 ? styles.buttonActive : styles.buttonDisabled]}
-          onPress={handleSendOTP}
-          disabled={phone.length !== 10}
-        >
-          <Text style={styles.buttonText}>SEND OTP</Text>
-        </TouchableOpacity>
+        <View style={styles.logoContainer}>
+          <View style={styles.logoWrapper}>
+            <Image 
+              source={require('../../../assets/login.jpg')} 
+              style={styles.logo} 
+            />
+          </View>
+        </View>
 
+        <View style={styles.cardContainer}>
+          <View style={styles.card}>
+            <View style={styles.countryCodeContainer}>
+              <Text style={styles.countryCodeText}>(+91) India</Text>
+              <ChevronDown color="#000" size={20} />
+            </View>
+            
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your mobile number"
+                placeholderTextColor="#999"
+                keyboardType="numeric"
+                maxLength={10}
+                value={phone}
+                onChangeText={setPhone}
+              />
+            </View>
 
-      </View>
-    </KeyboardAvoidingView>
+            <View style={styles.infoTextContainer}>
+              <Text style={styles.infoTextMain}>We will send you one time password (OTP)</Text>
+              <Text style={styles.infoTextSub}>Carrier rates may apply</Text>
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.nextButton, phone.length === 10 ? styles.nextButtonActive : styles.nextButtonDisabled]}
+              onPress={handleSendOTP}
+              disabled={phone.length !== 10}
+            >
+              <ArrowRight color="#FFF" size={24} />
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Wavy bottom decorative effect */}
+        <View style={styles.wave1} />
+        <View style={styles.wave2} />
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F0F',
+    backgroundColor: '#D4AF37', // Gold color
   },
-  logoSection: {
-    flex: 1.2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 40,
-  },
-  logo: {
-    width: 160,
-    height: 160,
-    resizeMode: 'contain',
-    marginBottom: 20,
-  },
-  logoText: {
-    color: '#D4AF37',
-    fontSize: 28,
-    fontWeight: 'bold',
-    fontFamily: 'serif',
-    letterSpacing: 2,
-  },
-  logoSubText: {
-    color: '#FFF',
-    fontSize: 12,
-    letterSpacing: 6,
-    marginTop: 5,
-  },
-  formSection: {
-    flex: 1,
-    paddingHorizontal: 30,
-    paddingBottom: 60,
-    justifyContent: 'flex-end',
-  },
-  loginHeading: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    letterSpacing: 1,
-  },
-  inputContainer: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    height: 55,
-    marginBottom: 20,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#000',
-    fontWeight: '500',
-  },
-  button: {
-    height: 55,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
     marginTop: 10,
   },
-  buttonActive: {
-    backgroundColor: '#4DEB9F',
+  backButton: {
+    padding: 5,
   },
-  buttonDisabled: {
-    backgroundColor: '#1E5A3D',
+  headerTitle: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '500',
   },
-  buttonText: {
-    color: '#000',
+  logoContainer: {
+    alignItems: 'center',
+    marginTop: 40,
+    marginBottom: 40,
+  },
+  logoWrapper: {
+    backgroundColor: '#FFF',
+    padding: 10,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    borderRadius: 15,
+  },
+  cardContainer: {
+    paddingHorizontal: 30,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  card: {
+    backgroundColor: '#FFF',
+    width: '100%',
+    borderRadius: 25,
+    padding: 25,
+    paddingBottom: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  countryCodeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+    paddingBottom: 15,
+    marginBottom: 15,
+  },
+  countryCodeText: {
     fontSize: 16,
     fontWeight: 'bold',
-    letterSpacing: 1,
+    color: '#000',
   },
-  bottomText: {
-    textAlign: 'center',
-    color: '#888',
+  inputWrapper: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+    paddingBottom: 15,
+    marginBottom: 25,
+  },
+  input: {
+    fontSize: 16,
+    color: '#000',
+  },
+  infoTextContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  infoTextMain: {
     fontSize: 12,
-    marginTop: 40,
-  },
-  bottomTextLink: {
-    color: '#D4AF37',
+    color: '#333',
     fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  infoTextSub: {
+    fontSize: 10,
+    color: '#D4AF37',
+  },
+  nextButton: {
+    position: 'absolute',
+    bottom: -25,
+    alignSelf: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  nextButtonActive: {
+    backgroundColor: '#D4AF37',
+  },
+  nextButtonDisabled: {
+    backgroundColor: '#E0C782',
+  },
+  wave1: {
+    position: 'absolute',
+    bottom: -100,
+    left: -50,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    zIndex: 1,
+  },
+  wave2: {
+    position: 'absolute',
+    bottom: -150,
+    right: -100,
+    width: 400,
+    height: 400,
+    borderRadius: 200,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    zIndex: 1,
   }
 });
 
 export default LoginScreen;
-

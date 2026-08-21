@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Image, StatusBar } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Colors } from '../../constants/Colors';
-import { useThemeStore } from '../../store/themeStore';
-import { COLORS, SIZES } from '../../constants/theme';
+import { ArrowLeft, Delete } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 
 const OTPScreen = () => {
@@ -13,9 +11,6 @@ const OTPScreen = () => {
   const route = useRoute<any>();
   const { phone, confirmation } = route.params;
   const setLogin = useAuthStore((state) => state.setLogin);
-  const { mode } = useThemeStore();
-  const colors = mode === 'dark' ? Colors.dark : Colors.light;
-  const styles = getStyles(colors, mode);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,18 +19,22 @@ const OTPScreen = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (otp.length === 6) {
+      handleVerify();
+    }
+  }, [otp]);
+
   const handleVerify = async () => {
     try {
       let payload: any = { phone, otp };
-      
-      // If it's the mock demo flow
       if (confirmation.verificationId === 'demo-123456') {
         if (otp !== '123456') {
           alert('Invalid OTP. Use 123456 for demo.');
+          setOtp('');
           return;
         }
       }
-
       const response = await fetch('https://ns-jewellery.onrender.com/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -47,143 +46,233 @@ const OTPScreen = () => {
         setLogin(data.token, !data.user.mpin);
       } else {
         alert('Authentication failed on server.');
+        setOtp('');
       }
     } catch (error) {
       alert('Invalid OTP or Verification failed');
+      setOtp('');
       console.error(error);
     }
   };
 
-  return (
-    <KeyboardAvoidingView 
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Verify OTP</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>Enter the 6-digit code sent to</Text>
-        <Text style={[styles.phoneText, { color: colors.text }]}>+91 {phone}</Text>
-      </View>
+  const handleKeyPress = (key: string) => {
+    if (key === 'del') {
+      setOtp((prev) => prev.slice(0, -1));
+    } else {
+      if (otp.length < 6) {
+        setOtp((prev) => prev + key);
+      }
+    }
+  };
 
-      <View style={[styles.formContainer, { backgroundColor: colors.background }]}>
-        <View style={[styles.inputContainer, { backgroundColor: mode === 'dark' ? 'rgba(255,255,255,0.05)' : COLORS.lightGray, borderColor: colors.border }]}>
-          <TextInput
-            style={[styles.input, { color: colors.text }]}
-            placeholder="• • • • • •"
-            placeholderTextColor={colors.textMuted}
-            keyboardType="numeric"
-            maxLength={6}
-            value={otp}
-            onChangeText={setOtp}
-            textAlign="center"
-          />
+  const renderDots = () => {
+    const dots = [];
+    for (let i = 0; i < 6; i++) {
+      dots.push(
+        <View key={i} style={[styles.dotBox, { backgroundColor: otp[i] ? '#FFF' : 'rgba(255,255,255,0.3)' }]}>
+          <Text style={styles.dotText}>{otp[i] || ''}</Text>
+        </View>
+      );
+    }
+    return dots;
+  };
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#D4AF37" />
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <ArrowLeft color="#FFF" size={24} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Enter Verification Code</Text>
+          <View style={{ width: 24 }} />
         </View>
 
-        <TouchableOpacity 
-          style={[styles.button, otp.length === 6 ? { backgroundColor: colors.primary } : styles.buttonDisabled]}
-          onPress={handleVerify}
-          disabled={otp.length !== 6}
-        >
-          <Text style={styles.buttonText}>Verify & Proceed</Text>
-        </TouchableOpacity>
+        <View style={styles.logoContainer}>
+          <View style={styles.logoWrapper}>
+            <Image 
+              source={require('../../../assets/login.jpg')} 
+              style={styles.logo} 
+            />
+          </View>
+        </View>
+
+        <Text style={styles.infoText}>We have sent OTP on your number</Text>
+
+        <View style={styles.dotsContainer}>
+          {renderDots()}
+        </View>
 
         <View style={styles.resendContainer}>
-          <Text style={[styles.resendText, { color: colors.textMuted }]}>Didn't receive the code? </Text>
+          <Text style={styles.resendText}>Didn't receive a OTP? </Text>
           {timer > 0 ? (
-            <Text style={[styles.timerText, { color: colors.textMuted }]}>Resend in {timer}s</Text>
+            <Text style={styles.resendLink}>Resend in {timer}s</Text>
           ) : (
             <TouchableOpacity onPress={() => setTimer(30)}>
-              <Text style={[styles.resendButton, { color: colors.primary }]}>Resend OTP</Text>
+              <Text style={styles.resendLink}>Resend OTP</Text>
             </TouchableOpacity>
           )}
         </View>
-      </View>
-    </KeyboardAvoidingView>
+
+        <View style={{ flex: 1 }} />
+
+        {/* Custom Keypad */}
+        <View style={styles.keypadContainer}>
+          {[ ['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'] ].map((row, rowIndex) => (
+            <View key={rowIndex} style={styles.keypadRow}>
+              {row.map((key) => (
+                <TouchableOpacity key={key} style={styles.key} onPress={() => handleKeyPress(key)}>
+                  <Text style={styles.keyText}>{key}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+          <View style={styles.keypadRow}>
+            <View style={styles.key} />
+            <TouchableOpacity style={styles.key} onPress={() => handleKeyPress('0')}>
+              <Text style={styles.keyText}>0</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.key} onPress={() => handleKeyPress('del')}>
+              <Delete color="#FFF" size={28} />
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Wavy bottom effect */}
+        <View style={styles.wave1} />
+        <View style={styles.wave2} />
+      </SafeAreaView>
+    </View>
   );
 };
 
-const getStyles = (colors: any, mode: string) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.cardBackground,
+    backgroundColor: '#D4AF37', // Gold color
   },
   header: {
-    flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.secondary,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginTop: 10,
   },
-  title: {
-    color: COLORS.primary,
-    fontSize: SIZES.h1,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  backButton: {
+    padding: 5,
   },
-  subtitle: {
-    color: colors.cardBackground,
-    fontSize: SIZES.h4,
+  headerTitle: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '500',
   },
-  phoneText: {
-    color: colors.cardBackground,
-    fontSize: SIZES.h3,
-    fontWeight: 'bold',
-    marginTop: 5,
-  },
-  formContainer: {
-    flex: 2,
-    padding: SIZES.padding,
-    paddingTop: 40,
-  },
-  inputContainer: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: SIZES.radius,
-    height: 60,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-  },
-  input: {
-    fontSize: 24,
-    color: colors.text,
-    letterSpacing: 10,
-    fontWeight: 'bold',
-  },
-  button: {
-    height: 55,
-    borderRadius: SIZES.radius,
-    justifyContent: 'center',
+  logoContainer: {
     alignItems: 'center',
     marginTop: 30,
+    marginBottom: 30,
   },
-  buttonActive: {
-    backgroundColor: COLORS.primary,
+  logoWrapper: {
+    backgroundColor: '#FFF',
+    padding: 10,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
-  buttonDisabled: {
-    backgroundColor: colors.border,
+  logo: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    borderRadius: 15,
   },
-  buttonText: {
-    color: colors.cardBackground,
-    fontSize: SIZES.h3,
+  infoText: {
+    color: '#FFF',
+    textAlign: 'center',
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 30,
+  },
+  dotBox: {
+    width: 40,
+    height: 45,
+    borderRadius: 8,
+    marginHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  dotText: {
+    fontSize: 20,
     fontWeight: 'bold',
+    color: '#D4AF37',
   },
   resendContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 20,
+    alignItems: 'center',
   },
   resendText: {
-    color: colors.textMuted,
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
   },
-  timerText: {
-    color: COLORS.primary,
+  resendLink: {
+    color: '#FFF',
+    fontSize: 12,
     fontWeight: 'bold',
+    textDecorationLine: 'underline',
   },
-  resendButton: {
-    color: COLORS.secondary,
-    fontWeight: 'bold',
+  keypadContainer: {
+    paddingHorizontal: 40,
+    paddingBottom: 40,
+    zIndex: 10,
   },
+  keypadRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 25,
+  },
+  key: {
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  keyText: {
+    color: '#FFF',
+    fontSize: 28,
+    fontWeight: '400',
+  },
+  wave1: {
+    position: 'absolute',
+    bottom: -100,
+    left: -50,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    zIndex: 1,
+  },
+  wave2: {
+    position: 'absolute',
+    bottom: -150,
+    right: -100,
+    width: 400,
+    height: 400,
+    borderRadius: 200,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    zIndex: 1,
+  }
 });
 
 export default OTPScreen;
