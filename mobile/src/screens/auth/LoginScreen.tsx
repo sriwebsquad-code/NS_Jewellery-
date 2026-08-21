@@ -31,6 +31,10 @@ const LoginScreen = () => {
       
       {/* Top Logo Section */}
       <View style={styles.logoSection}>
+        <Image 
+          source={require('../../../assets/rn_logo_black.png')} 
+          style={styles.logo} 
+        />
         <Text style={styles.welcomeText}>Welcome to</Text>
         <Text style={styles.logoText}>NS MAHAVEER</Text>
         <Text style={styles.logoSubText}>JEWELLERY</Text>
@@ -76,6 +80,12 @@ const styles = StyleSheet.create({
   logoSection: {
     alignItems: 'center',
     marginBottom: 40,
+  },
+  logo: {
+    width: 140,
+    height: 100,
+    resizeMode: 'contain',
+    marginBottom: 10,
   },
   welcomeText: {
     fontSize: 16,
