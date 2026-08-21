@@ -84,10 +84,6 @@ const HomeScreen = () => {
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
-          <Image 
-            source={require('../../../assets/rn_logo.png')} 
-            style={{ width: 35, height: 35, resizeMode: 'contain', marginRight: 8 }} 
-          />
           <Text style={[styles.logoText, { color: mode === 'dark' ? colors.gold : '#6B4E3D', fontWeight: 'bold' }]}>NS MAHAVEER JEWELLERY</Text>
         </View>
         
