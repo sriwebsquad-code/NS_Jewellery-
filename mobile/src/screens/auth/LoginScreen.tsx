@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Colors } from '../../constants/Colors';
-import { useThemeStore } from '../../store/themeStore';
-import { COLORS, SIZES } from '../../constants/theme';
+import { Phone } from 'lucide-react-native';
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
   const navigation = useNavigation<any>();
-  const { mode } = useThemeStore();
-  const colors = mode === 'dark' ? Colors.dark : Colors.light;
-  const styles = getStyles(colors, mode);
 
   const handleSendOTP = async () => {
     if (phone.length === 10) {
@@ -29,145 +24,141 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView 
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
-        {/* Placeholder for App Logo */}
+      <StatusBar barStyle="light-content" backgroundColor="#0F0F0F" />
+      
+      {/* Top Logo Section */}
+      <View style={styles.logoSection}>
         <Image 
           source={require('../../../assets/rn_logo.png')} 
-          style={{ width: 100, height: 100, resizeMode: 'cover', marginBottom: 15, alignSelf: 'center' }} 
+          style={styles.logo} 
         />
-        <Text style={[styles.title, { color: colors.primary }]}>NS MAHAVEER JEWELLERY</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>Premium Savings & Digital Gold</Text>
+        <Text style={styles.logoText}>NS MAHAVEER</Text>
+        <Text style={styles.logoSubText}>JEWELLERY</Text>
       </View>
 
-      <View style={[styles.formContainer, { backgroundColor: colors.background }]}>
-        <Text style={[styles.label, { color: colors.text }]}>Mobile Number</Text>
-        <View style={[styles.inputContainer, { backgroundColor: mode === 'dark' ? 'rgba(255,255,255,0.05)' : COLORS.lightGray, borderColor: colors.border }]}>
-          <Text style={[styles.prefix, { color: colors.text }]}>+91</Text>
+      {/* Form Section */}
+      <View style={styles.formSection}>
+        <Text style={styles.loginHeading}>LOGIN</Text>
+
+        <View style={styles.inputContainer}>
           <TextInput
-            style={[styles.input, { color: colors.text }]}
-            placeholder="Enter your mobile number"
-            placeholderTextColor={colors.textMuted}
+            style={styles.input}
+            placeholder="Mobile Number"
+            placeholderTextColor="#999"
             keyboardType="numeric"
             maxLength={10}
             value={phone}
             onChangeText={setPhone}
           />
+          <Phone color="#000" size={20} />
         </View>
 
         <TouchableOpacity 
-          style={[styles.button, phone.length === 10 ? { backgroundColor: colors.primary } : styles.buttonDisabled]}
+          style={[styles.button, phone.length === 10 ? styles.buttonActive : styles.buttonDisabled]}
           onPress={handleSendOTP}
           disabled={phone.length !== 10}
         >
-          <Text style={styles.buttonText}>Send OTP</Text>
+          <Text style={styles.buttonText}>SEND OTP</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.termsText, { color: colors.textMuted }]}>
-          By continuing, you agree to our Terms & Conditions and Privacy Policy
+        <Text style={styles.bottomText}>
+          Don't have an account? <Text style={styles.bottomTextLink}>Create Account</Text>
         </Text>
       </View>
     </KeyboardAvoidingView>
   );
 };
 
-const getStyles = (colors: any, mode: string) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.cardBackground,
+    backgroundColor: '#0F0F0F',
   },
-  header: {
-    flex: 1,
+  logoSection: {
+    flex: 1.2,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.secondary,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    paddingTop: 40,
   },
-  logoPlaceholder: {
-    width: 80,
-    height: 80,
-    backgroundColor: COLORS.primary,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logo: {
+    width: 160,
+    height: 160,
+    resizeMode: 'contain',
     marginBottom: 20,
   },
   logoText: {
-    color: colors.cardBackground,
-    fontSize: SIZES.h1,
-    fontWeight: '900',
-    fontFamily: 'serif',
-  },
-  title: {
-    color: COLORS.primary,
-    fontSize: SIZES.h1,
+    color: '#D4AF37',
+    fontSize: 28,
     fontWeight: 'bold',
     fontFamily: 'serif',
+    letterSpacing: 2,
   },
-  subtitle: {
-    color: colors.cardBackground,
-    fontSize: SIZES.h4,
+  logoSubText: {
+    color: '#FFF',
+    fontSize: 12,
+    letterSpacing: 6,
     marginTop: 5,
   },
-  formContainer: {
-    flex: 1.5,
-    padding: SIZES.padding,
-    paddingTop: 40,
+  formSection: {
+    flex: 1,
+    paddingHorizontal: 30,
+    paddingBottom: 60,
+    justifyContent: 'flex-end',
   },
-  label: {
-    fontSize: SIZES.h4,
-    color: colors.textMuted,
-    marginBottom: 10,
-    fontWeight: '500',
+  loginHeading: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    letterSpacing: 1,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: SIZES.radius,
+    backgroundColor: '#FFF',
+    borderRadius: 8,
     paddingHorizontal: 15,
     height: 55,
-    backgroundColor: colors.background,
-  },
-  prefix: {
-    fontSize: SIZES.h3,
-    color: colors.textMuted,
-    marginRight: 10,
-    fontWeight: 'bold',
+    marginBottom: 20,
   },
   input: {
     flex: 1,
-    fontSize: SIZES.h3,
-    color: colors.text,
+    fontSize: 16,
+    color: '#000',
+    fontWeight: '500',
   },
   button: {
     height: 55,
-    borderRadius: SIZES.radius,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 30,
+    marginTop: 10,
   },
   buttonActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#4DEB9F',
   },
   buttonDisabled: {
-    backgroundColor: colors.border,
+    backgroundColor: '#1E5A3D',
   },
   buttonText: {
-    color: colors.cardBackground,
-    fontSize: SIZES.h3,
+    color: '#000',
+    fontSize: 16,
     fontWeight: 'bold',
+    letterSpacing: 1,
   },
-  termsText: {
+  bottomText: {
     textAlign: 'center',
-    color: 'gray',
+    color: '#888',
     fontSize: 12,
-    marginTop: 20,
+    marginTop: 40,
   },
+  bottomTextLink: {
+    color: '#D4AF37',
+    fontWeight: 'bold',
+  }
 });
 
 export default LoginScreen;
