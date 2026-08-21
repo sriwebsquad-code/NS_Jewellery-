@@ -1,18 +1,15 @@
-// TODO: Add your Firebase project configuration here
-// 1. Go to console.firebase.google.com
-// 2. Create a project and enable Phone Authentication
-// 3. Add a web app (or React Native app) and copy the config here
-
+// Firebase configuration for NS Jewellery
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+export const firebaseConfig = {
+  apiKey: "AIzaSyCNIDksnHf8EeY_e9qcH8xvNheV6OIRy7Q",
+  authDomain: "nsjewellery-53b2d.firebaseapp.com",
+  projectId: "nsjewellery-53b2d",
+  storageBucket: "nsjewellery-53b2d.firebasestorage.app",
+  messagingSenderId: "815745394235",
+  appId: "1:815745394235:web:adbe7045c13b4323d21e1e",
+  measurementId: "G-Y6E8VZBWLX"
 };
 
 const app = initializeApp(firebaseConfig);
