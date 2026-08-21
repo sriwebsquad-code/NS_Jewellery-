@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Image
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Delete } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const OTPScreen = () => {
   const [otp, setOtp] = useState('');
@@ -78,8 +79,8 @@ const OTPScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#D4AF37" />
+    <LinearGradient colors={['#FAE596', '#E2B84D', '#C79A31']} style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#E2B84D" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -143,14 +144,13 @@ const OTPScreen = () => {
         <View style={styles.wave1} />
         <View style={styles.wave2} />
       </SafeAreaView>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#D4AF37', // Gold color
   },
   header: {
     flexDirection: 'row',

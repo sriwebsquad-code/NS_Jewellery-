@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image, StatusBar, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
@@ -22,8 +23,8 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#D4AF37" />
+    <LinearGradient colors={['#FAE596', '#E2B84D', '#C79A31']} style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#E2B84D" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -80,14 +81,13 @@ const LoginScreen = () => {
         <View style={styles.wave1} />
         <View style={styles.wave2} />
       </SafeAreaView>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#D4AF37', // Gold color
   },
   header: {
     flexDirection: 'row',
