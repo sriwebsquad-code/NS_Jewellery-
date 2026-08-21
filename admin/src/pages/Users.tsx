@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users as UsersIcon, Search, ShieldCheck, Clock, Phone, MapPin } from 'lucide-react';
+import { Users as UsersIcon, Search, ShieldCheck, Clock, Phone, MapPin, ChevronDown, ChevronUp, Layers, Coins } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 interface User {
@@ -16,12 +16,14 @@ interface User {
   role: string;
   kycStatus: string;
   createdAt: string;
+  activeSchemes?: any[];
 }
 
 const UsersManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const token = useAuthStore(state => state.token);
 
   useEffect(() => {
@@ -52,12 +54,16 @@ const UsersManagement: React.FC = () => {
     (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const toggleExpand = (userId: string) => {
+    setExpandedUserId(prev => prev === userId ? null : userId);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
+    <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-xl shadow-sm gap-4 border border-primary/10">
         <div>
           <h2 className="text-3xl font-serif text-secondary">Customers Management</h2>
-          <p className="text-sm font-medium text-gray-500 mt-2">Manage and view all registered users across the platform.</p>
+          <p className="text-sm font-medium text-gray-500 mt-2">Manage and view all registered users and their active schemes.</p>
         </div>
         
         <div className="relative w-full md:w-80">
@@ -80,21 +86,21 @@ const UsersManagement: React.FC = () => {
               <tr className="text-gray-500 text-xs uppercase tracking-wider border-b-2 border-gray-100/50">
                 <th className="px-6 py-5 font-bold">Customer</th>
                 <th className="px-6 py-5 font-bold">Contact Info</th>
-                <th className="px-6 py-5 font-bold">Personal Details</th>
                 <th className="px-6 py-5 font-bold">Location</th>
                 <th className="px-6 py-5 font-bold">Status & Date</th>
+                <th className="px-6 py-5 font-bold text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100/50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     Loading customers...
                   </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center">
                       <UsersIcon size={48} className="text-gray-300 mb-3" />
                       <p>No customers found matching your search.</p>
@@ -103,75 +109,134 @@ const UsersManagement: React.FC = () => {
                 </tr>
               ) : (
                 filteredUsers.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-white/60 transition-colors group" style={{ animation: `fade-in 0.3s ease-out forwards`, animationDelay: `${index * 50}ms`, opacity: 0 }}>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 rounded-full bg-background border border-primary/20 flex items-center justify-center text-primary font-serif text-xl shadow-sm group-hover:scale-110 transition-transform">
-                          {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
-                        </div>
-                        <div>
-                          <p className="font-serif text-secondary text-lg font-medium">{user.name || 'Customer'}</p>
-                          <p className="text-[10px] font-semibold text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10 inline-block mt-1 uppercase tracking-widest">{user.role}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2 text-gray-600">
-                          <div className="p-1.5 bg-gray-100/80 rounded-lg group-hover:bg-white transition-colors shadow-sm">
-                             <Phone size={14} className="text-gray-500" />
+                  <React.Fragment key={user.id}>
+                    <tr 
+                      onClick={() => toggleExpand(user.id)}
+                      className="hover:bg-primary/5 transition-colors group cursor-pointer" 
+                      style={{ animation: `fade-in 0.3s ease-out forwards`, animationDelay: `${index * 50}ms`, opacity: 0 }}
+                    >
+                      <td className="px-6 py-5">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 rounded-full bg-background border border-primary/20 flex items-center justify-center text-primary font-serif text-xl shadow-sm group-hover:scale-110 transition-transform">
+                            {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
                           </div>
-                          <span className="font-medium">{user.phone}</span>
-                        </div>
-                        {user.email && (
-                          <div className="flex items-center space-x-2 text-gray-500 text-sm">
-                            <span className="font-medium">{user.email}</span>
+                          <div>
+                            <p className="font-serif text-secondary text-lg font-medium">{user.name || 'Customer'}</p>
+                            <p className="text-[10px] font-semibold text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10 inline-block mt-1 uppercase tracking-widest">{user.role}</p>
                           </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex flex-col space-y-1">
-                        <span className="text-sm text-gray-800 font-medium">
-                          DOB: <span className="text-gray-500 font-normal">{user.dob || 'N/A'}</span>
-                        </span>
-                        <span className="text-sm text-gray-800 font-medium">
-                          Gender: <span className="text-gray-500 font-normal">{user.gender || 'N/A'}</span>
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-start space-x-2 text-gray-600">
-                        <div className="p-1.5 bg-gray-100/80 rounded-lg mt-0.5 group-hover:bg-white transition-colors shadow-sm">
-                           <MapPin size={14} className="text-gray-500" />
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-gray-700">{user.city || 'No city provided'}</span>
-                          <span className="text-xs text-gray-500">{user.state ? `${user.state}, ` : ''}{user.pincode || ''}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-1.5">
-                          {user.kycStatus === 'VERIFIED' ? (
-                            <span className="inline-flex items-center space-x-1 px-3 py-1 bg-green-100/80 text-green-700 text-xs font-bold rounded-full border border-green-200 shadow-sm">
-                              <ShieldCheck size={14} />
-                              <span>Verified KYC</span>
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center space-x-1 px-3 py-1 bg-amber-100/80 text-amber-700 text-xs font-bold rounded-full border border-amber-200 shadow-sm">
-                              <Clock size={14} />
-                              <span>Pending KYC</span>
-                            </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2 text-gray-600">
+                            <div className="p-1.5 bg-gray-100/80 rounded-lg group-hover:bg-white transition-colors shadow-sm">
+                               <Phone size={14} className="text-gray-500" />
+                            </div>
+                            <span className="font-medium">{user.phone}</span>
+                          </div>
+                          {user.email && (
+                            <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                              <span className="font-medium">{user.email}</span>
+                            </div>
                           )}
                         </div>
-                        <div className="text-xs text-gray-500 font-medium">
-                          Joined {new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-start space-x-2 text-gray-600">
+                          <div className="p-1.5 bg-gray-100/80 rounded-lg mt-0.5 group-hover:bg-white transition-colors shadow-sm">
+                             <MapPin size={14} className="text-gray-500" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-gray-700">{user.city || 'No city'}</span>
+                            <span className="text-xs text-gray-500">{user.state ? `${user.state}, ` : ''}{user.pincode || ''}</span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-1.5">
+                            {user.kycStatus === 'VERIFIED' ? (
+                              <span className="inline-flex items-center space-x-1 px-3 py-1 bg-green-100/80 text-green-700 text-xs font-bold rounded-full border border-green-200 shadow-sm">
+                                <ShieldCheck size={14} />
+                                <span>Verified KYC</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center space-x-1 px-3 py-1 bg-amber-100/80 text-amber-700 text-xs font-bold rounded-full border border-amber-200 shadow-sm">
+                                <Clock size={14} />
+                                <span>Pending KYC</span>
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 font-medium">
+                            Joined {new Date(user.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 text-center">
+                        <button className="p-2 rounded-full hover:bg-gray-200 transition-colors text-gray-500">
+                          {expandedUserId === user.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        </button>
+                      </td>
+                    </tr>
+                    
+                    {/* Expanded Content: Active Schemes */}
+                    {expandedUserId === user.id && (
+                      <tr className="bg-gray-50/80 border-b border-gray-100">
+                        <td colSpan={5} className="px-8 py-6">
+                          <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Active Schemes & Plans</h4>
+                          {(!user.activeSchemes || user.activeSchemes.length === 0) ? (
+                            <p className="text-gray-500 text-sm italic">This customer is not enrolled in any active schemes.</p>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {user.activeSchemes.map((scheme: any) => (
+                                <div key={scheme.id} className="bg-white border border-primary/20 rounded-xl p-4 shadow-sm hover:border-primary/50 transition-colors">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <h5 className="font-serif text-lg text-secondary font-semibold">{scheme.planDetails?.name || 'Unknown Plan'}</h5>
+                                    <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-1 rounded">ACTIVE</span>
+                                  </div>
+                                  
+                                  <div className="flex flex-wrap gap-2 mb-4">
+                                    {scheme.planDetails?.schemeType && (
+                                      <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${scheme.planDetails.schemeType === 'WEIGHT_BASED' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-green-50 text-green-700 border-green-200'} flex items-center`}>
+                                        <Layers size={10} className="mr-1" />
+                                        {scheme.planDetails.schemeType === 'WEIGHT_BASED' ? 'Weight Based' : 'Value Based'}
+                                      </span>
+                                    )}
+                                    {scheme.planDetails?.metalType && (
+                                      <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${scheme.planDetails.metalType === 'SILVER' ? 'bg-gray-100 text-gray-600 border-gray-300' : 'bg-yellow-50 text-yellow-700 border-yellow-300'} flex items-center`}>
+                                        <Coins size={10} className="mr-1" />
+                                        {scheme.planDetails.metalType === 'SILVER' ? 'Silver' : 'Gold'}
+                                      </span>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="space-y-2 mt-4 pt-3 border-t border-gray-100 text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-500">Monthly Amount</span>
+                                      <span className="font-bold">₹{scheme.monthlyAmount}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-500">Total Paid</span>
+                                      <span className="font-bold text-green-600">₹{scheme.totalPaid || 0}</span>
+                                    </div>
+                                    {scheme.planDetails?.schemeType === 'WEIGHT_BASED' && (
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-500">Accumulated Weight</span>
+                                        <span className="font-bold text-secondary">
+                                          {/* In a real app, this would be fetched from DB. For now, showing placeholder. */}
+                                          {((scheme.totalPaid || 0) / (scheme.planDetails.metalType === 'GOLD' ? 7000 : 90)).toFixed(3)}g
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </tbody>

@@ -8,6 +8,7 @@ import PlansManagement from './pages/Plans';
 import RatesManagement from './pages/Rates';
 import UsersManagement from './pages/Users';
 import TransactionsManagement from './pages/Transactions';
+import DigitalCustomers from './pages/DigitalCustomers';
 import { useAuthStore } from './store/authStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -34,8 +35,10 @@ const App: React.FC = () => {
         >
           <Route index element={<Dashboard />} />
           <Route path="users" element={<UsersManagement />} />
+          <Route path="digital-customers" element={<DigitalCustomers />} />
           <Route path="jewellery" element={<JewelleryManagement />} />
-          <Route path="plans" element={<PlansManagement />} />
+          <Route path="plans/value" element={<PlansManagement typeFilter="VALUE_BASED" />} />
+          <Route path="plans/weight" element={<PlansManagement typeFilter="WEIGHT_BASED" />} />
           <Route path="transactions" element={<TransactionsManagement />} />
           <Route path="rates" element={<RatesManagement />} />
           <Route path="settings" element={<div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 min-h-[400px]">Settings (Coming Soon)</div>} />

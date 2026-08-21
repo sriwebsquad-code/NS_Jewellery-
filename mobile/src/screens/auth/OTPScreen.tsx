@@ -34,12 +34,6 @@ const OTPScreen = () => {
           alert('Invalid OTP. Use 123456 for demo.');
           return;
         }
-      } else {
-        // Original Firebase flow
-        await confirmation.confirm(otp); 
-        const { auth } = require('../../config/firebase');
-        const idToken = await auth().currentUser.getIdToken();
-        payload = { idToken, phone, otp };
       }
 
       const response = await fetch('https://ns-jewellery.onrender.com/api/auth/verify-otp', {

@@ -86,3 +86,120 @@ export const getLockerDashboard = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Failed to fetch locker dashboard', error: error.message });
   }
 };
+
+export const getDigitalUsers = async (req: Request, res: Response) => {
+  try {
+    // Fetch all digital balances
+    const balancesSnapshot = await db.collection('digitalBalances').get();
+    
+    if (balancesSnapshot.empty) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const balancesMap: Record<string, any> = {};
+    const userIds = new Set<string>();
+
+    balancesSnapshot.docs.forEach(doc => {
+      const data = doc.data();
+      // Only include users who actually have some balance
+      if (data.goldBalance > 0 || data.silverBalance > 0) {
+        balancesMap[doc.id] = data;
+        userIds.add(doc.id);
+      }
+    });
+
+    if (userIds.size === 0) {
+       return res.status(200).json({ success: true, data: [] });
+    }
+
+    // Fetch user details
+    const usersSnapshot = await db.collection('users').get();
+    const result: any[] = [];
+    
+    usersSnapshot.docs.forEach(doc => {
+      if (userIds.has(doc.id)) {
+        const userData = doc.data();
+        delete userData.mpin;
+        
+        result.push({
+          userId: doc.id,
+          user: userData,
+          balances: balancesMap[doc.id]
+        });
+      }
+    });
+
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Failed to fetch digital users', error: error.message });
+  }
+};
+
+export const getUserMetalTransactions = async (req: Request, res: Response) => {
+  try {
+    const { userId, metalType } = req.params;
+
+    const snapshot = await db.collection('digitalTransactions')
+      .where('userId', '==', userId)
+      .where('metalType', '==', metalType.toUpperCase())
+      .get();
+      
+    if (snapshot.empty) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const txns = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Sort in descending order of createdAt in JS to avoid index requirement
+    txns.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    res.status(200).json({ success: true, data: txns });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Failed to fetch transactions', error: error.message });
+  }
+};
+
+export const redeemUserMetal = async (req: Request, res: Response) => {
+  try {
+    const { userId, metalType } = req.params;
+    const type = metalType.toUpperCase();
+
+    const balanceRef = db.collection('digitalBalances').doc(userId);
+    const balanceDoc = await balanceRef.get();
+
+    if (!balanceDoc.exists) {
+      return res.status(404).json({ success: false, message: 'Balance not found' });
+    }
+
+    const data = balanceDoc.data()!;
+    const balanceField = type === 'GOLD' ? 'goldBalance' : 'silverBalance';
+    const currentBalance = data[balanceField] || 0;
+
+    if (currentBalance <= 0) {
+      return res.status(400).json({ success: false, message: 'Insufficient balance to redeem' });
+    }
+
+    // Create redemption transaction
+    const txnRef = db.collection('digitalTransactions').doc();
+    const txn = {
+      id: txnRef.id,
+      userId,
+      type: 'REDEEM',
+      metalType: type,
+      weight: currentBalance, // record the weight redeemed
+      amount: 0, // Admin redeemed, no amount tracked here
+      status: 'SUCCESS',
+      createdAt: new Date().toISOString()
+    };
+    
+    await txnRef.set(txn);
+
+    // Zero out balance
+    await balanceRef.update({
+      [balanceField]: 0
+    });
+
+    res.status(200).json({ success: true, message: 'Redeemed successfully' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Failed to redeem', error: error.message });
+  }
+};

@@ -68,14 +68,39 @@ export const updateProfile = async (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
-    
-    const users = snapshot.docs.map(doc => {
+    const usersSnapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+    const userPlansSnapshot = await db.collection('userPlans').get();
+    const plansSnapshot = await db.collection('plans').get();
+
+    // Map plans by ID
+    const plansMap: Record<string, any> = {};
+    plansSnapshot.docs.forEach(doc => {
+      plansMap[doc.id] = { id: doc.id, ...doc.data() };
+    });
+
+    // Map active userPlans by userId
+    const activeSchemesMap: Record<string, any[]> = {};
+    userPlansSnapshot.docs.forEach(doc => {
+      const up = doc.data();
+      if (up.status === 'ACTIVE') {
+        if (!activeSchemesMap[up.userId]) {
+          activeSchemesMap[up.userId] = [];
+        }
+        activeSchemesMap[up.userId].push({
+          id: doc.id,
+          ...up,
+          planDetails: plansMap[up.planId] || null
+        });
+      }
+    });
+
+    const users = usersSnapshot.docs.map(doc => {
       const data = doc.data();
       delete data.mpin; // Don't send passwords
       return {
         id: doc.id,
-        ...data
+        ...data,
+        activeSchemes: activeSchemesMap[doc.id] || []
       };
     });
 

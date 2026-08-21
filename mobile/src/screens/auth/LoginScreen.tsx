@@ -16,8 +16,6 @@ const LoginScreen = () => {
     if (phone.length === 10) {
       try {
         // Mocking firebase auth for urgent demo
-        // const { auth } = require('../../config/firebase');
-        // const confirmation = await auth().signInWithPhoneNumber(`+91${phone}`);
         const confirmation = { verificationId: 'demo-123456' };
         navigation.navigate('OTP', { phone, confirmation });
       } catch (error) {
