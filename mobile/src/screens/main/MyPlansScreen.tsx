@@ -42,10 +42,10 @@ const MyPlansScreen = () => {
     try {
       const response = await fetch('https://ns-jewellery.onrender.com/api/rates');
       const data = await response.json();
-      if (data.success && data.data && data.data.currentRates) {
+      if (data.success && data.data) {
         setLiveRates({
-          gold: data.data.currentRates.goldRate,
-          silver: data.data.currentRates.silverRate
+          gold: data.data.goldRate || 0,
+          silver: data.data.silverRate || 0
         });
       }
     } catch (err) {

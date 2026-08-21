@@ -32,8 +32,8 @@ const LoginScreen = () => {
       {/* Top Logo Section */}
       <View style={styles.logoSection}>
         <Image 
-          source={require('../../../assets/rn_logo.png')} 
-          style={styles.logo} 
+          source={require('../../../assets/app_logo.jpg')} 
+          style={[styles.logo, { borderRadius: 20 }]} 
         />
         <Text style={styles.logoText}>NS MAHAVEER</Text>
         <Text style={styles.logoSubText}>JEWELLERY</Text>

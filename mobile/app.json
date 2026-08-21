@@ -4,13 +4,13 @@
     "slug": "ns-jewellery",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/app_icon.jpg",
+    "icon": "./assets/app_logo.jpg",
     "userInterfaceStyle": "light",
     "primaryColor": "#D4AF37",
     "splash": {
-      "image": "./assets/rn_logo.png",
+      "image": "./assets/app_logo.jpg",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "supportsTablet": true,
@@ -21,8 +21,8 @@
       "package": "com.anonymous.nsjewellery",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/rn_logo.png",
-        "backgroundColor": "#000000"
+        "foregroundImage": "./assets/app_logo.jpg",
+        "backgroundColor": "#FFFFFF"
       },
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json"
