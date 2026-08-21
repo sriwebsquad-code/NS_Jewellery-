@@ -27,14 +27,11 @@ const LoginScreen = () => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#0F0F0F" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFF8F0" />
       
       {/* Top Logo Section */}
       <View style={styles.logoSection}>
-        <Image 
-          source={require('../../../assets/app_logo.jpg')} 
-          style={[styles.logo, { borderRadius: 20 }]} 
-        />
+        <Text style={styles.welcomeText}>Welcome to</Text>
         <Text style={styles.logoText}>NS MAHAVEER</Text>
         <Text style={styles.logoSubText}>JEWELLERY</Text>
       </View>
@@ -73,46 +70,51 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F0F',
+    backgroundColor: '#FFF8F0',
     justifyContent: 'center',
   },
   logoSection: {
     alignItems: 'center',
     marginBottom: 40,
   },
-  logo: {
-    width: 120,
-    height: 120,
-    resizeMode: 'contain',
-    marginBottom: 15,
+  welcomeText: {
+    fontSize: 16,
+    color: '#D4AF37',
+    fontFamily: 'serif',
+    marginBottom: 10,
+    fontWeight: '500',
   },
   logoText: {
     color: '#D4AF37',
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     fontFamily: 'serif',
     letterSpacing: 2,
+    textAlign: 'center',
   },
   logoSubText: {
-    color: '#FFF',
-    fontSize: 10,
+    color: '#D4AF37',
+    fontSize: 14,
+    fontWeight: 'bold',
+    fontFamily: 'serif',
     letterSpacing: 6,
     marginTop: 5,
+    textAlign: 'center',
   },
   formSection: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
     padding: 30,
     borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
   loginHeading: {
-    color: '#FFF',
-    fontSize: 16,
+    color: '#000',
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 20,
     letterSpacing: 1,
@@ -121,16 +123,18 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#333',
+    backgroundColor: '#F5F5F5',
     borderRadius: 8,
     paddingHorizontal: 15,
     height: 55,
     marginBottom: 25,
+    borderWidth: 1,
+    borderColor: '#E0E0E0'
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#FFF',
+    color: '#000',
     fontWeight: '500',
   },
   button: {
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D4AF37',
   },
   buttonDisabled: {
-    backgroundColor: '#555',
+    backgroundColor: '#E0E0E0',
   },
   buttonText: {
     color: '#000',
@@ -151,16 +155,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  bottomText: {
-    textAlign: 'center',
-    color: '#888',
-    fontSize: 12,
-    marginTop: 40,
-  },
-  bottomTextLink: {
-    color: '#D4AF37',
-    fontWeight: 'bold',
-  }
 });
 
 export default LoginScreen;
