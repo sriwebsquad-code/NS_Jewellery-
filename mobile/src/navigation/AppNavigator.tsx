@@ -49,27 +49,30 @@ const AppNavigator = () => {
   return (
     <NavigationContainer theme={mode === 'dark' ? CustomDarkTheme : CustomDefaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* TEMPORARILY BYPASSING AUTHENTICATION FOR TESTING */}
-        <Stack.Screen name="Main" component={DrawerNavigator} />
-        <Stack.Screen name="JewelleryDetail" component={JewelleryDetailScreen} />
-        
-        {/* Auth Flow (Hidden) */}
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="OTP" component={OTPScreen} />
-        <Stack.Screen name="CreateMPIN" component={CreateMPINScreen} />
-        <Stack.Screen name="LoginMPIN" component={LoginMPINScreen} />
-        <Stack.Screen name="ForgotMpin" component={ForgotMpinScreen} />
-        
-        {/* Other Main Screens */}
-        <Stack.Screen name="Payment" component={PaymentScreen} />
-        <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
-        <Stack.Screen name="AadharVerification" component={AadharVerificationScreen} />
-        <Stack.Screen name="PanVerification" component={PanVerificationScreen} />
-        <Stack.Screen name="Live Rates" component={LiveRateScreen} />
-        <Stack.Screen name="Notifications" component={NotificationScreen} />
-        <Stack.Screen name="Gold Wallet" component={WalletScreen} initialParams={{ metalType: 'GOLD' }} />
-        <Stack.Screen name="Silver Wallet" component={WalletScreen} initialParams={{ metalType: 'SILVER' }} />
-        <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+        {!isLoggedIn ? (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="OTP" component={OTPScreen} />
+          </>
+        ) : !hasMpin ? (
+          <Stack.Screen name="CreateMPIN" component={CreateMPINScreen} />
+        ) : (
+          <>
+            <Stack.Screen name="LoginMPIN" component={LoginMPINScreen} />
+            <Stack.Screen name="Main" component={DrawerNavigator} />
+            <Stack.Screen name="JewelleryDetail" component={JewelleryDetailScreen} />
+            <Stack.Screen name="ForgotMpin" component={ForgotMpinScreen} />
+            <Stack.Screen name="Payment" component={PaymentScreen} />
+            <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
+            <Stack.Screen name="AadharVerification" component={AadharVerificationScreen} />
+            <Stack.Screen name="PanVerification" component={PanVerificationScreen} />
+            <Stack.Screen name="Live Rates" component={LiveRateScreen} />
+            <Stack.Screen name="Notifications" component={NotificationScreen} />
+            <Stack.Screen name="Gold Wallet" component={WalletScreen} initialParams={{ metalType: 'GOLD' }} />
+            <Stack.Screen name="Silver Wallet" component={WalletScreen} initialParams={{ metalType: 'SILVER' }} />
+            <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
