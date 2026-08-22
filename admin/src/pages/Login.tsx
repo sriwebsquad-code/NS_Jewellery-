@@ -10,9 +10,9 @@ const Login: React.FC = () => {
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const [clickCount, setClickCount] = useState(0);
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const clickTimeout = useRef<NodeJS.Timeout | null>(null);
+  const clickCount = useRef(0);
+  const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
@@ -21,20 +21,18 @@ const Login: React.FC = () => {
   }, []);
 
   const handleDiamondClick = () => {
-    setClickCount((prev) => {
-      const newCount = prev + 1;
-      if (newCount === 3) {
-        setShowForgotModal(true);
-        return 0;
-      }
-      return newCount;
-    });
+    clickCount.current += 1;
+    
+    if (clickCount.current === 3) {
+      setShowForgotModal(true);
+      clickCount.current = 0;
+    }
 
     if (clickTimeout.current) {
       clearTimeout(clickTimeout.current);
     }
     clickTimeout.current = setTimeout(() => {
-      setClickCount(0);
+      clickCount.current = 0;
     }, 1500);
   };
 
