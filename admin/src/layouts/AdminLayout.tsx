@@ -116,7 +116,7 @@ const AdminLayout: React.FC = () => {
             
             <div className="p-6 space-y-6">
               <div className="flex justify-center mb-2">
-                <div className="w-24 h-24 rounded-full overflow-hidden border border-primary/20 bg-white shadow-sm flex items-center justify-center p-2">
+                <div className="w-32 mx-auto flex items-center justify-center">
                   <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-auto object-contain" />
                 </div>
               </div>

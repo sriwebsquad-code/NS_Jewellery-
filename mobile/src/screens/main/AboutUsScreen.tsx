@@ -26,10 +26,9 @@ const AboutUsScreen = () => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           <Image 
-            source={require('../../../assets/rn_logo.png')} 
-            style={{ width: 80, height: 80, borderRadius: 40, alignSelf: 'center', marginBottom: 20 }} 
+            source={require('../../../assets/app_logo.jpg')} 
+            style={{ width: 140, height: 140, alignSelf: 'center', marginBottom: 10, resizeMode: 'contain' }} 
           />
-          <Text style={[styles.title, { color: colors.primary }]}>NS Mahaveer Jewellery</Text>
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>Since 1962</Text>
           
           <View style={styles.divider} />
