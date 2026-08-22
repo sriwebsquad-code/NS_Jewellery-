@@ -7,12 +7,12 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD3Gu0czVeuinqYmMvzlAioSHYm5BWt06Y",
+  authDomain: "rnmahaveerjewellery.firebaseapp.com",
+  projectId: "rnmahaveerjewellery",
+  storageBucket: "rnmahaveerjewellery.firebasestorage.app",
+  messagingSenderId: "908931576195",
+  appId: "1:908931576195:android:734840213529222e3206b6"
 };
 
 const app = initializeApp(firebaseConfig);
