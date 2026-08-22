@@ -34,7 +34,7 @@ const AdminLayout: React.FC = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-white m-4 rounded-xl flex flex-col z-10 overflow-hidden shadow-sm border border-primary/10">
         <div className="p-6">
-          <div className="w-32 mx-auto mb-4 flex items-center justify-center">
+          <div className="w-40 mx-auto mb-4 flex items-center justify-center">
             <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-auto object-contain" />
           </div>
           <p className="text-[10px] text-gray-400 font-medium mt-1 uppercase tracking-widest text-center">Admin Portal</p>
