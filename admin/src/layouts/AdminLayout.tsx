@@ -33,12 +33,12 @@ const AdminLayout: React.FC = () => {
       
       {/* Sidebar */}
       <aside className="w-64 bg-white m-4 rounded-xl flex flex-col z-10 overflow-hidden shadow-sm border border-primary/10">
-        <div className="p-8 border-b border-primary/10 flex flex-col items-center justify-center bg-white">
-          <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-2 border-primary bg-white shadow-lg p-2 flex items-center justify-center">
-            <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-full object-contain" />
+        <div className="p-6">
+          <div className="w-32 mx-auto mb-4 flex items-center justify-center">
+            <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-auto object-contain" />
           </div>
           <h1 className="text-2xl font-serif text-secondary text-center">NS MAHAVEER JEWELLERY</h1>
-          <p className="text-[10px] text-gray-400 font-medium mt-1 uppercase tracking-widest">Admin Portal</p>
+          <p className="text-[10px] text-gray-400 font-medium mt-1 uppercase tracking-widest text-center">Admin Portal</p>
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
