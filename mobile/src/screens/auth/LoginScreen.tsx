@@ -32,12 +32,9 @@ const LoginScreen = () => {
       {/* Top Logo Section */}
       <View style={styles.logoSection}>
         <Image 
-          source={require('../../../assets/rn_logo_black.png')} 
+          source={require('../../../assets/app_logo.jpg')} 
           style={styles.logo} 
         />
-        <Text style={styles.welcomeText}>Welcome to</Text>
-        <Text style={styles.logoText}>NS MAHAVEER</Text>
-        <Text style={styles.logoSubText}>JEWELLERY</Text>
       </View>
 
       {/* Form Section */}
@@ -82,34 +79,11 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logo: {
-    width: 140,
-    height: 100,
+    width: 280,
+    height: 280,
     resizeMode: 'contain',
+    borderRadius: 30, // The image has slightly rounded corners, this makes it look cleaner
     marginBottom: 10,
-  },
-  welcomeText: {
-    fontSize: 16,
-    color: '#D4AF37',
-    fontFamily: 'serif',
-    marginBottom: 10,
-    fontWeight: '500',
-  },
-  logoText: {
-    color: '#D4AF37',
-    fontSize: 28,
-    fontWeight: 'bold',
-    fontFamily: 'serif',
-    letterSpacing: 2,
-    textAlign: 'center',
-  },
-  logoSubText: {
-    color: '#D4AF37',
-    fontSize: 14,
-    fontWeight: 'bold',
-    fontFamily: 'serif',
-    letterSpacing: 6,
-    marginTop: 5,
-    textAlign: 'center',
   },
   formSection: {
     backgroundColor: '#FFFFFF',
