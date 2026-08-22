@@ -27,6 +27,9 @@ const Login: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
+          <div className="w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden border border-primary/20 bg-white shadow-md flex items-center justify-center p-2">
+            <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-full object-contain" />
+          </div>
           <h1 className="text-3xl font-bold text-secondary mb-2">NS MAHAVEER JEWELLERY</h1>
           <p className="text-gray-500">Admin Portal Login</p>
         </div>
