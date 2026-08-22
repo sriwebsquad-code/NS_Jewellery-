@@ -10,6 +10,12 @@ const ALLOWED_EMAILS = [
   'parthi15august@gmail.com'
 ];
 
+const ALLOWED_PHONES = [
+  '7418484430',
+  '7845391712',
+  '8400916916'
+];
+
 const Settings: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<Step>('SELECT_METHOD');
@@ -49,8 +55,8 @@ const Settings: React.FC = () => {
         return;
       }
     } else {
-      if (!phone || phone.length < 10) {
-        setError('Please enter a valid phone number.');
+      if (!ALLOWED_PHONES.includes(phone.trim())) {
+        setError('Unauthorized phone number. You do not have permission to reset the password.');
         return;
       }
     }
