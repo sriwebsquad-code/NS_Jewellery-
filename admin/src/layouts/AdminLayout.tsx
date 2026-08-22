@@ -105,7 +105,7 @@ const AdminLayout: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative">
             <div className="p-6 pb-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-              <h3 className="text-xl font-bold font-serif text-secondary">About NS Mahaveer</h3>
+              <h3 className="text-xl font-bold font-serif text-secondary">Admin NS Mahaveer</h3>
               <button 
                 onClick={() => setShowAbout(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors bg-white p-1 rounded-full shadow-sm border border-gray-100"
