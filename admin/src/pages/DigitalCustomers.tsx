@@ -124,7 +124,7 @@ const DigitalCustomers: React.FC = () => {
             className={`flex-1 py-4 text-center font-bold tracking-wider uppercase text-sm transition-colors ${activeTab === 'GOLD' ? 'bg-yellow-50 text-yellow-700 border-b-2 border-yellow-500' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             <div className="flex items-center justify-center space-x-2">
-              <Coins size={18} />
+              <img src="/gold_coin.png" alt="Gold Coin" className="w-5 h-5 object-contain" />
               <span>Digi Gold</span>
             </div>
           </button>
@@ -133,7 +133,7 @@ const DigitalCustomers: React.FC = () => {
             className={`flex-1 py-4 text-center font-bold tracking-wider uppercase text-sm transition-colors ${activeTab === 'SILVER' ? 'bg-gray-100 text-gray-700 border-b-2 border-gray-500' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             <div className="flex items-center justify-center space-x-2">
-              <Coins size={18} />
+              <img src="/silver_coin.png" alt="Silver Coin" className="w-5 h-5 object-contain" />
               <span>Digi Silver</span>
             </div>
           </button>
