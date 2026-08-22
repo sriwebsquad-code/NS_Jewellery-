@@ -88,7 +88,7 @@ const AdminLayout: React.FC = () => {
                 A
               </div>
               <div className="flex flex-col text-left">
-                <span className="text-sm font-semibold text-gray-800 leading-tight">Admin User</span>
+                <span className="text-sm font-bold text-[#D4AF37] leading-tight">NS Admin</span>
                 <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Superadmin</span>
               </div>
             </button>
