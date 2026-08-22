@@ -33,7 +33,7 @@ const Login: React.FC = () => {
     }
     clickTimeout.current = setTimeout(() => {
       clickCount.current = 0;
-    }, 1500);
+    }, 3000); // Increased timeout to 3 seconds for easier clicking
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -57,13 +57,19 @@ const Login: React.FC = () => {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="w-40 mx-auto mb-6 flex items-center justify-center relative">
-            <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-auto object-contain" />
-            {/* Secret Diamond Button */}
+            <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-auto object-contain pointer-events-none" />
+            {/* Secret Diamond Button - adjusted position and size */}
             <div 
               onClick={handleDiamondClick}
-              className="absolute w-12 h-12 z-10 cursor-pointer"
+              className="absolute z-20 cursor-pointer bg-transparent"
               title=" "
-              style={{ bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}
+              style={{ 
+                width: '60px', 
+                height: '40px', 
+                bottom: '22%', 
+                left: '50%', 
+                transform: 'translateX(-50%)' 
+              }}
             />
           </div>
           <p className="text-gray-500">Admin Portal Login</p>
