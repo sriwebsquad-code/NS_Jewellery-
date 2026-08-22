@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import PasswordChangeModal from '../components/PasswordChangeModal';
 
 const Login: React.FC = () => {
   const [adminId, setAdminId] = useState('');
@@ -8,6 +9,34 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
+
+  const [clickCount, setClickCount] = useState(0);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const clickTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (clickTimeout.current) clearTimeout(clickTimeout.current);
+    };
+  }, []);
+
+  const handleDiamondClick = () => {
+    setClickCount((prev) => {
+      const newCount = prev + 1;
+      if (newCount === 3) {
+        setShowForgotModal(true);
+        return 0;
+      }
+      return newCount;
+    });
+
+    if (clickTimeout.current) {
+      clearTimeout(clickTimeout.current);
+    }
+    clickTimeout.current = setTimeout(() => {
+      setClickCount(0);
+    }, 1500);
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +58,15 @@ const Login: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <div className="w-40 mx-auto mb-6 flex items-center justify-center">
+          <div className="w-40 mx-auto mb-6 flex items-center justify-center relative">
             <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-auto object-contain" />
+            {/* Secret Diamond Button */}
+            <div 
+              onClick={handleDiamondClick}
+              className="absolute w-12 h-12 z-10 cursor-pointer"
+              title=" "
+              style={{ bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}
+            />
           </div>
           <p className="text-gray-500">Admin Portal Login</p>
         </div>
@@ -72,6 +108,13 @@ const Login: React.FC = () => {
           </button>
         </form>
       </div>
+
+      {showForgotModal && (
+        <PasswordChangeModal 
+          onClose={() => setShowForgotModal(false)} 
+          title="Recover Password" 
+        />
+      )}
     </div>
   );
 };
