@@ -11,6 +11,8 @@ import TransactionsManagement from './pages/Transactions';
 import DigitalCustomers from './pages/DigitalCustomers';
 import { useAuthStore } from './store/authStore';
 
+import Settings from './pages/Settings';
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((state) => state.token);
   if (!token) {
@@ -41,7 +43,7 @@ const App: React.FC = () => {
           <Route path="plans/weight" element={<PlansManagement typeFilter="WEIGHT_BASED" />} />
           <Route path="transactions" element={<TransactionsManagement />} />
           <Route path="rates" element={<RatesManagement />} />
-          <Route path="settings" element={<div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 min-h-[400px]">Settings (Coming Soon)</div>} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

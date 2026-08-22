@@ -14,8 +14,10 @@ const Login: React.FC = () => {
     setError('');
     
     // In production, this will hit POST /api/admin/login
-    // Default admin credentials
-    if (adminId === 'NS_Mahaveer_Jewellery_RN' && password === 'RN_NS_Mahaveerj@2026') {
+    const savedPassword = localStorage.getItem('adminPassword') || 'RN_NS_Mahaveerj@2026';
+    
+    // Check credentials
+    if (adminId === 'NS_Mahaveer_Jewellery_RN' && password === savedPassword) {
       login({ id: '1', name: 'NS Admin', phone: '0000000000', role: 'ADMIN' }, 'fake-jwt-token');
       navigate('/');
     } else {
