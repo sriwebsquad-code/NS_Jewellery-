@@ -122,7 +122,10 @@ const UsersManagement: React.FC = () => {
                           </div>
                           <div>
                             <p className="font-serif text-secondary text-lg font-medium">{user.name || 'Customer'}</p>
-                            <p className="text-[10px] font-semibold text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10 inline-block mt-1 uppercase tracking-widest">{user.role}</p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <span className="text-[10px] font-semibold text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10 uppercase tracking-widest">{user.role}</span>
+                              <span className="text-[10px] font-medium text-gray-400 font-mono bg-gray-50 px-2 py-0.5 rounded border border-gray-100">#{user.id}</span>
+                            </div>
                           </div>
                         </div>
                       </td>

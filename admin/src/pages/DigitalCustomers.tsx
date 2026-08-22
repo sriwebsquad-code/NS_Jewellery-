@@ -179,8 +179,14 @@ const DigitalCustomers: React.FC = () => {
                               {customer.user?.name ? customer.user.name.charAt(0).toUpperCase() : 'C'}
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-800">{customer.user?.name || 'Unknown'}</p>
-                              <p className="text-xs text-gray-500">{customer.user?.phone || 'No phone'}</p>
+                              <div className="flex items-center space-x-2">
+                                <p className="font-serif font-medium text-gray-900">{customer.user?.name || 'Unknown User'}</p>
+                                <span className="text-[10px] font-medium text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">#{customer.userId}</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
+                                <Phone size={12} />
+                                <span>{customer.user?.phone || 'No phone'}</span>
+                              </div>
                             </div>
                           </div>
                         </td>
