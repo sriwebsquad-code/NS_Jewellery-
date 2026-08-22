@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, Coins, Search, ArrowRight, ChevronDown, ChevronUp, CheckCircle, Clock } from 'lucide-react';
+import { Layers, Phone, Search, ArrowRight, ChevronDown, ChevronUp, CheckCircle, Clock } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 const DigitalCustomers: React.FC = () => {
