@@ -3,6 +3,7 @@ import { getAuth } from 'firebase-admin/auth';
 import app, { db } from '../config/firebase';
 import { generateToken } from '../utils/jwt';
 import bcrypt from 'bcrypt';
+import { whatsappService } from '../services/whatsapp.service';
 
 export const verifyFirebaseOTP = async (req: Request, res: Response) => {
   try {
@@ -44,6 +45,11 @@ export const verifyFirebaseOTP = async (req: Request, res: Response) => {
       };
       await newUserRef.set(user);
       isNewUser = true;
+      
+      // Fire and forget WhatsApp Welcome Message
+      whatsappService.sendWelcomeMessage(phoneNumber).catch(err => {
+        console.error('Failed to send WhatsApp welcome message:', err);
+      });
     } else {
       const doc = snapshot.docs[0]!;
       user = { id: doc.id, ...doc.data() };
