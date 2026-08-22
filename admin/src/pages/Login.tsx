@@ -30,7 +30,6 @@ const Login: React.FC = () => {
           <div className="w-32 mx-auto mb-6 flex items-center justify-center">
             <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-auto object-contain" />
           </div>
-          <h1 className="text-3xl font-bold text-secondary mb-2">NS MAHAVEER JEWELLERY</h1>
           <p className="text-gray-500">Admin Portal Login</p>
         </div>
         

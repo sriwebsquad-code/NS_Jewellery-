@@ -37,7 +37,6 @@ const AdminLayout: React.FC = () => {
           <div className="w-32 mx-auto mb-4 flex items-center justify-center">
             <img src="/rn_new_logo.png" alt="RN Logo" className="w-full h-auto object-contain" />
           </div>
-          <h1 className="text-2xl font-serif text-secondary text-center">NS MAHAVEER JEWELLERY</h1>
           <p className="text-[10px] text-gray-400 font-medium mt-1 uppercase tracking-widest text-center">Admin Portal</p>
         </div>
         
