@@ -18,7 +18,7 @@ app.use(cors({
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import adminRoutes from './routes/admin.routes';
-import { initRatesCron } from './services/cron.service';
+import { initRatesCron, initRemindersCron } from './services/cron.service';
 import rateLimit from 'express-rate-limit';
 import ratesRoutes from './routes/rates.routes';
 import jewelleryRoutes from './routes/jewellery.routes';
@@ -69,6 +69,7 @@ app.use('/api/admin', adminRoutes);
 
 // Initialize Cron Jobs
 initRatesCron();
+initRemindersCron();
 
 // Health Check Route
 app.get('/health', (req: Request, res: Response) => {

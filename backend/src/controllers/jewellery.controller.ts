@@ -125,7 +125,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
     if (!id) {
       return res.status(400).json({ success: false, message: 'Category ID is required' });
     }
-    await db.collection('jewelleryCategories').doc(id).delete();
+    await db.collection('jewelleryCategories').doc(id as string).delete();
     res.status(200).json({ success: true, message: 'Category deleted successfully' });
   } catch (error: any) {
     console.error('Delete Category Error:', error);
@@ -139,7 +139,7 @@ export const deleteItem = async (req: Request, res: Response) => {
     if (!id) {
       return res.status(400).json({ success: false, message: 'Item ID is required' });
     }
-    await db.collection('jewelleryItems').doc(id).delete();
+    await db.collection('jewelleryItems').doc(id as string).delete();
     res.status(200).json({ success: true, message: 'Item deleted successfully' });
   } catch (error: any) {
     console.error('Delete Item Error:', error);
