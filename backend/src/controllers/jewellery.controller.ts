@@ -118,3 +118,31 @@ export const getJewelleryItems = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Failed to fetch items', error: error.message });
   }
 };
+
+export const deleteCategory = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'Category ID is required' });
+    }
+    await db.collection('jewelleryCategories').doc(id).delete();
+    res.status(200).json({ success: true, message: 'Category deleted successfully' });
+  } catch (error: any) {
+    console.error('Delete Category Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete category', error: error.message });
+  }
+};
+
+export const deleteItem = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'Item ID is required' });
+    }
+    await db.collection('jewelleryItems').doc(id).delete();
+    res.status(200).json({ success: true, message: 'Item deleted successfully' });
+  } catch (error: any) {
+    console.error('Delete Item Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete item', error: error.message });
+  }
+};

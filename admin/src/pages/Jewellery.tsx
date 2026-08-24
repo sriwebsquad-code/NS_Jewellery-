@@ -102,6 +102,46 @@ const JewelleryManagement: React.FC = () => {
     }
   };
 
+  const handleDeleteCategory = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete the category "${name}"? This action cannot be undone.`)) return;
+
+    try {
+      const res = await fetch(`https://ns-jewellery.onrender.com/api/jewellery/categories/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchData();
+      } else {
+        const data = await res.json();
+        alert(`Failed to delete category: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Failed to delete category:', error);
+      alert('Error connecting to the server.');
+    }
+  };
+
+  const handleDeleteItem = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete the item "${name}"? This action cannot be undone.`)) return;
+
+    try {
+      const res = await fetch(`https://ns-jewellery.onrender.com/api/jewellery/items/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchData();
+      } else {
+        const data = await res.json();
+        alert(`Failed to delete item: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Failed to delete item:', error);
+      alert('Error connecting to the server.');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12">
       <div className="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-primary/10">
@@ -187,7 +227,10 @@ const JewelleryManagement: React.FC = () => {
                   </div>
                   <span className="font-semibold text-secondary">{cat.name}</span>
                 </div>
-                <button className="text-gray-400 hover:text-red-500 transition-colors p-2">
+                <button 
+                  onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                  className="text-gray-400 hover:text-red-500 transition-colors p-2"
+                >
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -207,7 +250,10 @@ const JewelleryManagement: React.FC = () => {
                 <div className="flex-1 flex flex-col justify-center">
                   <div className="flex justify-between items-start">
                     <h4 className="font-semibold text-secondary leading-tight">{item.name}</h4>
-                    <button className="text-gray-400 hover:text-red-500 transition-colors">
+                    <button 
+                      onClick={() => handleDeleteItem(item.id, item.name)}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                    >
                       <Trash2 size={16} />
                     </button>
                   </div>

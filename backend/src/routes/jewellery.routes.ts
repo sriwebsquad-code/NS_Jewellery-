@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { createCategory, getCategories, createJewelleryItem, getJewelleryItems } from '../controllers/jewellery.controller';
+import { createCategory, getCategories, createJewelleryItem, getJewelleryItems, deleteCategory, deleteItem } from '../controllers/jewellery.controller';
 import { authenticate, authorizeAdmin } from '../middlewares/auth.middleware';
 import { auditLog } from '../middlewares/audit.middleware';
 
@@ -20,8 +20,10 @@ const upload = multer({ storage });
 
 router.post('/categories', authenticate, authorizeAdmin, auditLog, upload.single('image'), createCategory);
 router.get('/categories', getCategories);
+router.delete('/categories/:id', authenticate, authorizeAdmin, auditLog, deleteCategory);
 
 router.post('/items', authenticate, authorizeAdmin, auditLog, upload.single('image'), createJewelleryItem);
 router.get('/items', getJewelleryItems);
+router.delete('/items/:id', authenticate, authorizeAdmin, auditLog, deleteItem);
 
 export default router;

@@ -49,7 +49,6 @@ const Dashboard: React.FC = () => {
                 <div className="p-3 bg-white/50 rounded-xl shadow-sm backdrop-blur-md">
                   {stat.icon}
                 </div>
-                <span className="text-xs font-bold text-green-500 bg-green-100/50 px-2 py-1 rounded-md backdrop-blur-md">+12%</span>
               </div>
               <div>
                 <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">{stat.label}</p>
