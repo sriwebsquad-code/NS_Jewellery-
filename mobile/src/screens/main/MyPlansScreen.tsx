@@ -99,10 +99,10 @@ const MyPlansScreen = () => {
       ];
 
       const fallbackPlans = [
-        { id: 'mock-11-month-gold', name: '11 Month Gold Scheme', type: 'AMOUNT', durationMonths: 11, benefits: JSON.stringify(goldBenefits) },
-        { id: 'mock-gold-11', name: 'Gold 11 Scheme', type: 'GOLD', durationMonths: 11, benefits: JSON.stringify(goldBenefits) },
-        { id: 'mock-11-month-silver', name: '11 Month Silver Scheme', type: 'AMOUNT', durationMonths: 11, benefits: JSON.stringify(silverBenefits) },
-        { id: 'mock-silver-11', name: 'Silver 11 Scheme', type: 'SILVER', durationMonths: 11, benefits: JSON.stringify(silverBenefits) }
+        { id: 'mock-11-month-gold', name: '11 Month Value based Gold Scheme', type: 'AMOUNT', durationMonths: 11, benefits: JSON.stringify(goldBenefits) },
+        { id: 'mock-gold-11', name: '11 Month Weight based Gold Scheme', type: 'GOLD', durationMonths: 11, benefits: JSON.stringify(goldBenefits) },
+        { id: 'mock-11-month-silver', name: '11 Month Value based Silver Scheme', type: 'AMOUNT', durationMonths: 11, benefits: JSON.stringify(silverBenefits) },
+        { id: 'mock-silver-11', name: '11 Month Weight based Silver Scheme', type: 'SILVER', durationMonths: 11, benefits: JSON.stringify(silverBenefits) }
       ];
       setPlans(fallbackPlans);
       

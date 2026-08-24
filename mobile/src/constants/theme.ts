@@ -1,7 +1,7 @@
 export const COLORS = {
-  primary: '#C89F7A', // Warm brown/gold from reference
+  primary: '#D4AF37', // Gold
   primaryLight: '#EAD9C6', // Beige
-  secondary: '#6B4E3D', // Dark brown
+  secondary: '#D4AF37', // Gold
   secondaryDark: '#4A3424',
   secondaryLight: '#DDC7B3',
   white: '#FFFFFF',

@@ -6,7 +6,7 @@ interface AuthState {
   isLoggedIn: boolean;
   hasMpin: boolean;
   token: string | null;
-  user: { name: string; phone: string; kycStatus: string; panStatus: string; isNewUser?: boolean } | null;
+  user: { name: string; email?: string; phone: string; kycStatus: string; panStatus: string; isNewUser?: boolean; dob?: string; gender?: string; address?: string; state?: string; pincode?: string; } | null;
   lastActiveAt: number | null;
   setLogin: (token: string, hasMpin: boolean, user?: any) => void;
   setUser: (user: any) => void;
