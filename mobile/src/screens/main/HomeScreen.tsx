@@ -11,7 +11,7 @@ const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
-  const { token } = useAuthStore();
+  const { token, updateActivity } = useAuthStore();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
@@ -28,6 +28,7 @@ const HomeScreen = () => {
   const silverCarouselRef = useRef<ScrollView>(null);
 
   useEffect(() => {
+    if (updateActivity) updateActivity();
     fetchDashboardData();
   }, []);
 

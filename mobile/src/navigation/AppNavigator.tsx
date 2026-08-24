@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
@@ -27,8 +27,17 @@ import RegistrationScreen from '../screens/auth/RegistrationScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
-  const { isLoggedIn, hasMpin, user } = useAuthStore();
+  const { isLoggedIn, hasMpin, user, lastActiveAt, logout } = useAuthStore();
   const { mode } = useThemeStore();
+
+  useEffect(() => {
+    if (isLoggedIn && lastActiveAt) {
+      const fifteenDaysMs = 15 * 24 * 60 * 60 * 1000;
+      if (Date.now() - lastActiveAt > fifteenDaysMs) {
+        logout();
+      }
+    }
+  }, [isLoggedIn, lastActiveAt]);
 
   const CustomDefaultTheme = {
     ...DefaultTheme,

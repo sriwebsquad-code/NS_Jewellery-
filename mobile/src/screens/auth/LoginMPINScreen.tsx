@@ -8,17 +8,37 @@ import { COLORS, SIZES } from '../../constants/theme';
 
 const LoginMPINScreen = () => {
   const [mpin, setMpin] = useState('');
-  const logout = useAuthStore((state) => state.logout);
+  const [loading, setLoading] = useState(false);
+  const { logout, updateActivity, setLogin, user } = useAuthStore();
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
 
-  const handleLogin = () => {
-    if (mpin === '1234') { // Demo static MPIN
-       navigation.navigate('Main');
-    } else {
-      alert('Incorrect MPIN');
+  const handleLogin = async () => {
+    if (mpin.length !== 4) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/login-mpin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: user?.phone, mpin })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setLogin(data.data.token, true, data.data.user);
+        updateActivity();
+        navigation.replace('Main');
+      } else {
+        alert(data.message || 'Incorrect MPIN');
+        setMpin('');
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
