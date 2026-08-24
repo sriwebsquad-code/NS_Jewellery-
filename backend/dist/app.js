@@ -26,6 +26,7 @@ const digital_routes_1 = __importDefault(require("./routes/digital.routes"));
 const plans_routes_1 = __importDefault(require("./routes/plans.routes"));
 const notifications_routes_1 = __importDefault(require("./routes/notifications.routes"));
 const kyc_routes_1 = __importDefault(require("./routes/kyc.routes"));
+const payment_routes_1 = __importDefault(require("./routes/payment.routes"));
 const path_1 = __importDefault(require("path"));
 // Body parsing Middleware
 app.use(express_1.default.json());
@@ -57,6 +58,7 @@ app.use('/api/digital', digital_routes_1.default);
 app.use('/api/plans', plans_routes_1.default);
 app.use('/api/notifications', notifications_routes_1.default);
 app.use('/api/kyc', kyc_routes_1.default);
+app.use('/api/payment', payment_routes_1.default);
 app.use('/api/admin', admin_routes_1.default);
 // Initialize Cron Jobs
 (0, cron_service_1.initRatesCron)();

@@ -7,6 +7,6 @@ declare global {
         }
     }
 }
-export declare const authenticate: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
+export declare const authenticate: (req: Request, res: Response, next: NextFunction) => void | Response<any, Record<string, any>>;
 export declare const authorizeAdmin: (req: Request, res: Response, next: NextFunction) => void;
 //# sourceMappingURL=auth.middleware.d.ts.map

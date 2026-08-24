@@ -1,77 +1,107 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getJewelleryItems = exports.createJewelleryItem = exports.getCategories = exports.createCategory = void 0;
-const db_1 = __importDefault(require("../config/db"));
+const firebase_1 = require("../config/firebase");
 const createCategory = async (req, res) => {
     try {
         const { name } = req.body;
-        const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-        if (!name)
+        if (!name) {
             return res.status(400).json({ success: false, message: 'Category name is required' });
-        const category = await db_1.default.jewelleryCategory.create({
-            data: {
-                name,
-                image: imagePath
-            }
-        });
+        }
+        let imagePath = null;
+        if (req.file) {
+            const fileName = `categories/${Date.now()}-${req.file.originalname}`;
+            const fileUpload = firebase_1.storage.file(fileName);
+            await fileUpload.save(req.file.buffer, {
+                metadata: { contentType: req.file.mimetype }
+            });
+            imagePath = `https://firebasestorage.googleapis.com/v0/b/${firebase_1.storage.name}/o/${encodeURIComponent(fileName)}?alt=media`;
+        }
+        const docRef = firebase_1.db.collection('jewelleryCategories').doc();
+        const category = {
+            id: docRef.id,
+            name,
+            image: imagePath,
+            createdAt: new Date().toISOString()
+        };
+        await docRef.set(category);
         res.status(201).json({ success: true, data: category });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Create Category Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to create category', error: error.message });
     }
 };
 exports.createCategory = createCategory;
 const getCategories = async (req, res) => {
     try {
-        const categories = await db_1.default.jewelleryCategory.findMany();
+        const snapshot = await firebase_1.db.collection('jewelleryCategories').orderBy('createdAt', 'desc').get();
+        const categories = snapshot.docs.map(doc => doc.data());
         res.status(200).json({ success: true, data: categories });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: 'Failed to fetch categories', error: error.message });
     }
 };
 exports.getCategories = getCategories;
 const createJewelleryItem = async (req, res) => {
     try {
         const { categoryId, name, purity, weight, description, makingCharges, stock, basePrice } = req.body;
-        const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
         if (!categoryId || !name || !purity || !weight) {
-            return res.status(400).json({ success: false, message: 'Missing required fields' });
+            return res.status(400).json({ success: false, message: 'Required fields missing' });
         }
-        const item = await db_1.default.jewelleryItem.create({
-            data: {
-                categoryId,
-                name,
-                purity,
-                weight: parseFloat(weight),
-                description: description || '',
-                makingCharges: makingCharges ? parseFloat(makingCharges) : 0,
-                stock: stock ? parseInt(stock) : 0,
-                basePrice: basePrice ? parseFloat(basePrice) : null,
-                images: imagePath ? [imagePath] : []
-            }
-        });
+        let imagePath = null;
+        if (req.file) {
+            const fileName = `items/${Date.now()}-${req.file.originalname}`;
+            const fileUpload = firebase_1.storage.file(fileName);
+            await fileUpload.save(req.file.buffer, {
+                metadata: { contentType: req.file.mimetype }
+            });
+            imagePath = `https://firebasestorage.googleapis.com/v0/b/${firebase_1.storage.name}/o/${encodeURIComponent(fileName)}?alt=media`;
+        }
+        const docRef = firebase_1.db.collection('jewelleryItems').doc();
+        const item = {
+            id: docRef.id,
+            categoryId,
+            name,
+            purity,
+            weight: parseFloat(weight),
+            description: description || '',
+            makingCharges: makingCharges ? parseFloat(makingCharges) : 0,
+            stock: stock ? parseInt(stock) : 0,
+            basePrice: basePrice ? parseFloat(basePrice) : null,
+            images: imagePath ? [imagePath] : [],
+            createdAt: new Date().toISOString()
+        };
+        await docRef.set(item);
         res.status(201).json({ success: true, data: item });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Create Item Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to create item', error: error.message });
     }
 };
 exports.createJewelleryItem = createJewelleryItem;
 const getJewelleryItems = async (req, res) => {
     try {
-        const items = await db_1.default.jewelleryItem.findMany({
-            include: {
-                category: true
-            }
+        const snapshot = await firebase_1.db.collection('jewelleryItems').orderBy('createdAt', 'desc').get();
+        // Fetch categories to manually join
+        const categoriesSnap = await firebase_1.db.collection('jewelleryCategories').get();
+        const categoryMap = {};
+        categoriesSnap.docs.forEach(doc => {
+            categoryMap[doc.id] = doc.data();
+        });
+        const items = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                category: categoryMap[data.categoryId] || null
+            };
         });
         res.status(200).json({ success: true, data: items });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: 'Failed to fetch items', error: error.message });
     }
 };
 exports.getJewelleryItems = getJewelleryItems;

@@ -1,1 +1,1 @@
-{"version":3,"file":"audit.middleware.d.ts","sourceRoot":"","sources":["../../src/middlewares/audit.middleware.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAG1D;;GAEG;AACH,eAAO,MAAM,QAAQ,QAAe,OAAO,OAAO,QAAQ,QAAQ,YAAY,kBA6B7E,CAAC"}
+{"version":3,"file":"audit.middleware.d.ts","sourceRoot":"","sources":["../../src/middlewares/audit.middleware.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAG1D;;GAEG;AACH,eAAO,MAAM,QAAQ,QAAe,OAAO,OAAO,QAAQ,QAAQ,YAAY,kBA8B7E,CAAC"}

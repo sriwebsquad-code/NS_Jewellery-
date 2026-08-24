@@ -1,90 +1,52 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyAadharOTP = exports.sendAadharOTP = void 0;
-const db_1 = __importDefault(require("../config/db"));
-// Mock sending OTP to Aadhar linked mobile number
-const sendAadharOTP = async (req, res) => {
+exports.submitKyc = void 0;
+const firebase_1 = require("../config/firebase");
+const cashfree_service_1 = require("../services/cashfree.service");
+const submitKyc = async (req, res) => {
     try {
-        const { aadharNumber } = req.body;
         const userId = req.user?.userId;
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
+        if (!userId)
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        const { documentType, documentNumber } = req.body;
+        if (!documentType || !documentNumber) {
+            return res.status(400).json({ success: false, message: 'Document details required' });
         }
-        if (!aadharNumber || aadharNumber.length !== 12) {
-            res.status(400).json({ success: false, message: 'Invalid Aadhar Number. Must be 12 digits.' });
-            return;
+        let verificationResult;
+        if (documentType.toUpperCase() === 'PAN') {
+            // In a real app we'd get the actual user name from the DB to compare against
+            const userDoc = await firebase_1.db.collection('users').doc(userId).get();
+            const userName = userDoc.data()?.name || 'Customer';
+            verificationResult = await cashfree_service_1.cashfreeService.verifyPAN(documentNumber, userName);
         }
-        // In a real implementation (e.g. Setu, Zoop, Cashfree), we would call their API here to trigger OTP.
-        // For now, we mock the success response.
-        res.json({
+        else if (documentType.toUpperCase() === 'AADHAAR') {
+            verificationResult = await cashfree_service_1.cashfreeService.verifyAadhaar(documentNumber);
+        }
+        else {
+            return res.status(400).json({ success: false, message: 'Invalid document type. Must be PAN or AADHAAR.' });
+        }
+        if (!verificationResult.success) {
+            return res.status(400).json({
+                success: false,
+                message: 'KYC Verification Failed',
+                error: verificationResult.message
+            });
+        }
+        await firebase_1.db.collection('users').doc(userId).update({
+            kycStatus: 'APPROVED',
+            kycDocumentType: documentType,
+            kycDocumentNumber: documentNumber,
+            kycVerifiedAt: new Date().toISOString()
+        });
+        res.status(200).json({
             success: true,
-            message: 'OTP sent successfully to Aadhar linked mobile number',
-            data: {
-                referenceId: `mock-ref-${Date.now()}`,
-            }
+            message: 'KYC Submitted and Verified Successfully',
+            details: verificationResult.name ? `Verified Name: ${verificationResult.name}` : undefined
         });
     }
     catch (error) {
-        console.error('Send Aadhar OTP Error:', error);
-        res.status(500).json({ success: false, message: 'Failed to send OTP' });
+        res.status(500).json({ success: false, message: 'KYC submission failed', error: error.message });
     }
 };
-exports.sendAadharOTP = sendAadharOTP;
-// Mock verifying Aadhar OTP and updating KYC status
-const verifyAadharOTP = async (req, res) => {
-    try {
-        const { aadharNumber, otp, referenceId } = req.body;
-        const userId = req.user?.userId;
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
-        }
-        if (!otp || otp.length !== 6) {
-            res.status(400).json({ success: false, message: 'Invalid OTP. Must be 6 digits.' });
-            return;
-        }
-        // Check if another user already has this Aadhar
-        const existingAadhar = await db_1.default.user.findFirst({
-            where: {
-                aadharNumber,
-                id: { not: userId }
-            }
-        });
-        if (existingAadhar) {
-            res.status(400).json({ success: false, message: 'This Aadhar number is already linked to another account' });
-            return;
-        }
-        // In a real implementation, call the third-party API to verify the OTP using referenceId.
-        // For the mock, any 6 digit OTP is considered valid.
-        // Update user's KYC status
-        const updatedUser = await db_1.default.user.update({
-            where: { id: userId },
-            data: {
-                aadharNumber,
-                kycStatus: 'VERIFIED'
-            },
-            select: {
-                id: true,
-                phone: true,
-                name: true,
-                aadharNumber: true,
-                kycStatus: true
-            }
-        });
-        res.json({
-            success: true,
-            message: 'Aadhar Verified Successfully!',
-            data: updatedUser
-        });
-    }
-    catch (error) {
-        console.error('Verify Aadhar Error:', error);
-        res.status(500).json({ success: false, message: 'Aadhar verification failed' });
-    }
-};
-exports.verifyAadharOTP = verifyAadharOTP;
+exports.submitKyc = submitKyc;
 //# sourceMappingURL=kyc.controller.js.map

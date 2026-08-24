@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image, StatusBar, Dimensions } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Colors } from '../../constants/Colors';
-import { useThemeStore } from '../../store/themeStore';
-import { COLORS, SIZES } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width, height } = Dimensions.get('window');
 
 const OTPScreen = () => {
   const [otp, setOtp] = useState('');
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(45);
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { phone, confirmation } = route.params;
-  const setLogin = useAuthStore((state) => state.setLogin);
-  const { mode } = useThemeStore();
-  const colors = mode === 'dark' ? Colors.dark : Colors.light;
-  const styles = getStyles(colors, mode);
+  const { setLogin, setUser } = useAuthStore();
+  const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,15 +23,18 @@ const OTPScreen = () => {
   }, []);
 
   const handleVerify = async () => {
+    if (otp.length !== 6) return;
     try {
       let payload: any = { phone, otp };
       
-      // If it's the mock demo flow
       if (confirmation.verificationId === 'demo-123456') {
         if (otp !== '123456') {
           alert('Invalid OTP. Use 123456 for demo.');
           return;
         }
+      } else {
+        const userCredential = await confirmation.confirm(otp);
+        payload.idToken = await userCredential.user.getIdToken();
       }
 
       const response = await fetch('https://ns-jewellery.onrender.com/api/auth/verify-otp', {
@@ -44,151 +45,206 @@ const OTPScreen = () => {
       const data = await response.json();
       
       if (data.success) {
-        setLogin(data.token, !data.user.mpin);
+        setUser(data.data.user);
+        setLogin(data.data.token, !data.data.user.mpin);
       } else {
         alert('Authentication failed on server.');
       }
-    } catch (error) {
-      alert('Invalid OTP or Verification failed');
+    } catch (error: any) {
+      alert('Error: ' + (error.message || JSON.stringify(error)));
       console.error(error);
     }
   };
 
-  return (
-    <KeyboardAvoidingView 
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Verify OTP</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>Enter the 6-digit code sent to</Text>
-        <Text style={[styles.phoneText, { color: colors.text }]}>+91 {phone}</Text>
-      </View>
+  useEffect(() => {
+    if (otp.length === 6) {
+      handleVerify();
+    }
+  }, [otp]);
 
-      <View style={[styles.formContainer, { backgroundColor: colors.background }]}>
-        <View style={[styles.inputContainer, { backgroundColor: mode === 'dark' ? 'rgba(255,255,255,0.05)' : COLORS.lightGray, borderColor: colors.border }]}>
-          <TextInput
-            style={[styles.input, { color: colors.text }]}
-            placeholder="• • • • • •"
-            placeholderTextColor={colors.textMuted}
-            keyboardType="numeric"
-            maxLength={6}
-            value={otp}
-            onChangeText={setOtp}
-            textAlign="center"
+  // Render 6 OTP boxes
+  const renderOTPBoxes = () => {
+    const boxes = [];
+    for (let i = 0; i < 6; i++) {
+      const char = otp[i] || '';
+      const isFocused = otp.length === i;
+      boxes.push(
+        <View 
+          key={i} 
+          style={[
+            styles.otpBox, 
+            isFocused && styles.otpBoxFocused,
+            char ? styles.otpBoxFilled : null
+          ]}
+        >
+          <Text style={styles.otpText}>{char}</Text>
+        </View>
+      );
+    }
+    return boxes;
+  };
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FDF8F0" />
+      
+      <LinearGradient
+        colors={['#F9F1E2', '#FCF9F2', '#FDF8F0']}
+        style={StyleSheet.absoluteFillObject}
+      />
+      
+      <KeyboardAvoidingView 
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.logoSection}>
+          <Image 
+            source={require('../../../assets/new_logo.png')} 
+            style={styles.logo} 
           />
         </View>
 
-        <TouchableOpacity 
-          style={[styles.button, otp.length === 6 ? { backgroundColor: colors.primary } : styles.buttonDisabled]}
-          onPress={handleVerify}
-          disabled={otp.length !== 6}
-        >
-          <Text style={styles.buttonText}>Verify & Proceed</Text>
-        </TouchableOpacity>
-
-        <View style={styles.resendContainer}>
-          <Text style={[styles.resendText, { color: colors.textMuted }]}>Didn't receive the code? </Text>
-          {timer > 0 ? (
-            <Text style={[styles.timerText, { color: colors.textMuted }]}>Resend in {timer}s</Text>
-          ) : (
-            <TouchableOpacity onPress={() => setTimer(30)}>
-              <Text style={[styles.resendButton, { color: colors.primary }]}>Resend OTP</Text>
-            </TouchableOpacity>
-          )}
+        <View style={styles.textSection}>
+          <Text style={styles.heading}>Verify OTP</Text>
+          <Text style={styles.subheading}>Enter the 6-digit code sent to your number</Text>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+
+        <View style={styles.formContainer}>
+          
+          <TouchableOpacity 
+            activeOpacity={1} 
+            style={styles.otpContainer}
+            onPress={() => inputRef.current?.focus()}
+          >
+            {renderOTPBoxes()}
+          </TouchableOpacity>
+          
+          {/* Hidden text input to handle keyboard */}
+          <TextInput
+            ref={inputRef}
+            style={styles.hiddenInput}
+            value={otp}
+            onChangeText={setOtp}
+            maxLength={6}
+            keyboardType="number-pad"
+            autoFocus
+          />
+
+          <View style={styles.resendContainer}>
+            {timer > 0 ? (
+              <>
+                <Text style={styles.resendText}>Resend OTP in </Text>
+                <Text style={styles.timerText}>
+                  00:{timer < 10 ? `0${timer}` : timer}
+                </Text>
+              </>
+            ) : (
+              <TouchableOpacity onPress={() => setTimer(45)}>
+                <Text style={styles.resendButton}>Resend OTP</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
-const getStyles = (colors: any, mode: string) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
-    justifyContent: 'center',
+    backgroundColor: '#FDF8F0',
   },
-  header: {
+  keyboardView: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  logoSection: {
+    alignItems: 'center',
+    marginTop: height * 0.1,
+    marginBottom: 40,
+  },
+  logo: {
+    width: width * 0.65,
+    height: width * 0.65,
+    resizeMode: 'contain',
+  },
+  textSection: {
     alignItems: 'center',
     marginBottom: 40,
   },
-  title: {
-    color: '#D4AF37',
-    fontSize: 28,
-    fontWeight: 'bold',
-    fontFamily: 'serif',
-    marginBottom: 10,
+  heading: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 12,
   },
-  subtitle: {
-    color: '#D4AF37',
-    fontSize: 16,
-    fontFamily: 'serif',
-  },
-  phoneText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 5,
+  subheading: {
+    fontSize: 14,
+    color: '#555',
   },
   formContainer: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 20,
-    padding: 30,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    alignItems: 'center',
   },
-  inputContainer: {
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 30,
+  },
+  otpBox: {
+    width: 45,
+    height: 55,
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 8,
-    height: 55,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-  },
-  input: {
-    fontSize: 24,
-    color: '#000',
-    letterSpacing: 10,
-    fontWeight: 'bold',
-  },
-  button: {
-    height: 55,
-    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 30,
+    backgroundColor: '#FAFAFA',
   },
-  buttonActive: {
-    backgroundColor: '#D4AF37',
+  otpBoxFocused: {
+    borderColor: '#D4AF37',
+    borderWidth: 1.5,
+    backgroundColor: '#FFF',
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  buttonDisabled: {
-    backgroundColor: '#E0E0E0',
+  otpBoxFilled: {
+    borderColor: '#D4AF37',
+    backgroundColor: '#FFF',
   },
-  buttonText: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
-    letterSpacing: 1,
+  otpText: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#333',
+  },
+  hiddenInput: {
+    position: 'absolute',
+    width: 1,
+    height: 1,
+    opacity: 0,
   },
   resendContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
+    alignItems: 'center',
   },
   resendText: {
-    color: '#888',
+    fontSize: 14,
+    color: '#555',
   },
   timerText: {
+    fontSize: 14,
     color: '#D4AF37',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   resendButton: {
+    fontSize: 14,
     color: '#D4AF37',
     fontWeight: 'bold',
+    textDecorationLine: 'underline',
   },
 });
 

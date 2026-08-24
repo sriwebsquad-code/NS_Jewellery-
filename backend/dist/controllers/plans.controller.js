@@ -1,250 +1,229 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.seedPlans = exports.payInstallment = exports.purchasePlan = exports.getPlans = void 0;
-const db_1 = __importDefault(require("../config/db"));
+exports.redeemUserPlan = exports.getMyPlanTransactions = exports.getUserPlanTransactions = exports.getPlanUsers = exports.payInstallment = exports.getUserPlans = exports.joinPlan = exports.createPlan = exports.getPlans = void 0;
+const firebase_1 = require("../config/firebase");
 const getPlans = async (req, res) => {
     try {
-        const goldBenefits = [
-            "NO WASTAGE NO MAKING CHARGES FOR THE GOLD WEIGHT ACCUMULATED ONLY AFTER 11MONTHS.",
-            "THE PLAN CANNOT BE CLOSED IN BETWEEN. NO BENEFITS WILL BE GIVEN.",
-            "THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF GOLD ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED, IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.",
-            "NOTE: NO ORDERS ACCEPTED FOR JEWELLERY PLANS, READY ITEMS CAN BE PURCHASED WHATEVER ITS WASTAGE MAY BE.",
-            "NOTE : DIAMOND ORNAMENTS, SILVER ITEMS,& GIFTS CANNOT BE PURCHASED IN THIS PLANS"
-        ];
-        const silverBenefits = [
-            "NO WASTAGE NO MAKING CHARGES FOR THE SILVER WEIGHT ACCUMULATED ONLY AFTER 11MONTHS.",
-            "THE PLAN CANNOT BE CLOSED IN BETWEEN. NO BENEFITS WILL BE GIVEN.",
-            "THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF SILVER ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED, IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.",
-            "NOTE: NO ORDERS ACCEPTED FOR JEWELLERY PLANS, READY ITEMS CAN BE PURCHASED WHATEVER ITS WASTAGE MAY BE.",
-            "NOTE : DIAMOND ORNAMENTS, GOLD ITEMS,& GIFTS CANNOT BE PURCHASED IN THIS PLANS"
-        ];
-        const plans = [
-            {
-                id: 'mock-11-month-gold',
-                name: '11 Month Gold Scheme',
-                type: 'AMOUNT',
-                monthlyAmount: 1000,
-                durationMonths: 11,
-                benefits: JSON.stringify(goldBenefits),
-                terms: 'Gold bought at 11th month rate',
-                createdAt: new Date(),
-                updatedAt: new Date()
-            },
-            {
-                id: 'mock-gold-11',
-                name: 'Gold 11 Scheme',
-                type: 'GOLD',
-                monthlyAmount: 1000,
-                durationMonths: 11,
-                benefits: JSON.stringify(goldBenefits),
-                terms: 'Subject to daily gold rates',
-                createdAt: new Date(),
-                updatedAt: new Date()
-            },
-            {
-                id: 'mock-11-month-silver',
-                name: '11 Month Silver Scheme',
-                type: 'AMOUNT',
-                monthlyAmount: 1000,
-                durationMonths: 11,
-                benefits: JSON.stringify(silverBenefits),
-                terms: 'Silver bought at 11th month rate',
-                createdAt: new Date(),
-                updatedAt: new Date()
-            },
-            {
-                id: 'mock-silver-11',
-                name: 'Silver 11 Scheme',
-                type: 'SILVER',
-                monthlyAmount: 1000,
-                durationMonths: 11,
-                benefits: JSON.stringify(silverBenefits),
-                terms: 'Subject to daily silver rates',
-                createdAt: new Date(),
-                updatedAt: new Date()
-            }
-        ];
-        res.status(200).json({
-            success: true,
-            data: plans
-        });
+        const snapshot = await firebase_1.db.collection('plans').where('isActive', '==', true).get();
+        const plans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.status(200).json({ success: true, data: plans });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: 'Failed to fetch plans', error: error.message });
     }
 };
 exports.getPlans = getPlans;
-const purchasePlan = async (req, res) => {
+const createPlan = async (req, res) => {
     try {
-        const userId = req.user?.userId;
-        if (!userId) {
-            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        const { name, durationMonths, minAmount, schemeType, metalType } = req.body;
+        if (!name || !durationMonths || !minAmount || !schemeType || !metalType) {
+            return res.status(400).json({ success: false, message: 'Missing fields' });
         }
-        const { planId, amount, paymentId } = req.body;
-        if (!planId || !amount) {
-            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        if (!['VALUE_BASED', 'WEIGHT_BASED'].includes(schemeType)) {
+            return res.status(400).json({ success: false, message: 'Invalid schemeType' });
         }
-        const plan = await db_1.default.savingsPlan.findUnique({ where: { id: planId } });
-        if (!plan) {
-            return res.status(404).json({ success: false, message: 'Plan not found' });
+        if (!['GOLD', 'SILVER'].includes(metalType)) {
+            return res.status(400).json({ success: false, message: 'Invalid metalType' });
         }
-        // Determine if we are between 12:00 AM and 10:00 AM IST
-        const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-        const currentHour = nowIST.getHours();
-        const isRatePending = currentHour >= 0 && currentHour < 10;
-        let metalWeight = 0;
-        if (!isRatePending && (plan.type === 'GOLD' || plan.type === 'SILVER')) {
-            const metalRate = await db_1.default.metalRate.findFirst({
-                orderBy: { updatedAt: 'desc' }
-            });
-            const rate = plan.type === 'GOLD' ? (metalRate?.goldRate || 7250) : (metalRate?.silverRate || 85);
-            metalWeight = parseFloat(amount) / rate;
-        }
-        const result = await db_1.default.$transaction(async (tx) => {
-            const nextDueDate = new Date();
-            nextDueDate.setMonth(nextDueDate.getMonth() + 1);
-            const userPlan = await tx.userPlan.create({
-                data: {
-                    userId,
-                    planId,
-                    status: 'ACTIVE',
-                    accumulatedWeight: metalWeight,
-                    nextDueDate
-                }
-            });
-            const installment = await tx.installment.create({
-                data: {
-                    userId,
-                    userPlanId: userPlan.id,
-                    amount: parseFloat(amount),
-                    metalWeight: metalWeight,
-                    status: 'PAID',
-                    dueDate: new Date(),
-                    paidAt: new Date(),
-                    transactionId: paymentId || 'mock_txn_' + Date.now(),
-                    ratePending: isRatePending
-                }
-            });
-            return { userPlan, installment };
-        });
-        res.status(200).json({
-            success: true,
-            message: 'Plan purchased successfully',
-            data: result
-        });
+        const docRef = firebase_1.db.collection('plans').doc();
+        const plan = {
+            id: docRef.id,
+            name,
+            durationMonths: parseInt(durationMonths),
+            minAmount: parseFloat(minAmount),
+            schemeType,
+            metalType,
+            isActive: true,
+            createdAt: new Date().toISOString()
+        };
+        await docRef.set(plan);
+        res.status(201).json({ success: true, data: plan });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: 'Failed to create plan', error: error.message });
     }
 };
-exports.purchasePlan = purchasePlan;
-const payInstallment = async (req, res) => {
+exports.createPlan = createPlan;
+const joinPlan = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        const { planId, monthlyAmount } = req.body;
+        if (!userId)
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        const planDoc = await firebase_1.db.collection('plans').doc(planId).get();
+        if (!planDoc.exists)
+            return res.status(404).json({ success: false, message: 'Plan not found' });
+        const docRef = firebase_1.db.collection('userPlans').doc();
+        const userPlan = {
+            id: docRef.id,
+            userId,
+            planId,
+            status: 'ACTIVE',
+            monthlyAmount: parseFloat(monthlyAmount),
+            totalPaid: 0,
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + planDoc.data().durationMonths * 30 * 24 * 60 * 60 * 1000).toISOString()
+        };
+        await docRef.set(userPlan);
+        res.status(201).json({ success: true, message: 'Joined scheme successfully', data: userPlan });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to join plan', error: error.message });
+    }
+};
+exports.joinPlan = joinPlan;
+const getUserPlans = async (req, res) => {
     try {
         const userId = req.user?.userId;
         if (!userId)
             return res.status(401).json({ success: false, message: 'Unauthorized' });
-        const { userPlanId, amount, paymentId } = req.body;
-        if (!userPlanId || !amount)
-            return res.status(400).json({ success: false, message: 'Missing fields' });
-        const userPlan = await db_1.default.userPlan.findUnique({
-            where: { id: userPlanId },
-            include: { plan: true }
-        });
-        if (!userPlan)
-            return res.status(404).json({ success: false, message: 'User plan not found' });
-        // Determine if we are between 12:00 AM and 10:00 AM IST
-        const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-        const currentHour = nowIST.getHours();
-        const isRatePending = currentHour >= 0 && currentHour < 10;
-        let metalWeight = 0;
-        if (!isRatePending && (userPlan.plan.type === 'GOLD' || userPlan.plan.type === 'SILVER')) {
-            const metalRate = await db_1.default.metalRate.findFirst({
-                orderBy: { updatedAt: 'desc' }
+        const snapshot = await firebase_1.db.collection('userPlans').where('userId', '==', userId).get();
+        // Manually fetch related plans
+        const planCache = {};
+        const formattedPlans = [];
+        for (const doc of snapshot.docs) {
+            const data = doc.data();
+            if (!planCache[data.planId]) {
+                const p = await firebase_1.db.collection('plans').doc(data.planId).get();
+                planCache[data.planId] = p.data();
+            }
+            formattedPlans.push({
+                id: doc.id,
+                ...data,
+                plan: planCache[data.planId]
             });
-            const rate = userPlan.plan.type === 'GOLD' ? (metalRate?.goldRate || 7250) : (metalRate?.silverRate || 85);
-            metalWeight = parseFloat(amount) / rate;
         }
-        const result = await db_1.default.$transaction(async (tx) => {
-            // Calculate next due date
-            const nextDueDate = new Date(userPlan.nextDueDate);
-            nextDueDate.setMonth(nextDueDate.getMonth() + 1);
-            // Create new installment
-            const installment = await tx.installment.create({
-                data: {
-                    userId,
-                    userPlanId,
-                    amount: parseFloat(amount),
-                    metalWeight: metalWeight,
-                    status: 'PAID',
-                    dueDate: userPlan.nextDueDate,
-                    paidAt: new Date(),
-                    transactionId: paymentId || 'mock_txn_' + Date.now(),
-                    ratePending: isRatePending
-                }
-            });
-            // Update UserPlan accumulated weight & next due date
-            const updatedUserPlan = await tx.userPlan.update({
-                where: { id: userPlanId },
-                data: {
-                    accumulatedWeight: { increment: metalWeight },
-                    nextDueDate: nextDueDate
-                }
-            });
-            return { installment, updatedUserPlan };
-        });
-        res.status(200).json({ success: true, message: 'Installment paid', data: result });
+        res.status(200).json({ success: true, data: formattedPlans });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: 'Failed to fetch user plans', error: error.message });
+    }
+};
+exports.getUserPlans = getUserPlans;
+const payInstallment = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        const { userPlanId, amount } = req.body;
+        if (!userId)
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        const userPlanDoc = await firebase_1.db.collection('userPlans').doc(userPlanId).get();
+        if (!userPlanDoc.exists || userPlanDoc.data().userId !== userId) {
+            return res.status(403).json({ success: false, message: 'Invalid plan' });
+        }
+        const docRef = firebase_1.db.collection('installments').doc();
+        const installment = {
+            id: docRef.id,
+            userId,
+            userPlanId,
+            amount: parseFloat(amount),
+            status: 'PENDING',
+            createdAt: new Date().toISOString()
+        };
+        await docRef.set(installment);
+        res.status(201).json({ success: true, message: 'Payment submitted and pending verification', data: installment });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: 'Payment failed', error: error.message });
     }
 };
 exports.payInstallment = payInstallment;
-const seedPlans = async (req, res) => {
+const getPlanUsers = async (req, res) => {
     try {
-        // Clear and re-seed
-        await db_1.default.savingsPlan.deleteMany();
-        await db_1.default.savingsPlan.createMany({
-            data: [
-                {
-                    name: '11-Month Swarna Plan',
-                    type: 'AMOUNT',
-                    monthlyAmount: 2000,
-                    durationMonths: 11,
-                    benefits: JSON.stringify(["Standard Cash Accumulation"]),
-                    terms: 'Standard terms'
-                },
-                {
-                    name: 'Gold 11 Scheme',
-                    type: 'GOLD',
-                    monthlyAmount: 5000,
-                    durationMonths: 11,
-                    benefits: JSON.stringify([
-                        "Gold weight accumulated based on current live rate",
-                        "Zero Wastage & Making Charges"
-                    ]),
-                    terms: 'Subject to daily gold rates'
-                },
-                {
-                    name: 'Silver 11 Scheme',
-                    type: 'SILVER',
-                    monthlyAmount: 1000,
-                    durationMonths: 11,
-                    benefits: JSON.stringify([
-                        "Silver weight accumulated based on current live rate",
-                        "Zero Wastage & Making Charges"
-                    ]),
-                    terms: 'Subject to daily silver rates'
-                }
-            ]
+        const { planId } = req.params;
+        // 1. Fetch userPlans for this plan
+        const userPlansSnapshot = await firebase_1.db.collection('userPlans').where('planId', '==', planId).get();
+        if (userPlansSnapshot.empty) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+        // 2. Collect unique user IDs
+        const userIds = new Set();
+        const userPlansData = userPlansSnapshot.docs.map(doc => {
+            const data = doc.data();
+            userIds.add(data.userId);
+            return { id: doc.id, ...data };
         });
-        res.status(200).json({ success: true, message: 'Plans seeded successfully' });
+        // 3. Fetch user details for these users
+        // Firestore 'in' query has a limit of 10, so we will fetch all users and filter, or fetch one by one if there are few.
+        // For an admin panel with potentially many users, getting all users and mapping is safer than 10-limit queries.
+        const usersSnapshot = await firebase_1.db.collection('users').get();
+        const usersMap = {};
+        usersSnapshot.docs.forEach(doc => {
+            if (userIds.has(doc.id)) {
+                const userData = doc.data();
+                delete userData.mpin; // Don't expose mpin
+                usersMap[doc.id] = { id: doc.id, ...userData };
+            }
+        });
+        // 4. Combine data
+        const result = userPlansData.map(up => ({
+            ...up,
+            user: usersMap[up.userId] || null
+        }));
+        res.status(200).json({ success: true, data: result });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: 'Failed to fetch plan users', error: error.message });
     }
 };
-exports.seedPlans = seedPlans;
+exports.getPlanUsers = getPlanUsers;
+const getUserPlanTransactions = async (req, res) => {
+    try {
+        const { userPlanId } = req.params;
+        const snapshot = await firebase_1.db.collection('installments').where('userPlanId', '==', userPlanId).get();
+        if (snapshot.empty) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+        const transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // Sort in descending order of createdAt
+        transactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        res.status(200).json({ success: true, data: transactions });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch transactions', error: error.message });
+    }
+};
+exports.getUserPlanTransactions = getUserPlanTransactions;
+const getMyPlanTransactions = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        const userPlanId = req.params.userPlanId;
+        if (!userId)
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        const userPlanDoc = await firebase_1.db.collection('userPlans').doc(userPlanId).get();
+        if (!userPlanDoc.exists || userPlanDoc.data().userId !== userId) {
+            return res.status(403).json({ success: false, message: 'Forbidden' });
+        }
+        const snapshot = await firebase_1.db.collection('installments').where('userPlanId', '==', userPlanId).get();
+        if (snapshot.empty) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+        const transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // Sort in descending order of createdAt
+        transactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        res.status(200).json({ success: true, data: transactions });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch transactions', error: error.message });
+    }
+};
+exports.getMyPlanTransactions = getMyPlanTransactions;
+const redeemUserPlan = async (req, res) => {
+    try {
+        const userPlanId = req.params.userPlanId;
+        const userPlanRef = firebase_1.db.collection('userPlans').doc(userPlanId);
+        const userPlanDoc = await userPlanRef.get();
+        if (!userPlanDoc.exists) {
+            return res.status(404).json({ success: false, message: 'User plan not found' });
+        }
+        await userPlanRef.update({
+            status: 'REDEEMED',
+            redeemedAt: new Date().toISOString()
+        });
+        res.status(200).json({ success: true, message: 'Scheme redeemed successfully' });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to redeem scheme', error: error.message });
+    }
+};
+exports.redeemUserPlan = redeemUserPlan;
 //# sourceMappingURL=plans.controller.js.map

@@ -85,7 +85,7 @@ const HomeScreen = () => {
         
         <View style={styles.logoContainer}>
           <Image 
-            source={require('../../../assets/transparent_logo.png')} 
+            source={require('../../../assets/Rn_new logo.png')} 
             style={{ width: 180, height: 60, resizeMode: 'contain' }} 
           />
         </View>

@@ -4,11 +4,11 @@
     "slug": "ns-jewellery",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/app_logo.jpg",
+    "icon": "./assets/new_logo.png",
     "userInterfaceStyle": "light",
     "primaryColor": "#D4AF37",
     "splash": {
-      "image": "./assets/app_logo.jpg",
+      "image": "./assets/new_logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
@@ -20,8 +20,9 @@
     "android": {
       "package": "com.anonymous.nsjewellery",
       "versionCode": 1,
+      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/app_logo.jpg",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "predictiveBackGestureEnabled": false
@@ -35,9 +36,21 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
     "extra": {
       "eas": {
-        "projectId": "246bb4d2-78a9-4bf3-8377-58bf356e3bd4"
+        "projectId": "34f20e9b-aa16-4359-8ed2-c41c44b4fdd1"
       }
     }
   }

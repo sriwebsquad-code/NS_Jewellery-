@@ -22,10 +22,12 @@ import AadharVerificationScreen from '../screens/main/AadharVerificationScreen';
 import PanVerificationScreen from '../screens/main/PanVerificationScreen';
 import AdminDashboard from '../screens/admin/AdminDashboard';
 
+import RegistrationScreen from '../screens/auth/RegistrationScreen';
+
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
-  const { isLoggedIn, hasMpin } = useAuthStore();
+  const { isLoggedIn, hasMpin, user } = useAuthStore();
   const { mode } = useThemeStore();
 
   const CustomDefaultTheme = {
@@ -54,6 +56,8 @@ const AppNavigator = () => {
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="OTP" component={OTPScreen} />
           </>
+        ) : user?.isNewUser ? (
+          <Stack.Screen name="Registration" component={RegistrationScreen} />
         ) : !hasMpin ? (
           <Stack.Screen name="CreateMPIN" component={CreateMPINScreen} />
         ) : (
