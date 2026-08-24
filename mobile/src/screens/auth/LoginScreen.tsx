@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image, StatusBar, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Phone, ArrowRight } from 'lucide-react-native';
+import { ChevronDown, Lock } from 'lucide-react-native';
 import { getAuth, signInWithPhoneNumber } from '@react-native-firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -15,7 +15,6 @@ const LoginScreen = () => {
     if (phone.length === 10) {
       try {
         const phoneNumber = `+91${phone}`;
-        // Trigger Native Firebase Phone Auth using modular API
         const auth = getAuth();
         const confirmation = await signInWithPhoneNumber(auth, phoneNumber);
         navigation.navigate('OTP', { phone, confirmation });
@@ -30,71 +29,91 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FDF8F0" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
-      {/* Background Gradients */}
-      <LinearGradient
-        colors={['#F9F1E2', '#FCF9F2', '#FDF8F0']}
-        style={StyleSheet.absoluteFillObject}
-      />
-      
+      {/* Decorative Wave Backgrounds (Simulated with gradients/shapes) */}
+      <View style={styles.topWave} />
+      <View style={styles.bottomWave} />
+
       <KeyboardAvoidingView 
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Top Logo Section */}
-        <View style={styles.logoSection}>
-          <Image 
-            source={require('../../../assets/new_logo.png')} 
-            style={styles.logo} 
-          />
-        </View>
-
-        {/* Text Section */}
-        <View style={styles.textSection}>
-          <Text style={styles.heading}>Sign in</Text>
-          <Text style={styles.subheading}>Login with your mobile number</Text>
-        </View>
-
-        {/* Form Card */}
-        <View style={styles.formCard}>
-          <View style={styles.inputLabelContainer}>
-            <Phone color="#B8860B" size={16} style={{marginRight: 6}} />
-            <Text style={styles.inputLabel}>Mobile Number</Text>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <View style={styles.prefixContainer}>
-              <Text style={styles.prefixText}>+91</Text>
-            </View>
-            <View style={styles.separator} />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your mobile number"
-              placeholderTextColor="#999"
-              keyboardType="numeric"
-              maxLength={10}
-              value={phone}
-              onChangeText={setPhone}
+        <View style={styles.contentContainer}>
+          
+          {/* Logo Section */}
+          <View style={styles.logoSection}>
+            <Image 
+              source={require('../../../assets/new_logo.png')} 
+              style={styles.logo} 
             />
           </View>
 
-          <TouchableOpacity 
-            style={[styles.button, phone.length !== 10 && styles.buttonDisabled]}
-            onPress={handleSendOTP}
-            disabled={phone.length !== 10}
-          >
-            <LinearGradient
-              colors={['#D4AF37', '#B8860B', '#996515']}
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 0}}
-              style={styles.gradientButton}
+          {/* Text Section */}
+          <View style={styles.textSection}>
+            <Text style={styles.heading}>Sign In</Text>
+            <Text style={styles.subheading}>Enter your mobile number to continue</Text>
+          </View>
+
+          {/* Form */}
+          <View style={styles.formContainer}>
+            <View style={styles.inputContainer}>
+              <View style={styles.prefixContainer}>
+                <Text style={styles.flag}>🇮🇳</Text>
+                <Text style={styles.prefixText}>+91</Text>
+                <ChevronDown color="#666" size={14} style={{ marginLeft: 4 }} />
+              </View>
+              <View style={styles.separator} />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter mobile number"
+                placeholderTextColor="#A0A0A0"
+                keyboardType="numeric"
+                maxLength={10}
+                value={phone}
+                onChangeText={setPhone}
+              />
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.button, phone.length !== 10 && styles.buttonDisabled]}
+              onPress={handleSendOTP}
+              disabled={phone.length !== 10}
             >
-              <Text style={styles.buttonText}>SEND OTP</Text>
-              <ArrowRight color="#FFF" size={20} style={{marginLeft: 8}} />
-            </LinearGradient>
+              <LinearGradient
+                colors={['#D4AF37', '#AA771C']}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
+                style={styles.gradientButton}
+              >
+                <Text style={styles.buttonText}>Send OTP</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity 
+              style={styles.outlineButton}
+              onPress={() => navigation.navigate('LoginMPIN')}
+            >
+              <Lock color="#B8860B" size={16} style={{ marginRight: 8 }} />
+              <Text style={styles.outlineButtonText}>Login with MPIN</Text>
+            </TouchableOpacity>
+          </View>
+
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>New user? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Registration')}>
+            <Text style={styles.footerLink}>Register</Text>
           </TouchableOpacity>
         </View>
+
       </KeyboardAvoidingView>
     </View>
   );
@@ -103,115 +122,160 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FDF8F0',
+    backgroundColor: '#FFFFFF',
+  },
+  topWave: {
+    position: 'absolute',
+    top: -100,
+    left: -50,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: 'rgba(212, 175, 55, 0.05)',
+  },
+  bottomWave: {
+    position: 'absolute',
+    bottom: -150,
+    right: -100,
+    width: 350,
+    height: 350,
+    borderRadius: 175,
+    backgroundColor: 'rgba(212, 175, 55, 0.05)',
   },
   keyboardView: {
     flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 30,
   },
   logoSection: {
     alignItems: 'center',
-    marginTop: height * 0.05,
     marginBottom: 40,
   },
   logo: {
-    width: width * 0.65,
-    height: width * 0.65,
+    width: width * 0.45,
+    height: width * 0.45,
     resizeMode: 'contain',
   },
   textSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   heading: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
+    fontFamily: 'serif',
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#B8860B',
     marginBottom: 8,
   },
   subheading: {
-    fontSize: 14,
-    color: '#555',
+    fontSize: 13,
+    color: '#666',
   },
-  formCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    padding: 24,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.3)',
-    shadowColor: '#D4AF37',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 5,
-  },
-  inputLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  inputLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#333',
+  formContainer: {
+    width: '100%',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     height: 55,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.2)',
+    borderColor: '#E0E0E0',
   },
   prefixContainer: {
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    paddingHorizontal: 15,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  flag: {
+    fontSize: 18,
+    marginRight: 6,
+  },
   prefixText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#D4AF37',
+    fontSize: 15,
+    color: '#333',
+    fontWeight: '500',
   },
   separator: {
     width: 1,
-    height: 30,
-    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    height: 25,
+    backgroundColor: '#E0E0E0',
   },
   input: {
     flex: 1,
     fontSize: 15,
     color: '#333',
-    paddingHorizontal: 16,
+    paddingHorizontal: 15,
     height: '100%',
   },
   button: {
     height: 55,
     borderRadius: 8,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
   },
   buttonDisabled: {
-    opacity: 0.5,
+    opacity: 0.6,
   },
   gradientButton: {
     flex: 1,
-    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontWeight: '500',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 30,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#EEEEEE',
+  },
+  dividerText: {
+    marginHorizontal: 15,
+    color: '#999',
+    fontSize: 12,
+  },
+  outlineButton: {
+    flexDirection: 'row',
+    height: 55,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  outlineButtonText: {
+    color: '#333',
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 40,
+  },
+  footerText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  footerLink: {
+    color: '#B8860B',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
 
