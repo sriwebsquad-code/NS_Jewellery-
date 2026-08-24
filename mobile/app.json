@@ -22,7 +22,7 @@
       "versionCode": 1,
       "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/new_logo.png",
         "backgroundColor": "#FFFFFF"
       },
       "predictiveBackGestureEnabled": false
