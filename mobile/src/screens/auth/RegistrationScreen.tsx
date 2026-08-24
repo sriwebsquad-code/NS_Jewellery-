@@ -47,7 +47,7 @@ const RegistrationScreen = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('https://ns-jewellery.onrender.com/api/users/profile', {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/user/profile', {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',

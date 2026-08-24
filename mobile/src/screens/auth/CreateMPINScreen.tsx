@@ -8,15 +8,37 @@ import { useAuthStore } from '../../store/authStore';
 const CreateMPINScreen = () => {
   const [mpin, setMpin] = useState('');
   const [confirmMpin, setConfirmMpin] = useState('');
+  const [loading, setLoading] = useState(false);
   const setMpinCreated = useAuthStore((state) => state.setMpinCreated);
+  const token = useAuthStore((state) => state.token);
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (mpin === confirmMpin) {
-      // In production: send MPIN to backend to save it
-      setMpinCreated();
+      setLoading(true);
+      try {
+        const response = await fetch('https://ns-jewellery.onrender.com/api/auth/mpin/create', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ mpin })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          setMpinCreated();
+        } else {
+          alert(data.message || 'Failed to create MPIN');
+        }
+      } catch (error) {
+        alert('Network error. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     } else {
       alert('MPINs do not match');
     }
@@ -68,9 +90,9 @@ const CreateMPINScreen = () => {
         <TouchableOpacity 
           style={[styles.button, isValid ? { backgroundColor: colors.primary } : styles.buttonDisabled]}
           onPress={handleCreate}
-          disabled={!isValid}
+          disabled={!isValid || loading}
         >
-          <Text style={styles.buttonText}>Set MPIN & Continue</Text>
+          <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Set MPIN & Continue'}</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

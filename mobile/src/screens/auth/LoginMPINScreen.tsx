@@ -20,7 +20,7 @@ const LoginMPINScreen = () => {
     
     setLoading(true);
     try {
-      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/login-mpin', {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/mpin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: user?.phone, mpin })
