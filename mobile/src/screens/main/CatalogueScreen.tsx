@@ -57,7 +57,10 @@ const CatalogueScreen = () => {
           shadowColor: mode === 'dark' ? '#000' : COLORS.black 
         }]}>
           {item.image ? (
-            <Image source={{uri: `https://ns-jewellery.onrender.com${item.image}`}} style={styles.categoryImg} />
+            <Image 
+              source={{uri: item.image.startsWith('http') ? item.image : `https://ns-jewellery.onrender.com${item.image}`}} 
+              style={styles.categoryImg} 
+            />
           ) : (
              <View style={styles.categoryImgPlaceholder} />
           )}
@@ -74,7 +77,7 @@ const CatalogueScreen = () => {
         onPress={() => navigation.navigate('JewelleryDetail', { item })}
       >
         <Image 
-          source={{ uri: item.images?.[0] ? `https://ns-jewellery.onrender.com${item.images[0]}` : 'https://via.placeholder.com/200' }} 
+          source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : 'https://via.placeholder.com/200' }} 
           style={styles.jewelleryImage} 
         />
         <TouchableOpacity style={styles.wishlistBtn}>

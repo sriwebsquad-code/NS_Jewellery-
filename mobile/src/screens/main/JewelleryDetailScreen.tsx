@@ -28,7 +28,7 @@ const JewelleryDetailScreen = () => {
         {/* Full width Image */}
         <View style={[styles.imageContainer, { backgroundColor: colors.cardBackground }]}>
           <Image 
-            source={{ uri: item.images?.[0] ? `https://ns-jewellery.onrender.com${item.images[0]}` : 'https://via.placeholder.com/400' }} 
+            source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : 'https://via.placeholder.com/400' }} 
             style={styles.mainImage} 
           />
         </View>
