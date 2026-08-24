@@ -43,7 +43,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // Limit each IP to 10 login/OTP requests per hour
+  max: 1000, // Limit each IP to 1000 login/OTP requests per hour (increased for testing)
   message: { success: false, message: 'Too many authentication attempts, please try again later' }
 });
 
