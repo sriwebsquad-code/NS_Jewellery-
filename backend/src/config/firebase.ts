@@ -9,7 +9,7 @@ if (getApps().length === 0) {
   
   initializeApp({
     credential: cert(serviceAccount),
-    storageBucket: 'rnmahaveerjewellery.firebasestorage.app'
+    storageBucket: 'nsjewellery-53b2d.appspot.com'
   });
 }
 
