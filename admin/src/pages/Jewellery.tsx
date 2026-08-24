@@ -59,7 +59,7 @@ const JewelleryManagement: React.FC = () => {
         fetchData();
       } else {
         const data = await res.json();
-        alert(`Failed to save: ${data.message || 'Unknown error'}`);
+        alert(`Failed to save: ${data.message || 'Unknown error'}\nDetails: ${data.error || 'No details'}`);
       }
     } catch (error) {
       console.error('Failed to create category:', error);
@@ -88,13 +88,13 @@ const JewelleryManagement: React.FC = () => {
         setIsAddingItem(false);
         setItemName('');
         setItemWeight('');
-        setItemStock('10');
         setItemBasePrice('');
+        setItemStock('10');
         setItemImage(null);
         fetchData();
       } else {
         const data = await res.json();
-        alert(`Failed to save: ${data.message || 'Unknown error'}`);
+        alert(`Failed to save item: ${data.message || 'Unknown error'}\nDetails: ${data.error || 'No details'}`);
       }
     } catch (error) {
       console.error('Failed to create item:', error);
