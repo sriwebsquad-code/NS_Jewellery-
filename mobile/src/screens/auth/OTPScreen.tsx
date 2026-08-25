@@ -11,7 +11,7 @@ const OTPScreen = () => {
   const [timer, setTimer] = useState(45);
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { phone, confirmation } = route.params || { phone: '9876543210', confirmation: null };
+  const { phone } = route.params || { phone: '9876543210' };
   const { setLogin, setUser } = useAuthStore();
 
   useEffect(() => {
@@ -25,17 +25,6 @@ const OTPScreen = () => {
     try {
       let payload: any = { phone, otp: code };
       
-      if (confirmation?.verificationId === 'demo-123456') {
-        if (code !== '123456') {
-          alert('Invalid OTP. Use 123456 for demo.');
-          setOtp('');
-          return;
-        }
-      } else if (confirmation) {
-        const userCredential = await confirmation.confirm(code);
-        payload.idToken = await userCredential.user.getIdToken();
-      }
-
       const response = await fetch('https://ns-jewellery.onrender.com/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
