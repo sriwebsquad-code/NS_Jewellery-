@@ -45,7 +45,7 @@ const OTPScreen = () => {
       
       if (data.success) {
         setUser(data.data.user);
-        setLogin(data.data.token, !data.data.user.mpin);
+        setLogin(data.data.token, !!data.data.user.mpin);
       } else {
         alert('Authentication failed on server.');
         setOtp('');
