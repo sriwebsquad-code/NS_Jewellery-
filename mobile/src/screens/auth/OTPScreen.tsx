@@ -59,11 +59,7 @@ const OTPScreen = () => {
 
   const handleKeyPress = (val: string) => {
     if (otp.length < 6) {
-      const newOtp = otp + val;
-      setOtp(newOtp);
-      if (newOtp.length === 6) {
-        handleVerify(newOtp);
-      }
+      setOtp(otp + val);
     }
   };
 
@@ -146,6 +142,17 @@ const OTPScreen = () => {
         Resend OTP in <Text style={styles.timerText}>00:{timer < 10 ? `0${timer}` : timer}</Text>
       </Text>
 
+      {/* Submit Button */}
+      <View style={styles.submitContainer}>
+        <TouchableOpacity 
+          style={[styles.submitButton, otp.length === 6 ? styles.submitButtonActive : styles.submitButtonInactive]} 
+          onPress={() => handleVerify(otp)}
+          disabled={otp.length !== 6}
+        >
+          <Text style={styles.submitButtonText}>Verify OTP</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Custom Keypad */}
       <View style={styles.keypadContainer}>
         {pad.map((item, index) => {
@@ -198,12 +205,42 @@ const styles = StyleSheet.create({
   logoSection: {
     alignItems: 'center',
     marginTop: -20,
-    marginBottom: 20,
+  },
+  submitContainer: {
+    paddingHorizontal: 30,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  submitButton: {
+    width: '100%',
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#B8860B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  submitButtonActive: {
+    backgroundColor: '#B8860B',
+  },
+  submitButtonInactive: {
+    backgroundColor: '#E0E0E0',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  submitButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   logo: {
     width: width * 0.45,
     height: width * 0.45,
     resizeMode: 'contain',
+    marginBottom: 20,
   },
   textSection: {
     alignItems: 'center',
