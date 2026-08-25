@@ -85,10 +85,9 @@ const HomeScreen = () => {
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
-          <Image 
-            source={require('../../../assets/new_logo.png')} 
-            style={{ width: 180, height: 60, resizeMode: 'contain' }} 
-          />
+          <Text style={{ fontFamily: 'serif', fontSize: 22, fontWeight: 'bold', color: '#D4AF37' }}>
+            NS Mahaveer
+          </Text>
         </View>
         
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuIcon}>
@@ -156,15 +155,15 @@ const HomeScreen = () => {
                     <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
                       <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#D4AF37' }]}>NS MAHAVEER JEWELLERY</Text>
+                      <Text style={[styles.cardLogoText, { color: '#4A3424' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#D4AF37' }]}>11 Month</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#D4AF37' }]}>Value based Gold Scheme</Text>
-                      <Text style={[styles.cardHighlight, { color: '#D4AF37' }]} numberOfLines={2}>Save cash, buy gold at end</Text>
+                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>11 Month</Text>
+                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>Value based Gold Scheme</Text>
+                      <Text style={[styles.cardHighlight, { color: '#4A3424' }]} numberOfLines={2}>Save cash, buy gold at end</Text>
                     </View>
                   </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Saving Schemes' })}>
+                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
                     <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
                   </TouchableOpacity>
                 </View>
@@ -175,15 +174,15 @@ const HomeScreen = () => {
                     <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
                       <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#D4AF37' }]}>NS MAHAVEER JEWELLERY</Text>
+                      <Text style={[styles.cardLogoText, { color: '#4A3424' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#D4AF37' }]}>11 Month</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#D4AF37' }]}>Weight based Gold Scheme</Text>
-                      <Text style={[styles.cardHighlight, { color: '#D4AF37' }]} numberOfLines={2}>Instant monthly gold weight</Text>
+                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>11 Month</Text>
+                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>Weight based Gold Scheme</Text>
+                      <Text style={[styles.cardHighlight, { color: '#4A3424' }]} numberOfLines={2}>Instant monthly gold weight</Text>
                     </View>
                   </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Saving Schemes' })}>
+                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
                     <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
                   </TouchableOpacity>
                 </View>
@@ -194,12 +193,12 @@ const HomeScreen = () => {
                     <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
                     <View style={styles.cardTopRight}>
                       <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#D4AF37' }]}>NS MAHAVEER JEWELLERY</Text>
+                      <Text style={[styles.cardLogoText, { color: '#4A3424' }]}>NS MAHAVEER JEWELLERY</Text>
                     </View>
                     <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#D4AF37' }]}>Digital</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#D4AF37' }]}>Gold Wallet</Text>
-                      <Text style={[styles.cardHighlight, { color: '#D4AF37' }]} numberOfLines={2}>Balance: {lockerData?.goldBalance.toFixed(3) || '0.000'} g</Text>
+                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>Digital</Text>
+                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>Gold Wallet</Text>
+                      <Text style={[styles.cardHighlight, { color: '#4A3424' }]} numberOfLines={2}>Balance: {lockerData?.goldBalance.toFixed(3) || '0.000'} g</Text>
                     </View>
                   </View>
                   <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('Digi Gold')}>
@@ -232,7 +231,7 @@ const HomeScreen = () => {
                       <Text style={[styles.cardHighlight, { color: '#2C3E50' }]} numberOfLines={2}>Save cash, buy silver at end</Text>
                     </View>
                   </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Saving Schemes' })}>
+                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
                     <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
                   </TouchableOpacity>
                 </View>
@@ -251,7 +250,7 @@ const HomeScreen = () => {
                       <Text style={[styles.cardHighlight, { color: '#2C3E50' }]} numberOfLines={2}>Instant monthly silver weight</Text>
                     </View>
                   </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Saving Schemes' })}>
+                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
                     <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
                   </TouchableOpacity>
                 </View>
