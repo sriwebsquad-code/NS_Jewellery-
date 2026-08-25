@@ -15,7 +15,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nsjewellery.app",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.anonymous.nsjewellery",
@@ -42,6 +46,9 @@
       [
         "expo-build-properties",
         {
+          "ios": {
+            "useFrameworks": "static"
+          },
           "android": {
             "usesCleartextTraffic": true
           }
