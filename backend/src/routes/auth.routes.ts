@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { verifyFirebaseOTP, createMPIN, loginWithMPIN, requestMpinReset, resetMpin } from '../controllers/auth.controller';
+import { sendOTP, verifyOTP, createMPIN, loginWithMPIN, requestMpinReset, resetMpin } from '../controllers/auth.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Endpoint for Firebase phone authentication login
-router.post('/verify-otp', verifyFirebaseOTP);
+// Endpoint for Fast2SMS phone authentication login
+router.post('/send-otp', sendOTP);
+router.post('/verify-otp', verifyOTP);
 
 // MPIN Routes
 router.post('/mpin/create', authenticate, createMPIN);

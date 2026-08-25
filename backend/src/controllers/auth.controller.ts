@@ -1,30 +1,85 @@
 import { Request, Response } from 'express';
-import { getAuth } from 'firebase-admin/auth';
 import app, { db } from '../config/firebase';
 import { generateToken } from '../utils/jwt';
 import bcrypt from 'bcrypt';
 import { whatsappService } from '../services/whatsapp.service';
+import axios from 'axios';
 
-export const verifyFirebaseOTP = async (req: Request, res: Response) => {
+// In-memory store for OTPs (In production, use Redis or Firestore)
+const otpStore = new Map<string, { otp: string; expiresAt: Date }>();
+
+export const sendOTP = async (req: Request, res: Response) => {
   try {
-    const { idToken, phone, otp } = req.body;
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, message: 'Phone number is required' });
+    }
+    
+    // Clean phone number (remove +91 if present)
+    const cleanPhone = phone.replace('+91', '');
 
-    let phoneNumber = phone;
+    // Generate 6 digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
-    // For urgent demo, bypass Firebase if OTP is 123456
-    if (otp === '123456' && phone) {
-      phoneNumber = `+91${phone}`;
-    } else {
-      if (!idToken) {
-        return res.status(400).json({ success: false, message: 'idToken is required' });
+    // Store in memory
+    otpStore.set(cleanPhone, { otp, expiresAt });
+    
+    // For demo purposes, we will bypass actually calling Fast2SMS if no API key is present
+    const apiKey = process.env.FAST2SMS_API_KEY;
+    
+    if (apiKey && cleanPhone !== '9876543210') { // 9876543210 is demo account
+      try {
+        await axios.get('https://www.fast2sms.com/dev/bulkV2', {
+          params: {
+            authorization: apiKey,
+            variables_values: otp,
+            route: 'otp',
+            numbers: cleanPhone,
+          }
+        });
+      } catch (smsError: any) {
+        console.error('Fast2SMS Error:', smsError?.response?.data || smsError.message);
+        // Continue anyway for now so development doesn't block
       }
-      // Verify Firebase ID token
-      const decodedToken = await getAuth(app).verifyIdToken(idToken);
-      phoneNumber = decodedToken.phone_number;
+    } else {
+      console.log(`[DEV ONLY] OTP for ${cleanPhone} is ${otp}`);
     }
 
-    if (!phoneNumber) {
-      return res.status(400).json({ success: false, message: 'Phone number not found in token' });
+    res.status(200).json({ success: true, message: 'OTP sent successfully' });
+  } catch (error: any) {
+    console.error('Send OTP Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to send OTP' });
+  }
+};
+
+export const verifyOTP = async (req: Request, res: Response) => {
+  try {
+    const { phone, otp } = req.body;
+
+    if (!phone || !otp) {
+       return res.status(400).json({ success: false, message: 'Phone and OTP are required' });
+    }
+
+    const cleanPhone = phone.replace('+91', '');
+    let phoneNumber = `+91${cleanPhone}`;
+
+    // Demo account bypass
+    if (!(cleanPhone === '9876543210' && otp === '123456')) {
+       const storedData = otpStore.get(cleanPhone);
+       
+       if (!storedData) {
+         return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+       }
+       if (new Date() > storedData.expiresAt) {
+         otpStore.delete(cleanPhone);
+         return res.status(400).json({ success: false, message: 'OTP has expired' });
+       }
+       if (storedData.otp !== otp) {
+         return res.status(400).json({ success: false, message: 'Incorrect OTP' });
+       }
+       // OTP verified! Clean it up.
+       otpStore.delete(cleanPhone);
     }
 
     // Check if user exists in database
@@ -68,14 +123,15 @@ export const verifyFirebaseOTP = async (req: Request, res: Response) => {
           name: user.name,
           role: user.role,
           kycStatus: user.kycStatus,
+          mpin: user.mpin,
           isNewUser
         }
       }
     });
 
   } catch (error: any) {
-    console.error('Firebase OTP Verification Error:', error);
-    res.status(401).json({ success: false, message: 'Invalid or expired OTP token', error: error.message });
+    console.error('OTP Verification Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
 
@@ -148,8 +204,7 @@ export const loginWithMPIN = async (req: Request, res: Response) => {
   }
 };
 
-// In-memory store for OTPs
-const otpStore = new Map<string, { otp: string; expiresAt: Date }>();
+
 
 export const requestMpinReset = async (req: Request, res: Response) => {
   try {
