@@ -164,7 +164,7 @@ const HomeScreen = () => {
                       <Text style={[styles.cardHighlight, { color: '#D4AF37' }]} numberOfLines={2}>Save cash, buy gold at end</Text>
                     </View>
                   </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
+                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Saving Schemes' })}>
                     <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
                   </TouchableOpacity>
                 </View>
@@ -183,7 +183,7 @@ const HomeScreen = () => {
                       <Text style={[styles.cardHighlight, { color: '#D4AF37' }]} numberOfLines={2}>Instant monthly gold weight</Text>
                     </View>
                   </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
+                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Saving Schemes' })}>
                     <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
                   </TouchableOpacity>
                 </View>
@@ -232,7 +232,7 @@ const HomeScreen = () => {
                       <Text style={[styles.cardHighlight, { color: '#2C3E50' }]} numberOfLines={2}>Save cash, buy silver at end</Text>
                     </View>
                   </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
+                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Saving Schemes' })}>
                     <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
                   </TouchableOpacity>
                 </View>
@@ -251,7 +251,7 @@ const HomeScreen = () => {
                       <Text style={[styles.cardHighlight, { color: '#2C3E50' }]} numberOfLines={2}>Instant monthly silver weight</Text>
                     </View>
                   </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
+                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Saving Schemes' })}>
                     <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
                   </TouchableOpacity>
                 </View>

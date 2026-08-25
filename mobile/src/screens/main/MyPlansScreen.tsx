@@ -18,7 +18,7 @@ const MyPlansScreen = () => {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const [selectedCategory, setSelectedCategory] = useState<string>(route.params?.defaultCategory || 'Gold Schemes');
+  const [selectedCategory, setSelectedCategory] = useState<string>(route.params?.defaultCategory || 'Gold Saving Schemes');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [installmentAmount, setInstallmentAmount] = useState<string>('');
   const [liveRates, setLiveRates] = useState<{gold: number, silver: number}>({ gold: 0, silver: 0 });
@@ -63,10 +63,10 @@ const MyPlansScreen = () => {
       if (data.success && data.data) {
         setPlans(data.data);
         if (data.data.length > 0) {
-          const currentCategory = route.params?.defaultCategory || 'Gold Schemes';
+          const currentCategory = route.params?.defaultCategory || 'Gold Saving Schemes';
           const filtered = data.data.filter((p: any) => {
-            if (currentCategory === 'Gold Schemes') return p.name.toLowerCase().includes('gold');
-            if (currentCategory === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
+            if (currentCategory === 'Gold Saving Schemes') return p.name.toLowerCase().includes('gold');
+            if (currentCategory === 'Silver Saving Schemes') return p.name.toLowerCase().includes('silver');
             return false;
           });
           if (filtered.length > 0) {
@@ -74,7 +74,7 @@ const MyPlansScreen = () => {
             setSelectedCategory(currentCategory);
           } else {
             setSelectedPlanId(data.data[0].id);
-            setSelectedCategory('Gold Schemes');
+            setSelectedCategory('Gold Saving Schemes');
           }
         }
       } else {
@@ -106,10 +106,10 @@ const MyPlansScreen = () => {
       ];
       setPlans(fallbackPlans);
       
-      const currentCategory = route.params?.defaultCategory || 'Gold Schemes';
-      const filtered = fallbackPlans.filter(p => {
-        if (currentCategory === 'Gold Schemes') return p.name.toLowerCase().includes('gold');
-        if (currentCategory === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
+      const currentCategory = route.params?.defaultCategory || 'Gold Saving Schemes';
+      const filtered = fallbackPlans.filter((p: any) => {
+        if (currentCategory === 'Gold Saving Schemes') return p.name.toLowerCase().includes('gold');
+        if (currentCategory === 'Silver Saving Schemes') return p.name.toLowerCase().includes('silver');
         return false;
       });
       setSelectedPlanId(filtered[0].id);
@@ -119,11 +119,11 @@ const MyPlansScreen = () => {
     }
   };
 
-  const categories = ['Gold Schemes', 'Silver Schemes'];
+  const categories = ['Gold Saving Schemes', 'Silver Saving Schemes'];
   
-  const filteredPlans = plans.filter(p => {
-    if (selectedCategory === 'Gold Schemes') return p.name.toLowerCase().includes('gold');
-    if (selectedCategory === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
+  const filteredPlans = plans.filter((p: any) => {
+    if (selectedCategory === 'Gold Saving Schemes') return p.name.toLowerCase().includes('gold');
+    if (selectedCategory === 'Silver Saving Schemes') return p.name.toLowerCase().includes('silver');
     return false;
   });
 
@@ -149,9 +149,9 @@ const MyPlansScreen = () => {
     setSelectedCategory(cat);
     setShowCategoryDropdown(false);
     // Auto-select first plan of this category
-    const newFiltered = plans.filter(p => {
-      if (cat === 'Gold Schemes') return p.name.toLowerCase().includes('gold');
-      if (cat === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
+    const newFiltered = plans.filter((p: any) => {
+      if (cat === 'Gold Saving Schemes') return p.name.toLowerCase().includes('gold');
+      if (cat === 'Silver Saving Schemes') return p.name.toLowerCase().includes('silver');
       return false;
     });
     if (newFiltered.length > 0) {
@@ -161,8 +161,8 @@ const MyPlansScreen = () => {
     }
   };
 
-  const isGold = selectedCategory === 'Gold Schemes';
-  const isSilver = selectedCategory === 'Silver Schemes';
+  const isGold = selectedCategory === 'Gold Saving Schemes';
+  const isSilver = selectedCategory === 'Silver Saving Schemes';
   const titleColor = isGold ? '#F5B041' : (isSilver ? '#AAB7B8' : '#2C3E50'); 
 
   if (loading) {
