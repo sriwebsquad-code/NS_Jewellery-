@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getSettings, updateSettings } from '../controllers/settings.controller';
-import { verifyToken, isAdmin } from '../middlewares/auth.middleware';
+import { authenticate, authorizeAdmin } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -8,6 +8,6 @@ const router = Router();
 router.get('/', getSettings);
 
 // Admin route to update settings
-router.post('/', verifyToken, isAdmin, updateSettings);
+router.post('/', authenticate, authorizeAdmin, updateSettings);
 
 export default router;
