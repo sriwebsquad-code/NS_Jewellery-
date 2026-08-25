@@ -21,6 +21,7 @@ import NotificationScreen from '../screens/main/NotificationScreen';
 import AadharVerificationScreen from '../screens/main/AadharVerificationScreen';
 import PanVerificationScreen from '../screens/main/PanVerificationScreen';
 import AdminDashboard from '../screens/admin/AdminDashboard';
+import FavoritesScreen from '../screens/main/FavoritesScreen';
 
 import RegistrationScreen from '../screens/auth/RegistrationScreen';
 
@@ -84,6 +85,7 @@ const AppNavigator = () => {
             <Stack.Screen name="Gold Wallet" component={WalletScreen} initialParams={{ metalType: 'GOLD' }} />
             <Stack.Screen name="Silver Wallet" component={WalletScreen} initialParams={{ metalType: 'SILVER' }} />
             <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+            <Stack.Screen name="Favorites" component={FavoritesScreen} />
           </>
         )}
       </Stack.Navigator>

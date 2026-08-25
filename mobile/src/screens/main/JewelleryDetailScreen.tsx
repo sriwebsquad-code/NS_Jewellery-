@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { ArrowLeft, Heart, MessageCircle } from 'lucide-react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
+import { useFavoritesStore } from '../../store/favoritesStore';
 
 const JewelleryDetailScreen = () => {
   const navigation = useNavigation();
@@ -15,6 +16,38 @@ const JewelleryDetailScreen = () => {
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
+
+  const { isFavorite, toggleFavorite } = useFavoritesStore();
+  const isFav = isFavorite(item.id);
+  const [loadingWhatsapp, setLoadingWhatsapp] = React.useState(false);
+
+  const handleProceedToBuy = async () => {
+    setLoadingWhatsapp(true);
+    try {
+      const res = await fetch('https://ns-jewellery.onrender.com/api/settings');
+      const data = await res.json();
+      const num = data?.data?.whatsappNumber;
+      
+      if (!num) {
+        Alert.alert('Error', 'WhatsApp contact number not configured by admin.');
+        return;
+      }
+      
+      const message = `Hi, I would like to inquire about:\n\nItem: ${item.name}\nCategory: ${item.category?.name || 'N/A'}\nPurity: ${item.purity}\nWeight: ${item.weight}g\nMaking Charges: ${item.makingCharges}%`;
+      const url = `whatsapp://send?phone=91${num}&text=${encodeURIComponent(message)}`;
+      
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Error', 'WhatsApp is not installed on your device');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to connect to server. Please try again.');
+    } finally {
+      setLoadingWhatsapp(false);
+    }
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -69,12 +102,16 @@ const JewelleryDetailScreen = () => {
       
       {/* Action Buttons */}
       <View style={[styles.bottomBar, { borderTopColor: colors.border, backgroundColor: mode === 'dark' ? colors.cardBackground : COLORS.white }]}>
-        <TouchableOpacity style={styles.likeBtn}>
-          <Heart color={COLORS.primary} size={24} />
+        <TouchableOpacity style={styles.likeBtn} onPress={() => toggleFavorite(item)}>
+          <Heart color={isFav ? COLORS.error : COLORS.primary} size={24} fill={isFav ? COLORS.error : 'transparent'} />
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.quoteBtn}>
-          <Text style={styles.btnText}>Proceed to Buy</Text>
+        <TouchableOpacity style={styles.quoteBtn} onPress={handleProceedToBuy} disabled={loadingWhatsapp}>
+          {loadingWhatsapp ? (
+            <ActivityIndicator color={colors.cardBackground} />
+          ) : (
+            <Text style={styles.btnText}>Proceed to Buy</Text>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

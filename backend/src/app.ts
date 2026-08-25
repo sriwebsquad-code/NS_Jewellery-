@@ -27,6 +27,7 @@ import plansRoutes from './routes/plans.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import kycRoutes from './routes/kyc.routes';
 import paymentRoutes from './routes/payment.routes';
+import settingsRoutes from './routes/settings.routes';
 import path from 'path';
 
 // Body parsing Middleware
@@ -66,6 +67,7 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/kyc', kycRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Initialize Cron Jobs
 initRatesCron();

@@ -6,12 +6,15 @@ import { Colors } from '../../constants/Colors';
 import { Menu, Heart, Search, Sparkles } from 'lucide-react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
+import { useFavoritesStore } from '../../store/favoritesStore';
 
 const CatalogueScreen = () => {
   const navigation = useNavigation() as any;
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
+
+  const { favorites, toggleFavorite, isFavorite } = useFavoritesStore();
 
   const [search, setSearch] = useState('');
   
@@ -71,6 +74,7 @@ const CatalogueScreen = () => {
   };
 
   const renderJewelleryItem = ({ item, index }: any) => {
+    const isFav = isFavorite(item.id);
     return (
       <TouchableOpacity 
         style={styles.jewelleryCard}
@@ -80,8 +84,8 @@ const CatalogueScreen = () => {
           source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : 'https://via.placeholder.com/200' }} 
           style={styles.jewelleryImage} 
         />
-        <TouchableOpacity style={styles.wishlistBtn}>
-          <Heart color={colors.primary} size={16} />
+        <TouchableOpacity style={styles.wishlistBtn} onPress={() => toggleFavorite(item)}>
+          <Heart color={isFav ? COLORS.error : colors.primary} size={16} fill={isFav ? COLORS.error : 'transparent'} />
         </TouchableOpacity>
         
         <View style={styles.jewelleryInfo}>
@@ -103,8 +107,15 @@ const CatalogueScreen = () => {
           <Menu color={colors.text} size={24} />
         </TouchableOpacity>
         <Text style={[styles.headerLogo, { color: colors.text }]}>NS Mahaveer Collection</Text>
-        <TouchableOpacity style={styles.iconBtn}>
-          <Heart color={colors.text} size={24} />
+        <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Favorites')}>
+          <View>
+            <Heart color={colors.text} size={24} />
+            {favorites.length > 0 && (
+              <View style={{ position: 'absolute', top: -4, right: -4, backgroundColor: COLORS.error, width: 14, height: 14, borderRadius: 7, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ color: '#FFF', fontSize: 9, fontWeight: 'bold' }}>{favorites.length}</Text>
+              </View>
+            )}
+          </View>
         </TouchableOpacity>
       </View>
 
