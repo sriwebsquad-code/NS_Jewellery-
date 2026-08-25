@@ -5,7 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import { Delete } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const LoginMPINScreen = () => {
   const [mpin, setMpin] = useState('');
