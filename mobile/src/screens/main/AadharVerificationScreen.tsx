@@ -29,24 +29,27 @@ const AadharVerificationScreen = () => {
 
     setLoading(true);
     try {
-      // Mock API call to send OTP
-      // const res = await api.post('/kyc/aadhar/send-otp', { aadharNumber });
-      // if (res.data.success) {
-      //   setReferenceId(res.data.data.referenceId);
-      //   setStep('OTP');
-      // }
+      const token = useAuthStore.getState().token;
+      const res = await fetch('https://ns-jewellery.onrender.com/api/kyc/aadhar/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ aadharNumber })
+      });
+      const data = await res.json();
       
-      // Simulating API delay
-      setTimeout(() => {
-        setReferenceId(`mock-ref-${Date.now()}`);
-        setOtp('123456'); // Auto-fill mock OTP for testing
+      if (data.success) {
+        setReferenceId(data.data.referenceId);
         setStep('OTP');
-        setLoading(false);
-      }, 1500);
-
+      } else {
+        Alert.alert('Error', data.message || 'Failed to send OTP');
+      }
+      setLoading(false);
     } catch (error: any) {
       setLoading(false);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to send OTP');
+      Alert.alert('Error', error.message || 'Failed to send OTP');
     }
   };
 
@@ -58,27 +61,30 @@ const AadharVerificationScreen = () => {
 
     setLoading(true);
     try {
-      // Mock API call to verify OTP
-      // const res = await api.post('/kyc/aadhar/verify', { aadharNumber, otp, referenceId });
-      // if (res.data.success) {
-      //   setKycStatus('VERIFIED');
-      //   Alert.alert('Success', 'Aadhar verified successfully!', [
-      //     { text: 'OK', onPress: () => navigation.goBack() }
-      //   ]);
-      // }
+      const token = useAuthStore.getState().token;
+      const res = await fetch('https://ns-jewellery.onrender.com/api/kyc/aadhar/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ aadharNumber, otp, referenceId })
+      });
+      const data = await res.json();
       
-      // Simulating API delay
-      setTimeout(() => {
+      if (data.success) {
         setKycStatus('VERIFIED');
         setLoading(false);
-        Alert.alert('Verification Successful', 'Your KYC is complete. You can now make purchases.', [
+        Alert.alert('Verification Successful', 'Your Aadhaar is verified. You can now make purchases.', [
           { text: 'Continue', onPress: () => navigation.goBack() }
         ]);
-      }, 1500);
-
+      } else {
+        setLoading(false);
+        Alert.alert('Error', data.message || 'Verification failed');
+      }
     } catch (error: any) {
       setLoading(false);
-      Alert.alert('Error', error.response?.data?.message || 'Verification failed');
+      Alert.alert('Error', error.message || 'Verification failed');
     }
   };
 

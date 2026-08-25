@@ -52,19 +52,39 @@ class CashfreeService {
     }
   }
 
-  async verifyAadhaar(aadhaarNumber: string) {
-    // Note: Aadhaar verification usually requires an OTP flow (Generate OTP -> Verify OTP).
-    // For Sandbox/Simulated flows, Cashfree provides specific test endpoints.
-    // We simulate a direct verification check for demo purposes here.
+  async requestAadhaarOTP(aadhaarNumber: string) {
     try {
-      // In a real flow, you first call /aadhaar/otp, then /aadhaar/verify
-      // For sandbox without an OTP entered by user, we'll mock a success if length is 12
-      if (aadhaarNumber.length === 12) {
-         return { success: true, message: 'Aadhaar Verified (Sandbox Mock)' };
+      const response = await fetch(`${this.verifyBaseUrl}/offline-aadhaar/otp`, {
+        method: 'POST',
+        headers: this.headers,
+        body: JSON.stringify({ aadhaar_number: aadhaarNumber })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        return { success: true, ref_id: data.ref_id, message: data.message };
       }
-      return { success: false, message: 'Invalid Aadhaar Number' };
+      return { success: false, message: data.message || 'Failed to send Aadhaar OTP' };
     } catch (error: any) {
-      return { success: false, message: 'Aadhaar verification failed' };
+      console.error('Aadhaar OTP Error:', error);
+      return { success: false, message: 'Aadhaar OTP service unavailable' };
+    }
+  }
+
+  async verifyAadhaarOTP(refId: string, otp: string) {
+    try {
+      const response = await fetch(`${this.verifyBaseUrl}/offline-aadhaar/verify`, {
+        method: 'POST',
+        headers: this.headers,
+        body: JSON.stringify({ ref_id: refId, otp })
+      });
+      const data = await response.json();
+      if (response.ok && data.status === 'VALID') {
+         return { success: true, data };
+      }
+      return { success: false, message: data.message || 'Invalid OTP or Verification Failed' };
+    } catch (error: any) {
+      console.error('Aadhaar Verify Error:', error);
+      return { success: false, message: 'Aadhaar verification service unavailable' };
     }
   }
 

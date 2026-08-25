@@ -10,10 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const PanVerificationScreen = () => {
   const [panNumber, setPanNumber] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'INPUT' | 'OTP'>('INPUT');
   const [loading, setLoading] = useState(false);
-  const [referenceId, setReferenceId] = useState('');
   
   const navigation = useNavigation<any>();
   const { mode } = useThemeStore();
@@ -21,7 +18,7 @@ const PanVerificationScreen = () => {
   const styles = getStyles(colors, mode);
   const setPanStatus = useAuthStore((state) => state.setPanStatus);
 
-  const handleSendOTP = async () => {
+  const handleVerifyPAN = async () => {
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
     if (!panRegex.test(panNumber.toUpperCase())) {
       Alert.alert('Invalid PAN', 'Please enter a valid PAN format (e.g., ABCDE1234F)');
@@ -30,56 +27,29 @@ const PanVerificationScreen = () => {
 
     setLoading(true);
     try {
-      // Mock API call to send OTP
-      // const res = await api.post('/kyc/aadhar/send-otp', { panNumber });
-      // if (res.data.success) {
-      //   setReferenceId(res.data.data.referenceId);
-      //   setStep('OTP');
-      // }
+      const token = useAuthStore.getState().token;
+      const res = await fetch('https://ns-jewellery.onrender.com/api/kyc/pan/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ panNumber })
+      });
+      const data = await res.json();
       
-      // Simulating API delay
-      setTimeout(() => {
-        setReferenceId(`mock-ref-${Date.now()}`);
-        setOtp('123456'); // Auto-fill mock OTP for testing
-        setStep('OTP');
-        setLoading(false);
-      }, 1500);
-
-    } catch (error: any) {
-      setLoading(false);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to send OTP');
-    }
-  };
-
-  const handleVerifyOTP = async () => {
-    if (otp.length !== 6) {
-      Alert.alert('Error', 'Please enter a valid 6-digit OTP');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Mock API call to verify OTP
-      // const res = await api.post('/kyc/aadhar/verify', { panNumber, otp, referenceId });
-      // if (res.data.success) {
-      //   setPanStatus('VERIFIED');
-      //   Alert.alert('Success', 'PAN verified successfully!', [
-      //     { text: 'OK', onPress: () => navigation.goBack() }
-      //   ]);
-      // }
-      
-      // Simulating API delay
-      setTimeout(() => {
+      if (data.success) {
         setPanStatus('VERIFIED');
-        setLoading(false);
-        Alert.alert('Verification Successful', 'Your KYC is complete. You can now make purchases.', [
+        Alert.alert('Verification Successful', 'Your PAN is verified. You can now make purchases.', [
           { text: 'Continue', onPress: () => navigation.goBack() }
         ]);
-      }, 1500);
-
+      } else {
+        Alert.alert('Error', data.message || 'Failed to verify PAN');
+      }
+      setLoading(false);
     } catch (error: any) {
       setLoading(false);
-      Alert.alert('Error', error.response?.data?.message || 'Verification failed');
+      Alert.alert('Error', error.message || 'Failed to verify PAN');
     }
   };
 
@@ -102,58 +72,31 @@ const PanVerificationScreen = () => {
           </View>
           
           <Text style={[styles.title, { color: colors.text }]}>
-            {step === 'INPUT' ? 'Verify your PAN' : 'Enter OTP'}
+            Verify your PAN
           </Text>
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-            {step === 'INPUT' 
-              ? 'To buy digital gold or join savings plans, regulations require us to verify your identity.' 
-              : `We've sent a 6-digit OTP to the mobile number linked to PAN ending in ${panNumber.slice(-4)}`}
+            To buy digital gold or join savings plans, regulations require us to verify your identity.
           </Text>
 
-          {step === 'INPUT' ? (
-            <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: colors.text }]}>PAN Number</Text>
-              <TextInput
-                style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                placeholder="ABCDE1234F"
-                placeholderTextColor={colors.textMuted}
-                autoCapitalize="characters"
-                maxLength={10}
-                value={panNumber}
-                onChangeText={setPanNumber}
-              />
-              <TouchableOpacity 
-                style={[styles.button, { backgroundColor: colors.primary, opacity: panNumber.length === 10 ? 1 : 0.6 }]}
-                onPress={handleSendOTP}
-                disabled={loading || panNumber.length !== 10}
-              >
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Send OTP</Text>}
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: colors.text }]}>OTP</Text>
-              <TextInput
-                style={[styles.input, { color: colors.text, borderColor: colors.border, textAlign: 'center', letterSpacing: 10 }]}
-                placeholder="• • • • • •"
-                placeholderTextColor={colors.textMuted}
-                keyboardType="numeric"
-                maxLength={6}
-                value={otp}
-                onChangeText={setOtp}
-              />
-              <TouchableOpacity 
-                style={[styles.button, { backgroundColor: colors.primary, opacity: otp.length === 6 ? 1 : 0.6 }]}
-                onPress={handleVerifyOTP}
-                disabled={loading || otp.length !== 6}
-              >
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify PAN</Text>}
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setStep('INPUT')} style={{ marginTop: 15, alignItems: 'center' }}>
-                <Text style={{ color: colors.primary, fontWeight: 'bold' }}>Change PAN Number</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <View style={styles.inputWrapper}>
+            <Text style={[styles.label, { color: colors.text }]}>PAN Number</Text>
+            <TextInput
+              style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+              placeholder="ABCDE1234F"
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="characters"
+              maxLength={10}
+              value={panNumber}
+              onChangeText={setPanNumber}
+            />
+            <TouchableOpacity 
+              style={[styles.button, { backgroundColor: colors.primary, opacity: panNumber.length === 10 ? 1 : 0.6 }]}
+              onPress={handleVerifyPAN}
+              disabled={loading || panNumber.length !== 10}
+            >
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify PAN</Text>}
+            </TouchableOpacity>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
