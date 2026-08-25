@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { Delete } from 'lucide-react-native';
@@ -66,7 +66,7 @@ const LoginMPINScreen = () => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
-      <View style={styles.contentContainer}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         {/* Logo Section */}
         <View style={styles.logoSection}>
           <Image 
@@ -124,7 +124,7 @@ const LoginMPINScreen = () => {
           <Text style={styles.logoutText}>Logout / Use different account</Text>
         </TouchableOpacity>
 
-      </View>
+      </ScrollView>
 
       {/* Custom Keypad */}
       <View style={styles.keypadContainer}>
@@ -278,8 +278,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     paddingTop: 30,
     paddingBottom: 40,
-    flex: 1,
-    marginTop: 20,
+    marginTop: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
