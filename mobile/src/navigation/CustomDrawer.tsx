@@ -42,7 +42,7 @@ const CustomDrawer = (props: any) => {
 
       <View style={styles.themeToggleContainer}>
         <View style={styles.themeToggleLeft}>
-          {mode === 'dark' ? <Moon color={COLORS.white} size={20} /> : <Sun color={COLORS.white} size={20} />}
+          {mode === 'dark' ? <Moon color={'#8B6508'} size={20} /> : <Sun color={'#8B6508'} size={20} />}
           <Text style={styles.themeToggleText}>Dark Mode</Text>
         </View>
         <Switch 
@@ -54,7 +54,7 @@ const CustomDrawer = (props: any) => {
       </View>
 
       <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-        <LogOut color={COLORS.white} size={20} />
+        <LogOut color={'#8B6508'} size={20} />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
     </View>
@@ -66,7 +66,7 @@ const DrawerItem = ({ label, icon: Icon, isFocused, onPress }: any) => {
     <TouchableOpacity style={[styles.drawerItem, isFocused && styles.drawerItemFocused]} onPress={onPress}>
       <View style={[styles.activeIndicator, isFocused && styles.activeIndicatorVisible]} />
       <View style={styles.drawerItemContent}>
-        <Icon color={COLORS.white} size={20} />
+        <Icon color={'#8B6508'} size={20} />
         <Text style={styles.drawerItemText}>{label}</Text>
       </View>
     </TouchableOpacity>
@@ -76,14 +76,14 @@ const DrawerItem = ({ label, icon: Icon, isFocused, onPress }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.secondary,
+    backgroundColor: '#F4E7CE', // Light sandal color
   },
   header: {
     padding: 20,
     marginBottom: 20,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+    borderBottomColor: 'rgba(139,101,8,0.2)',
   },
   avatar: {
     width: 60,
@@ -100,13 +100,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   userName: {
-    color: COLORS.white,
+    color: '#8B6508',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
   },
   userPhone: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#AA771C',
     fontSize: 14,
   },
   navSection: {
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   drawerItemFocused: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(139,101,8,0.1)',
   },
   activeIndicator: {
     width: 4,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   activeIndicatorVisible: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#8B6508',
   },
   drawerItemContent: {
     flexDirection: 'row',
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   drawerItemText: {
-    color: COLORS.white,
+    color: '#8B6508',
     fontSize: 16,
     marginLeft: 15,
     fontWeight: '500',
@@ -147,10 +147,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
+    borderTopColor: 'rgba(139,101,8,0.2)',
   },
   logoutText: {
-    color: COLORS.white,
+    color: '#8B6508',
     fontSize: 16,
     marginLeft: 15,
     fontWeight: '500',
@@ -161,14 +161,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
+    borderTopColor: 'rgba(139,101,8,0.2)',
   },
   themeToggleLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   themeToggleText: {
-    color: COLORS.white,
+    color: '#8B6508',
     fontSize: 16,
     marginLeft: 15,
     fontWeight: '500',

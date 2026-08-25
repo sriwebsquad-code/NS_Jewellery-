@@ -7,6 +7,16 @@ import { Menu, ChevronDown, Calendar, Check } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 
+const formatPlanName = (name: string) => {
+  if (!name) return name;
+  const n = name.toLowerCase().trim();
+  if (n === 'gold 11 scheme') return '11 Month Weight based Gold Scheme';
+  if (n === '11 month gold scheme') return '11 Month Value based Gold Scheme';
+  if (n === 'silver 11 scheme') return '11 Month Weight based Silver Scheme';
+  if (n === '11 month silver scheme') return '11 Month Value based Silver Scheme';
+  return name;
+};
+
 const MyPlansScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
@@ -18,7 +28,7 @@ const MyPlansScreen = () => {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const [selectedCategory, setSelectedCategory] = useState<string>(route.params?.defaultCategory || 'Gold Saving Schemes');
+  const [selectedCategory, setSelectedCategory] = useState<string>(route.params?.defaultCategory || 'Gold Schemes');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [installmentAmount, setInstallmentAmount] = useState<string>('');
   const [liveRates, setLiveRates] = useState<{gold: number, silver: number}>({ gold: 0, silver: 0 });
@@ -63,10 +73,10 @@ const MyPlansScreen = () => {
       if (data.success && data.data) {
         setPlans(data.data);
         if (data.data.length > 0) {
-          const currentCategory = route.params?.defaultCategory || 'Gold Saving Schemes';
+          const currentCategory = route.params?.defaultCategory || 'Gold Schemes';
           const filtered = data.data.filter((p: any) => {
-            if (currentCategory === 'Gold Saving Schemes') return p.name.toLowerCase().includes('gold');
-            if (currentCategory === 'Silver Saving Schemes') return p.name.toLowerCase().includes('silver');
+            if (currentCategory === 'Gold Schemes') return p.name.toLowerCase().includes('gold');
+            if (currentCategory === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
             return false;
           });
           if (filtered.length > 0) {
@@ -74,7 +84,7 @@ const MyPlansScreen = () => {
             setSelectedCategory(currentCategory);
           } else {
             setSelectedPlanId(data.data[0].id);
-            setSelectedCategory('Gold Saving Schemes');
+            setSelectedCategory('Gold Schemes');
           }
         }
       } else {
@@ -106,10 +116,10 @@ const MyPlansScreen = () => {
       ];
       setPlans(fallbackPlans);
       
-      const currentCategory = route.params?.defaultCategory || 'Gold Saving Schemes';
-      const filtered = fallbackPlans.filter((p: any) => {
-        if (currentCategory === 'Gold Saving Schemes') return p.name.toLowerCase().includes('gold');
-        if (currentCategory === 'Silver Saving Schemes') return p.name.toLowerCase().includes('silver');
+      const currentCategory = route.params?.defaultCategory || 'Gold Schemes';
+      const filtered = fallbackPlans.filter(p => {
+        if (currentCategory === 'Gold Schemes') return p.name.toLowerCase().includes('gold');
+        if (currentCategory === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
         return false;
       });
       setSelectedPlanId(filtered[0].id);
@@ -119,11 +129,11 @@ const MyPlansScreen = () => {
     }
   };
 
-  const categories = ['Gold Saving Schemes', 'Silver Saving Schemes'];
+  const categories = ['Gold Schemes', 'Silver Schemes'];
   
-  const filteredPlans = plans.filter((p: any) => {
-    if (selectedCategory === 'Gold Saving Schemes') return p.name.toLowerCase().includes('gold');
-    if (selectedCategory === 'Silver Saving Schemes') return p.name.toLowerCase().includes('silver');
+  const filteredPlans = plans.filter(p => {
+    if (selectedCategory === 'Gold Schemes') return p.name.toLowerCase().includes('gold');
+    if (selectedCategory === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
     return false;
   });
 
@@ -149,9 +159,9 @@ const MyPlansScreen = () => {
     setSelectedCategory(cat);
     setShowCategoryDropdown(false);
     // Auto-select first plan of this category
-    const newFiltered = plans.filter((p: any) => {
-      if (cat === 'Gold Saving Schemes') return p.name.toLowerCase().includes('gold');
-      if (cat === 'Silver Saving Schemes') return p.name.toLowerCase().includes('silver');
+    const newFiltered = plans.filter(p => {
+      if (cat === 'Gold Schemes') return p.name.toLowerCase().includes('gold');
+      if (cat === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
       return false;
     });
     if (newFiltered.length > 0) {
@@ -161,8 +171,8 @@ const MyPlansScreen = () => {
     }
   };
 
-  const isGold = selectedCategory === 'Gold Saving Schemes';
-  const isSilver = selectedCategory === 'Silver Saving Schemes';
+  const isGold = selectedCategory === 'Gold Schemes';
+  const isSilver = selectedCategory === 'Silver Schemes';
   const titleColor = isGold ? '#F5B041' : (isSilver ? '#AAB7B8' : '#2C3E50'); 
 
   if (loading) {
@@ -223,7 +233,7 @@ const MyPlansScreen = () => {
             activeOpacity={0.8}
             onPress={() => setShowPlanDropdown(!showPlanDropdown)}
           >
-            <Text style={[styles.dropdownText, { color: colors.text }]}>{selectedPlan ? selectedPlan.name : 'No Plans Found'}</Text>
+            <Text style={[styles.dropdownText, { color: colors.text }]}>{selectedPlan ? formatPlanName(selectedPlan.name) : 'No Plans Found'}</Text>
             <ChevronDown color={colors.icon} size={24} />
           </TouchableOpacity>
 
@@ -238,7 +248,7 @@ const MyPlansScreen = () => {
                     setShowPlanDropdown(false);
                   }}
                 >
-                  <Text style={[styles.dropdownItemText, { color: colors.text }]}>{plan.name}</Text>
+                  <Text style={[styles.dropdownItemText, { color: colors.text }]}>{formatPlanName(plan.name)}</Text>
                 </TouchableOpacity>
               )) : (
                 <View style={styles.dropdownItem}>
