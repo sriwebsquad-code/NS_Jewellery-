@@ -39,6 +39,7 @@ const AadharVerificationScreen = () => {
       // Simulating API delay
       setTimeout(() => {
         setReferenceId(`mock-ref-${Date.now()}`);
+        setOtp('123456'); // Auto-fill mock OTP for testing
         setStep('OTP');
         setLoading(false);
       }, 1500);
