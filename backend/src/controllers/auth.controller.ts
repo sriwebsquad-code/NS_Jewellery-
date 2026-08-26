@@ -113,17 +113,15 @@ export const verifyOTP = async (req: Request, res: Response) => {
     // Generate custom backend JWT token
     const token = generateToken({ userId: user.id, role: user.role });
 
+    const safeUser = { ...user };
+    delete safeUser.mpin;
+
     res.status(200).json({
       success: true,
       data: {
         token,
         user: {
-          id: user.id,
-          phone: user.phone,
-          name: user.name,
-          role: user.role,
-          kycStatus: user.kycStatus,
-          mpin: user.mpin,
+          ...safeUser,
           isNewUser
         }
       }
@@ -183,18 +181,15 @@ export const loginWithMPIN = async (req: Request, res: Response) => {
     }
 
     const token = generateToken({ userId: user.id, role: user.role });
+    
+    const safeUser = { ...user };
+    delete safeUser.mpin;
 
     res.status(200).json({
       success: true,
       data: {
         token,
-        user: {
-          id: user.id,
-          phone: user.phone,
-          name: user.name,
-          role: user.role,
-          kycStatus: user.kycStatus
-        }
+        user: safeUser
       }
     });
 
