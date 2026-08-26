@@ -13,6 +13,14 @@ import { useAuthStore } from './store/authStore';
 
 import Settings from './pages/Settings';
 
+// Public Pages
+import Landing from './pages/public/Landing';
+import Terms from './pages/public/Terms';
+import Privacy from './pages/public/Privacy';
+import Refund from './pages/public/Refund';
+import Shipping from './pages/public/Shipping';
+import Contact from './pages/public/Contact';
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((state) => state.token);
   if (!token) {
@@ -25,10 +33,20 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Pages for Cashfree Verification */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/refund" element={<Refund />} />
+        <Route path="/shipping" element={<Shipping />} />
+        <Route path="/contact" element={<Contact />} />
+
+        {/* Admin Authentication */}
         <Route path="/login" element={<Login />} />
         
+        {/* Protected Admin Routes */}
         <Route
-          path="/"
+          path="/admin"
           element={
             <ProtectedRoute>
               <AdminLayout />
