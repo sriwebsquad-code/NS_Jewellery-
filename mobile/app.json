@@ -24,7 +24,7 @@
       "package": "com.nsjewellery.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/new_logo.png",
+        "foregroundImage": "./assets/adaptive_icon_padded.png",
         "backgroundColor": "#FFFFFF"
       },
       "predictiveBackGestureEnabled": false
