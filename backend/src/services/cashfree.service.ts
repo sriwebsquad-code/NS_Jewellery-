@@ -1,14 +1,20 @@
 import crypto from 'crypto';
 
 class CashfreeService {
-  private appId: string;
-  private secretKey: string;
+  private pgAppId: string;
+  private pgSecretKey: string;
+  private verifyAppId: string;
+  private verifySecretKey: string;
   private pgBaseUrl: string;
   private verifyBaseUrl: string;
 
   constructor() {
-    this.appId = process.env.CASHFREE_APP_ID || '';
-    this.secretKey = process.env.CASHFREE_SECRET_KEY || '';
+    this.pgAppId = process.env.CASHFREE_APP_ID || '';
+    this.pgSecretKey = process.env.CASHFREE_SECRET_KEY || '';
+    
+    // Support separate keys for Verification Suite, fallback to PG keys if not provided
+    this.verifyAppId = process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId;
+    this.verifySecretKey = process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey;
     
     // Automatically switch between Sandbox and Production based on Render environment
     const isProd = process.env.NODE_ENV === 'production';
@@ -17,12 +23,20 @@ class CashfreeService {
     this.verifyBaseUrl = isProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
   }
 
-  private get headers() {
+  private get pgHeaders() {
     return {
-      'x-client-id': this.appId,
-      'x-client-secret': this.secretKey,
+      'x-client-id': this.pgAppId,
+      'x-client-secret': this.pgSecretKey,
       'Content-Type': 'application/json',
       'x-api-version': '2023-08-01'
+    };
+  }
+
+  private get verifyHeaders() {
+    return {
+      'x-client-id': this.verifyAppId,
+      'x-client-secret': this.verifySecretKey,
+      'Content-Type': 'application/json'
     };
   }
 
@@ -34,7 +48,7 @@ class CashfreeService {
     try {
       const response = await fetch(`${this.verifyBaseUrl}/pan`, {
         method: 'POST',
-        headers: this.headers,
+        headers: this.verifyHeaders,
         body: JSON.stringify({
           pan: panNumber,
           name: name
@@ -58,7 +72,7 @@ class CashfreeService {
     try {
       const response = await fetch(`${this.verifyBaseUrl}/offline-aadhaar/otp`, {
         method: 'POST',
-        headers: this.headers,
+        headers: this.verifyHeaders,
         body: JSON.stringify({ aadhaar_number: aadhaarNumber })
       });
       const data = await response.json();
@@ -76,7 +90,7 @@ class CashfreeService {
     try {
       const response = await fetch(`${this.verifyBaseUrl}/offline-aadhaar/verify`, {
         method: 'POST',
-        headers: this.headers,
+        headers: this.verifyHeaders,
         body: JSON.stringify({ ref_id: refId, otp })
       });
       const data = await response.json();
@@ -112,7 +126,7 @@ class CashfreeService {
 
       const response = await fetch(`${this.pgBaseUrl}/orders`, {
         method: 'POST',
-        headers: this.headers,
+        headers: this.pgHeaders,
         body: JSON.stringify(payload)
       });
 
@@ -154,7 +168,7 @@ class CashfreeService {
     try {
       const signedPayload = timestamp + rawBody;
       const expectedSignature = crypto
-        .createHmac('sha256', this.secretKey)
+        .createHmac('sha256', this.pgSecretKey)
         .update(signedPayload)
         .digest('base64');
         
