@@ -148,7 +148,7 @@ class CashfreeService {
     try {
       const response = await fetch(`${this.pgBaseUrl}/orders/${orderId}`, {
         method: 'GET',
-        headers: this.headers
+        headers: this.pgHeaders
       });
 
       const data = await response.json();
