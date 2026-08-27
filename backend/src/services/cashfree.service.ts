@@ -10,9 +10,11 @@ class CashfreeService {
     this.appId = process.env.CASHFREE_APP_ID || '';
     this.secretKey = process.env.CASHFREE_SECRET_KEY || '';
     
-    // Always use Sandbox/Test environment for now
-    this.pgBaseUrl = 'https://sandbox.cashfree.com/pg';
-    this.verifyBaseUrl = 'https://sandbox.cashfree.com/verification';
+    // Automatically switch between Sandbox and Production based on Render environment
+    const isProd = process.env.NODE_ENV === 'production';
+    
+    this.pgBaseUrl = isProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
+    this.verifyBaseUrl = isProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
   }
 
   private get headers() {
