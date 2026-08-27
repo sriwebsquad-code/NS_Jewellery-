@@ -6,21 +6,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.cashfreeService = void 0;
 const crypto_1 = __importDefault(require("crypto"));
 class CashfreeService {
-    appId;
-    secretKey;
+    pgAppId;
+    pgSecretKey;
+    verifyAppId;
+    verifySecretKey;
     pgBaseUrl;
     verifyBaseUrl;
     constructor() {
-        this.appId = process.env.CASHFREE_APP_ID || 'CF11189547DA4JAQ1K4BVC73FG3BNG';
-        this.secretKey = process.env.CASHFREE_SECRET_KEY || 'cfsk_ma_test_63c2bc850aecb14af9c979f445e05e62_e4503c4e';
-        // Always use Sandbox/Test environment for now
-        this.pgBaseUrl = 'https://sandbox.cashfree.com/pg';
-        this.verifyBaseUrl = 'https://sandbox.cashfree.com/verification';
+        this.pgAppId = process.env.CASHFREE_APP_ID || '';
+        this.pgSecretKey = process.env.CASHFREE_SECRET_KEY || '';
+        // Support separate keys for Verification Suite, fallback to PG keys if not provided
+        this.verifyAppId = process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId;
+        this.verifySecretKey = process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey;
+        // Automatically switch between Sandbox and Production based on Render environment
+        const isProd = process.env.NODE_ENV === 'production';
+        this.pgBaseUrl = isProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
+        this.verifyBaseUrl = isProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
     }
-    get headers() {
+    get pgHeaders() {
         return {
-            'x-client-id': this.appId,
-            'x-client-secret': this.secretKey,
+            'x-client-id': this.pgAppId,
+            'x-client-secret': this.pgSecretKey,
+            'Content-Type': 'application/json',
+            'x-api-version': '2023-08-01'
+        };
+    }
+    get verifyHeaders() {
+        return {
+            'x-client-id': this.verifyAppId,
+            'x-client-secret': this.verifySecretKey,
             'Content-Type': 'application/json',
             'x-api-version': '2023-08-01'
         };
@@ -32,7 +46,7 @@ class CashfreeService {
         try {
             const response = await fetch(`${this.verifyBaseUrl}/pan`, {
                 method: 'POST',
-                headers: this.headers,
+                headers: this.verifyHeaders,
                 body: JSON.stringify({
                     pan: panNumber,
                     name: name
@@ -50,20 +64,40 @@ class CashfreeService {
             return { success: false, message: 'Verification service unavailable' };
         }
     }
-    async verifyAadhaar(aadhaarNumber) {
-        // Note: Aadhaar verification usually requires an OTP flow (Generate OTP -> Verify OTP).
-        // For Sandbox/Simulated flows, Cashfree provides specific test endpoints.
-        // We simulate a direct verification check for demo purposes here.
+    async requestAadhaarOTP(aadhaarNumber) {
         try {
-            // In a real flow, you first call /aadhaar/otp, then /aadhaar/verify
-            // For sandbox without an OTP entered by user, we'll mock a success if length is 12
-            if (aadhaarNumber.length === 12) {
-                return { success: true, message: 'Aadhaar Verified (Sandbox Mock)' };
+            const response = await fetch(`${this.verifyBaseUrl}/offline-aadhaar/otp`, {
+                method: 'POST',
+                headers: this.verifyHeaders,
+                body: JSON.stringify({ aadhaar_number: aadhaarNumber })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                return { success: true, ref_id: data.ref_id, message: data.message };
             }
-            return { success: false, message: 'Invalid Aadhaar Number' };
+            return { success: false, message: data.message || 'Failed to send Aadhaar OTP' };
         }
         catch (error) {
-            return { success: false, message: 'Aadhaar verification failed' };
+            console.error('Aadhaar OTP Error:', error);
+            return { success: false, message: 'Aadhaar OTP service unavailable' };
+        }
+    }
+    async verifyAadhaarOTP(refId, otp) {
+        try {
+            const response = await fetch(`${this.verifyBaseUrl}/offline-aadhaar/verify`, {
+                method: 'POST',
+                headers: this.verifyHeaders,
+                body: JSON.stringify({ ref_id: refId, otp })
+            });
+            const data = await response.json();
+            if (response.ok && data.status === 'VALID') {
+                return { success: true, data };
+            }
+            return { success: false, message: data.message || 'Invalid OTP or Verification Failed' };
+        }
+        catch (error) {
+            console.error('Aadhaar Verify Error:', error);
+            return { success: false, message: 'Aadhaar verification service unavailable' };
         }
     }
     // ==========================================
@@ -85,7 +119,7 @@ class CashfreeService {
             };
             const response = await fetch(`${this.pgBaseUrl}/orders`, {
                 method: 'POST',
-                headers: this.headers,
+                headers: this.pgHeaders,
                 body: JSON.stringify(payload)
             });
             const data = await response.json();
@@ -104,7 +138,7 @@ class CashfreeService {
         try {
             const response = await fetch(`${this.pgBaseUrl}/orders/${orderId}`, {
                 method: 'GET',
-                headers: this.headers
+                headers: this.pgHeaders
             });
             const data = await response.json();
             if (response.ok) {
@@ -121,7 +155,7 @@ class CashfreeService {
         try {
             const signedPayload = timestamp + rawBody;
             const expectedSignature = crypto_1.default
-                .createHmac('sha256', this.secretKey)
+                .createHmac('sha256', this.pgSecretKey)
                 .update(signedPayload)
                 .digest('base64');
             return expectedSignature === signature;

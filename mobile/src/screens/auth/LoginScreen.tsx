@@ -14,19 +14,15 @@ const LoginScreen = () => {
     if (phone.length === 10) {
       try {
         const phoneNumber = `+91${phone}`;
-        // Temporarily passing static confirmation object until backend is fully hooked up for testing build
-        const response = await fetch('http://192.168.1.100:5000/api/auth/send-otp', {
+        // Use HTTPS for iOS compatibility (App Transport Security)
+        const response = await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone: phoneNumber })
         });
         
-        if (response.ok) {
-          navigation.navigate('OTP', { phone });
-        } else {
-          // If backend isn't ready yet, navigate anyway so user can test UI
-          navigation.navigate('OTP', { phone });
-        }
+        // Force navigate to OTP screen for UI testing regardless of backend status right now
+        navigation.navigate('OTP', { phone });
       } catch (error: any) {
         // Fallback for UI testing if backend is offline
         navigation.navigate('OTP', { phone });
@@ -107,7 +103,10 @@ const LoginScreen = () => {
 
             <TouchableOpacity 
               style={styles.outlineButton}
-              onPress={() => navigation.navigate('LoginMPIN')}
+              onPress={() => {
+                // LoginMPIN is only accessible if the user is already partially logged in
+                alert('MPIN login is only available for returning users. Please login with OTP first.');
+              }}
             >
               <Lock color="#B8860B" size={16} style={{ marginRight: 8 }} />
               <Text style={styles.outlineButtonText}>Login with MPIN</Text>

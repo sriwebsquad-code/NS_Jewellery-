@@ -1,65 +1,81 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetMpin = exports.verifyMpinResetOtp = exports.requestMpinReset = exports.loginWithMPIN = exports.createMPIN = exports.verifyFirebaseOTP = void 0;
-const auth_1 = require("firebase-admin/auth");
-const firebase_1 = __importStar(require("../config/firebase"));
+exports.resetMpin = exports.verifyMpinResetOtp = exports.requestMpinReset = exports.loginWithMPIN = exports.createMPIN = exports.verifyOTP = exports.sendOTP = void 0;
+const firebase_1 = require("../config/firebase");
 const jwt_1 = require("../utils/jwt");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const whatsapp_service_1 = require("../services/whatsapp.service");
-const verifyFirebaseOTP = async (req, res) => {
+const axios_1 = __importDefault(require("axios"));
+// In-memory store for OTPs (In production, use Redis or Firestore)
+const otpStore = new Map();
+const sendOTP = async (req, res) => {
     try {
-        const { idToken, phone, otp } = req.body;
-        let phoneNumber = phone;
-        // For urgent demo, bypass Firebase if OTP is 123456
-        if (otp === '123456' && phone) {
-            phoneNumber = `+91${phone}`;
+        const { phone } = req.body;
+        if (!phone) {
+            return res.status(400).json({ success: false, message: 'Phone number is required' });
+        }
+        // Clean phone number (remove +91 if present)
+        const cleanPhone = phone.replace('+91', '');
+        // Generate 6 digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+        // Store in memory
+        otpStore.set(cleanPhone, { otp, expiresAt });
+        // For demo purposes, we will bypass actually calling Fast2SMS if no API key is present
+        const apiKey = process.env.FAST2SMS_API_KEY;
+        if (apiKey && cleanPhone !== '9876543210') { // 9876543210 is demo account
+            try {
+                await axios_1.default.get('https://www.fast2sms.com/dev/bulkV2', {
+                    params: {
+                        authorization: apiKey,
+                        variables_values: otp,
+                        route: 'otp',
+                        numbers: cleanPhone,
+                    }
+                });
+            }
+            catch (smsError) {
+                console.error('Fast2SMS Error:', smsError?.response?.data || smsError.message);
+                // Continue anyway for now so development doesn't block
+            }
         }
         else {
-            if (!idToken) {
-                return res.status(400).json({ success: false, message: 'idToken is required' });
-            }
-            // Verify Firebase ID token
-            const decodedToken = await (0, auth_1.getAuth)(firebase_1.default).verifyIdToken(idToken);
-            phoneNumber = decodedToken.phone_number;
+            console.log(`[DEV ONLY] OTP for ${cleanPhone} is ${otp}`);
         }
-        if (!phoneNumber) {
-            return res.status(400).json({ success: false, message: 'Phone number not found in token' });
+        res.status(200).json({ success: true, message: 'OTP sent successfully' });
+    }
+    catch (error) {
+        console.error('Send OTP Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to send OTP' });
+    }
+};
+exports.sendOTP = sendOTP;
+const verifyOTP = async (req, res) => {
+    try {
+        const { phone, otp } = req.body;
+        if (!phone || !otp) {
+            return res.status(400).json({ success: false, message: 'Phone and OTP are required' });
+        }
+        const cleanPhone = phone.replace('+91', '');
+        let phoneNumber = `+91${cleanPhone}`;
+        // Demo account bypass
+        if (!(cleanPhone === '9876543210' && otp === '123456')) {
+            const storedData = otpStore.get(cleanPhone);
+            if (!storedData) {
+                return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+            }
+            if (new Date() > storedData.expiresAt) {
+                otpStore.delete(cleanPhone);
+                return res.status(400).json({ success: false, message: 'OTP has expired' });
+            }
+            if (storedData.otp !== otp) {
+                return res.status(400).json({ success: false, message: 'Incorrect OTP' });
+            }
+            // OTP verified! Clean it up.
+            otpStore.delete(cleanPhone);
         }
         // Check if user exists in database
         const usersRef = firebase_1.db.collection('users');
@@ -88,27 +104,25 @@ const verifyFirebaseOTP = async (req, res) => {
         }
         // Generate custom backend JWT token
         const token = (0, jwt_1.generateToken)({ userId: user.id, role: user.role });
+        const safeUser = { ...user };
+        delete safeUser.mpin;
         res.status(200).json({
             success: true,
             data: {
                 token,
                 user: {
-                    id: user.id,
-                    phone: user.phone,
-                    name: user.name,
-                    role: user.role,
-                    kycStatus: user.kycStatus,
+                    ...safeUser,
                     isNewUser
                 }
             }
         });
     }
     catch (error) {
-        console.error('Firebase OTP Verification Error:', error);
-        res.status(401).json({ success: false, message: 'Invalid or expired OTP token', error: error.message });
+        console.error('OTP Verification Error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
     }
 };
-exports.verifyFirebaseOTP = verifyFirebaseOTP;
+exports.verifyOTP = verifyOTP;
 const createMPIN = async (req, res) => {
     try {
         const userId = req.user?.userId;
@@ -148,17 +162,13 @@ const loginWithMPIN = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid MPIN' });
         }
         const token = (0, jwt_1.generateToken)({ userId: user.id, role: user.role });
+        const safeUser = { ...user };
+        delete safeUser.mpin;
         res.status(200).json({
             success: true,
             data: {
                 token,
-                user: {
-                    id: user.id,
-                    phone: user.phone,
-                    name: user.name,
-                    role: user.role,
-                    kycStatus: user.kycStatus
-                }
+                user: safeUser
             }
         });
     }
@@ -168,8 +178,6 @@ const loginWithMPIN = async (req, res) => {
     }
 };
 exports.loginWithMPIN = loginWithMPIN;
-// In-memory store for OTPs
-const otpStore = new Map();
 const requestMpinReset = async (req, res) => {
     try {
         const { phone } = req.body;

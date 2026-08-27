@@ -53,6 +53,11 @@ const joinPlan = async (req, res) => {
         const planDoc = await firebase_1.db.collection('plans').doc(planId).get();
         if (!planDoc.exists)
             return res.status(404).json({ success: false, message: 'Plan not found' });
+        const startDate = new Date();
+        const endDate = new Date(startDate.getTime() + planDoc.data().durationMonths * 30 * 24 * 60 * 60 * 1000);
+        // By default, the next payment is due exactly 1 month after starting the plan
+        const nextPaymentDate = new Date(startDate);
+        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
         const docRef = firebase_1.db.collection('userPlans').doc();
         const userPlan = {
             id: docRef.id,
@@ -61,8 +66,9 @@ const joinPlan = async (req, res) => {
             status: 'ACTIVE',
             monthlyAmount: parseFloat(monthlyAmount),
             totalPaid: 0,
-            startDate: new Date().toISOString(),
-            endDate: new Date(Date.now() + planDoc.data().durationMonths * 30 * 24 * 60 * 60 * 1000).toISOString()
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            nextPaymentDate: nextPaymentDate.toISOString()
         };
         await docRef.set(userPlan);
         res.status(201).json({ success: true, message: 'Joined scheme successfully', data: userPlan });

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyPayment = exports.createPaymentOrder = void 0;
+exports.renderCheckoutPage = exports.verifyPayment = exports.createPaymentOrder = void 0;
 const cashfree_service_1 = require("../services/cashfree.service");
 const firebase_1 = require("../config/firebase");
 const createPaymentOrder = async (req, res) => {
@@ -76,4 +76,54 @@ const verifyPayment = async (req, res) => {
     }
 };
 exports.verifyPayment = verifyPayment;
+const renderCheckoutPage = (req, res) => {
+    const { sessionId } = req.params;
+    const isProd = process.env.NODE_ENV === 'production';
+    const sdkUrl = isProd ? 'https://sdk.cashfree.com/js/v3/cashfree.js' : 'https://sdk.cashfree.com/js/v3/cashfree.js';
+    const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Secure Payment Checkout</title>
+      <script src="${sdkUrl}"></script>
+      <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #fcfcfc; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #d4af37; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .container { text-align: center; }
+        h3 { color: #333; margin-top: 20px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="loader"></div>
+        <h3>Loading Payment Gateway...</h3>
+      </div>
+      <script>
+        const cashfree = Cashfree({ mode: "${isProd ? 'production' : 'sandbox'}" });
+        cashfree.checkout({
+          paymentSessionId: "${sessionId}",
+          redirectTarget: "_self"
+        }).then(function(result) {
+          if (result.error) {
+            // Send message to React Native WebView
+            if (window.ReactNativeWebView) {
+               window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'PAYMENT_FAILED', error: result.error }));
+            }
+          }
+          if (result.paymentDetails) {
+            if (window.ReactNativeWebView) {
+               window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'PAYMENT_SUCCESS', details: result.paymentDetails }));
+            }
+          }
+        });
+      </script>
+    </body>
+    </html>
+  `;
+    res.send(html);
+};
+exports.renderCheckoutPage = renderCheckoutPage;
 //# sourceMappingURL=payment.controller.js.map

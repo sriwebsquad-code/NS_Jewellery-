@@ -21,7 +21,9 @@ const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage });
 router.post('/categories', auth_middleware_1.authenticate, auth_middleware_1.authorizeAdmin, audit_middleware_1.auditLog, upload.single('image'), jewellery_controller_1.createCategory);
 router.get('/categories', jewellery_controller_1.getCategories);
+router.delete('/categories/:id', auth_middleware_1.authenticate, auth_middleware_1.authorizeAdmin, audit_middleware_1.auditLog, jewellery_controller_1.deleteCategory);
 router.post('/items', auth_middleware_1.authenticate, auth_middleware_1.authorizeAdmin, audit_middleware_1.auditLog, upload.single('image'), jewellery_controller_1.createJewelleryItem);
 router.get('/items', jewellery_controller_1.getJewelleryItems);
+router.delete('/items/:id', auth_middleware_1.authenticate, auth_middleware_1.authorizeAdmin, audit_middleware_1.auditLog, jewellery_controller_1.deleteItem);
 exports.default = router;
 //# sourceMappingURL=jewellery.routes.js.map

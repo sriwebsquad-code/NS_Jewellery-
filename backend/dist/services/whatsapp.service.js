@@ -1,98 +1,61 @@
 "use strict";
-/**
- * WhatsApp Cloud API Integration Service
- *
- * INSTRUCTIONS FOR PRODUCTION:
- * 1. Go to https://developers.facebook.com/
- * 2. Create an App (Type: Business) and set up the WhatsApp product.
- * 3. Generate a Permanent Access Token.
- * 4. Go to WhatsApp > Message Templates in your Facebook Business Manager.
- * 5. Create a template named "welcome_new_user" with:
- *    - Header: Image
- *    - Body: "Welcome to NS Mahaveer Jewellery! ✨ We are thrilled to have you. Explore our latest collections and exclusive offers today."
- *    - Buttons: 3 Quick Reply buttons: "Go to Plan", "Digi Gold", "Digi Silver"
- * 6. Set the environment variables in your backend .env file:
- *    WHATSAPP_TOKEN="your_access_token_here"
- *    WHATSAPP_PHONE_ID="your_phone_number_id"
- */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.whatsappService = void 0;
+const axios_1 = __importDefault(require("axios"));
+/**
+ * Fast2SMS WhatsApp API Integration Service
+ *
+ * INSTRUCTIONS FOR PRODUCTION:
+ * 1. Log in to your Fast2SMS Dashboard.
+ * 2. Go to the WhatsApp section and configure your Welcome Template.
+ * 3. Make sure you use the FAST2SMS_API_KEY environment variable.
+ */
 class WhatsAppService {
-    token;
-    phoneId;
-    apiUrl;
+    apiKey;
     isConfigured;
     constructor() {
-        this.token = process.env.WHATSAPP_TOKEN || '';
-        this.phoneId = process.env.WHATSAPP_PHONE_ID || '';
-        this.apiUrl = `https://graph.facebook.com/v17.0/${this.phoneId}/messages`;
-        // Check if real credentials are provided
-        this.isConfigured = !!this.token && !!this.phoneId;
+        this.apiKey = process.env.FAST2SMS_API_KEY || '';
+        this.isConfigured = !!this.apiKey;
     }
     /**
-     * Sends a rich media welcome message using WhatsApp Cloud API Templates
-     * @param toPhoneNumber The customer's phone number (with country code, no +)
+     * Sends a welcome message using Fast2SMS WhatsApp API
+     * @param toPhoneNumber The customer's phone number
      */
     async sendWelcomeMessage(toPhoneNumber) {
         try {
-            // Strip any non-numeric characters from the phone number (e.g. +91 -> 91)
+            // Strip any non-numeric characters from the phone number
             const cleanPhone = toPhoneNumber.replace(/\D/g, '');
-            const payload = {
-                messaging_product: "whatsapp",
-                to: cleanPhone,
-                type: "template",
-                template: {
-                    name: "welcome_new_user", // The exact name of your approved template in Meta
-                    language: {
-                        code: "en"
-                    },
-                    components: [
-                        {
-                            type: "header",
-                            parameters: [
-                                {
-                                    type: "image",
-                                    image: {
-                                        // Replace this with a public URL of your application logo
-                                        link: "https://example.com/ns_logo.jpg"
-                                    }
-                                }
-                            ]
-                        }
-                        // The 3 buttons are defined in the Meta Template itself. 
-                        // If they are static "Quick Reply" buttons, you don't need to pass parameters for them here.
-                    ]
-                }
-            };
+            // Remove country code if it exists for Fast2SMS (often expects 10 digits)
+            const tenDigitPhone = cleanPhone.length > 10 ? cleanPhone.slice(-10) : cleanPhone;
             if (!this.isConfigured) {
-                // Development mode: Just log what would be sent
+                // Development mode
                 console.log('=============================================');
-                console.log('📱 [MOCK WHATSAPP] Sending Welcome Message');
-                console.log(`To: +${cleanPhone}`);
-                console.log('Template: welcome_new_user');
-                console.log('Buttons included in template: [Go to Plan] [Digi Gold] [Digi Silver]');
-                console.log('Payload:', JSON.stringify(payload, null, 2));
+                console.log('📱 [MOCK FAST2SMS WHATSAPP] Sending Welcome Message');
+                console.log(`To: ${tenDigitPhone}`);
+                console.log('Template: Welcome Template');
                 console.log('=============================================');
                 return true;
             }
-            // Production mode: Actually call the Meta API
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
+            // Production mode: Call Fast2SMS
+            // Note: Adjust the params based on your exact Fast2SMS WhatsApp template configuration
+            const response = await axios_1.default.post('https://www.fast2sms.com/dev/bulkV2', {
+                route: 'whatsapp', // Fast2SMS WhatsApp route
+                numbers: tenDigitPhone,
+                message: 'Welcome to NS Mahaveer Jewellery! ✨ Explore our latest collections and exclusive offers today.',
+            }, {
                 headers: {
-                    'Authorization': `Bearer ${this.token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
+                    'authorization': this.apiKey,
+                    'Content-Type': 'application/json'
+                }
             });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error?.message || 'Failed to send WhatsApp message');
-            }
-            console.log('WhatsApp message sent successfully:', data);
+            console.log('WhatsApp message sent via Fast2SMS:', response.data);
             return true;
         }
         catch (error) {
-            console.error('Error sending WhatsApp message:', error.message);
+            console.error('Error sending Fast2SMS WhatsApp message:', error?.response?.data || error.message);
             return false;
         }
     }

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-export declare const verifyFirebaseOTP: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const sendOTP: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const verifyOTP: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const createMPIN: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const loginWithMPIN: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const requestMpinReset: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;

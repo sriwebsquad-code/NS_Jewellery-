@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getJewelleryItems = exports.createJewelleryItem = exports.getCategories = exports.createCategory = void 0;
+exports.deleteItem = exports.deleteCategory = exports.getJewelleryItems = exports.createJewelleryItem = exports.getCategories = exports.createCategory = void 0;
 const firebase_1 = require("../config/firebase");
 const createCategory = async (req, res) => {
     try {
@@ -105,4 +105,34 @@ const getJewelleryItems = async (req, res) => {
     }
 };
 exports.getJewelleryItems = getJewelleryItems;
+const deleteCategory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ success: false, message: 'Category ID is required' });
+        }
+        await firebase_1.db.collection('jewelleryCategories').doc(id).delete();
+        res.status(200).json({ success: true, message: 'Category deleted successfully' });
+    }
+    catch (error) {
+        console.error('Delete Category Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete category', error: error.message });
+    }
+};
+exports.deleteCategory = deleteCategory;
+const deleteItem = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ success: false, message: 'Item ID is required' });
+        }
+        await firebase_1.db.collection('jewelleryItems').doc(id).delete();
+        res.status(200).json({ success: true, message: 'Item deleted successfully' });
+    }
+    catch (error) {
+        console.error('Delete Item Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete item', error: error.message });
+    }
+};
+exports.deleteItem = deleteItem;
 //# sourceMappingURL=jewellery.controller.js.map

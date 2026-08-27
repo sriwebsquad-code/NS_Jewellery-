@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
 import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { ArrowLeft } from 'lucide-react-native';
 
 const PaymentScreen = () => {
   const [loading, setLoading] = useState(false);
+  const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { token } = useAuthStore();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
+  
+  const API_URL = 'https://ns-jewellery.onrender.com';
   
   const amount = route.params?.amount || 0;
   const planId = route.params?.planId;
@@ -25,25 +31,25 @@ const PaymentScreen = () => {
     setLoading(true);
     
     try {
-      const API_URL = 'https://ns-jewellery.onrender.com';
-      const response = await fetch(`${API_URL}/api/plans/purchase`, {
+      // 1. Create a Payment Order via the Backend
+      const response = await fetch(`${API_URL}/api/payment/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          planId,
           amount,
-          paymentId: 'txn_' + Date.now() // Mock payment ID
+          itemType: planType
         })
       });
       
       const data = await response.json();
-      if (data.success) {
-        navigation.replace('PaymentSuccess');
+      if (data.success && data.paymentSessionId) {
+        setPaymentSessionId(data.paymentSessionId);
+        setCurrentOrderId(data.orderId);
       } else {
-        Alert.alert('Payment Failed', data.message);
+        Alert.alert('Payment Failed', data.message || 'Could not initiate payment');
       }
     } catch (error) {
       Alert.alert('Error', 'Network error. Please try again.');
@@ -52,11 +58,81 @@ const PaymentScreen = () => {
     }
   };
 
+  const handleWebViewMessage = async (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      
+      if (data.event === 'PAYMENT_SUCCESS') {
+        // 2. Verify payment on the backend
+        setPaymentSessionId(null); // Close Webview
+        setLoading(true);
+        
+        const verifyRes = await fetch(`${API_URL}/api/payment/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ orderId: currentOrderId })
+        });
+        
+        const verifyData = await verifyRes.json();
+        
+        if (verifyData.success) {
+          // 3. Mark installment as paid (since the generic payment worked)
+          await fetch(`${API_URL}/api/plans/payInstallment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ userPlanId: planId, amount })
+          });
+          
+          navigation.replace('PaymentSuccess');
+        } else {
+          Alert.alert('Payment Verification Failed', 'We could not verify your payment. Please contact support.');
+        }
+        
+      } else if (data.event === 'PAYMENT_FAILED') {
+        setPaymentSessionId(null);
+        Alert.alert('Payment Failed', data.error?.message || 'Transaction was cancelled or failed.');
+      }
+    } catch (e) {
+      console.log('Error parsing WebView message', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const isMetal = planType === 'GOLD' || planType === 'SILVER';
+
+  if (paymentSessionId) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={styles.webviewHeader}>
+          <TouchableOpacity onPress={() => setPaymentSessionId(null)} style={styles.backBtn}>
+            <ArrowLeft color={colors.text} size={24} />
+            <Text style={[styles.backText, { color: colors.text }]}>Cancel Payment</Text>
+          </TouchableOpacity>
+        </View>
+        <WebView 
+          source={{ uri: `${API_URL}/api/payment/checkout/${paymentSessionId}` }}
+          onMessage={handleWebViewMessage}
+          style={{ flex: 1 }}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
+          <ArrowLeft color={colors.text} size={24} />
+        </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Checkout</Text>
       </View>
 
@@ -144,7 +220,11 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   radioUnselected: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: '#DDD' },
   payBtn: { backgroundColor: COLORS.primary, padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 'auto', marginBottom: 20 },
   payBtnDisabled: { opacity: 0.7 },
-  payBtnText: { color: colors.cardBackground, fontSize: 18, fontWeight: 'bold' }
+  payBtnText: { color: colors.cardBackground, fontSize: 18, fontWeight: 'bold' },
+  webviewHeader: { padding: 15, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cardBackground, borderBottomWidth: 1, borderBottomColor: colors.border },
+  backBtn: { flexDirection: 'row', alignItems: 'center' },
+  backText: { fontSize: 16, fontWeight: 'bold', marginLeft: 10 },
+  headerBackBtn: { marginRight: 15, padding: 5 }
 });
 
 export default PaymentScreen;

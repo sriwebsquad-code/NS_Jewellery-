@@ -118,10 +118,32 @@ const verifyTransaction = async (req, res) => {
         const id = req.params.id;
         const { model, status } = req.body;
         if (model === 'installment') {
-            await firebase_1.db.collection('installments').doc(id).update({
+            const installmentRef = firebase_1.db.collection('installments').doc(id);
+            const installmentDoc = await installmentRef.get();
+            if (!installmentDoc.exists) {
+                return res.status(404).json({ success: false, message: 'Installment not found' });
+            }
+            await installmentRef.update({
                 status,
                 paidAt: status === 'PAID' ? new Date().toISOString() : null
             });
+            // Update the user's plan ledger
+            if (status === 'PAID') {
+                const installmentData = installmentDoc.data();
+                const userPlanRef = firebase_1.db.collection('userPlans').doc(installmentData.userPlanId);
+                const userPlanDoc = await userPlanRef.get();
+                if (userPlanDoc.exists) {
+                    const userPlanData = userPlanDoc.data();
+                    const newTotalPaid = (userPlanData.totalPaid || 0) + installmentData.amount;
+                    // Push next payment date by 1 month
+                    let nextPaymentDate = new Date(userPlanData.nextPaymentDate || userPlanData.startDate);
+                    nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+                    await userPlanRef.update({
+                        totalPaid: newTotalPaid,
+                        nextPaymentDate: nextPaymentDate.toISOString()
+                    });
+                }
+            }
         }
         else if (model === 'digitalTransaction') {
             await firebase_1.db.collection('digitalTransactions').doc(id).update({ status });

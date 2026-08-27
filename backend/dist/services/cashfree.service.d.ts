@@ -1,10 +1,13 @@
 declare class CashfreeService {
-    private appId;
-    private secretKey;
+    private pgAppId;
+    private pgSecretKey;
+    private verifyAppId;
+    private verifySecretKey;
     private pgBaseUrl;
     private verifyBaseUrl;
     constructor();
-    private get headers();
+    private get pgHeaders();
+    private get verifyHeaders();
     verifyPAN(panNumber: string, name: string): Promise<{
         success: boolean;
         name: any;
@@ -21,9 +24,23 @@ declare class CashfreeService {
         success: boolean;
         message: string;
     }>;
-    verifyAadhaar(aadhaarNumber: string): Promise<{
+    requestAadhaarOTP(aadhaarNumber: string): Promise<{
         success: boolean;
-        message: string;
+        ref_id: any;
+        message: any;
+    } | {
+        ref_id?: never;
+        success: boolean;
+        message: any;
+    }>;
+    verifyAadhaarOTP(refId: string, otp: string): Promise<{
+        message?: never;
+        success: boolean;
+        data: any;
+    } | {
+        data?: never;
+        success: boolean;
+        message: any;
     }>;
     createOrder(orderId: string, amount: number, customerId: string, customerPhone: string): Promise<{
         message?: never;

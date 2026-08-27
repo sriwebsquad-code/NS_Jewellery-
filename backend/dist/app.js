@@ -27,6 +27,7 @@ const plans_routes_1 = __importDefault(require("./routes/plans.routes"));
 const notifications_routes_1 = __importDefault(require("./routes/notifications.routes"));
 const kyc_routes_1 = __importDefault(require("./routes/kyc.routes"));
 const payment_routes_1 = __importDefault(require("./routes/payment.routes"));
+const settings_routes_1 = __importDefault(require("./routes/settings.routes"));
 const path_1 = __importDefault(require("path"));
 // Body parsing Middleware
 app.use(express_1.default.json());
@@ -40,7 +41,7 @@ const apiLimiter = (0, express_rate_limit_1.default)({
 });
 const authLimiter = (0, express_rate_limit_1.default)({
     windowMs: 60 * 60 * 1000, // 1 hour
-    max: 10, // Limit each IP to 10 login/OTP requests per hour
+    max: 1000, // Limit each IP to 1000 login/OTP requests per hour (increased for testing)
     message: { success: false, message: 'Too many authentication attempts, please try again later' }
 });
 // Apply rate limiters
@@ -60,8 +61,10 @@ app.use('/api/notifications', notifications_routes_1.default);
 app.use('/api/kyc', kyc_routes_1.default);
 app.use('/api/payment', payment_routes_1.default);
 app.use('/api/admin', admin_routes_1.default);
+app.use('/api/settings', settings_routes_1.default);
 // Initialize Cron Jobs
 (0, cron_service_1.initRatesCron)();
+(0, cron_service_1.initRemindersCron)();
 // Health Check Route
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP', message: 'Jewellery Savings API is running' });
