@@ -15,9 +15,73 @@ interface User {
   pincode: string | null;
   role: string;
   kycStatus: string;
+  kycDocumentType?: string;
+  kycDocumentNumber?: string;
   createdAt: string;
   activeSchemes?: any[];
 }
+
+const UserTransactions: React.FC<{ userId: string, token: string | null }> = ({ userId, token }) => {
+  const [txns, setTxns] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTxns = async () => {
+      try {
+        const response = await fetch(`https://ns-jewellery.onrender.com/api/admin/transactions?userId=${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          setTxns(data.data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTxns();
+  }, [userId, token]);
+
+  if (loading) return <p className="text-gray-500 text-sm mt-4">Loading transactions...</p>;
+  if (txns.length === 0) return <p className="text-gray-500 text-sm italic mt-4">No transactions found for this customer.</p>;
+
+  return (
+    <div className="mt-6">
+      <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Payment History</h4>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-2 text-gray-500 font-semibold">Date</th>
+              <th className="px-4 py-2 text-gray-500 font-semibold">Type</th>
+              <th className="px-4 py-2 text-gray-500 font-semibold text-right">Amount</th>
+              <th className="px-4 py-2 text-gray-500 font-semibold text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {txns.map(t => (
+              <tr key={t.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 text-gray-700">{new Date(t.date).toLocaleDateString()}</td>
+                <td className="px-4 py-3">
+                  <span className="text-xs font-semibold text-primary">{t.type.replace(/_/g, ' ')}</span>
+                  <div className="text-xs text-gray-500 mt-1">{t.details}</div>
+                </td>
+                <td className="px-4 py-3 text-right font-semibold text-gray-700">₹{t.amount.toLocaleString()}</td>
+                <td className="px-4 py-3 text-center">
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${t.status === 'SUCCESS' || t.status === 'PAID' ? 'bg-green-100 text-green-700' : t.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                    {t.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
 
 const UsersManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -161,7 +225,7 @@ const UsersManagement: React.FC = () => {
                             {user.kycStatus === 'VERIFIED' ? (
                               <span className="inline-flex items-center space-x-1 px-3 py-1 bg-green-100/80 text-green-700 text-xs font-bold rounded-full border border-green-200 shadow-sm">
                                 <ShieldCheck size={14} />
-                                <span>Verified KYC</span>
+                                <span>{user.kycDocumentType || 'Verified KYC'} {user.kycDocumentNumber ? `- ${user.kycDocumentNumber.slice(-4).padStart(user.kycDocumentNumber.length, '*')}` : ''}</span>
                               </span>
                             ) : (
                               <span className="inline-flex items-center space-x-1 px-3 py-1 bg-amber-100/80 text-amber-700 text-xs font-bold rounded-full border border-amber-200 shadow-sm">
@@ -236,6 +300,9 @@ const UsersManagement: React.FC = () => {
                               ))}
                             </div>
                           )}
+                          
+                          {/* Transaction History Section */}
+                          <UserTransactions userId={user.id} token={token} />
                         </td>
                       </tr>
                     )}

@@ -44,13 +44,16 @@ export const getTransactions = async (req: Request, res: Response) => {
   try {
     const status = req.query.status as string | undefined;
     const type = req.query.type as string | undefined;
+    const userId = req.query.userId as string | undefined;
 
     let installmentsRef: any = db.collection('installments');
     if (status) installmentsRef = installmentsRef.where('status', '==', status);
+    if (userId) installmentsRef = installmentsRef.where('userId', '==', userId);
 
     let digitalRef: any = db.collection('digitalTransactions');
     if (status) digitalRef = digitalRef.where('status', '==', status);
     if (type) digitalRef = digitalRef.where('type', '==', type);
+    if (userId) digitalRef = digitalRef.where('userId', '==', userId);
 
     const [installmentsSnap, digitalSnap] = await Promise.all([
       installmentsRef.limit(100).get(),
