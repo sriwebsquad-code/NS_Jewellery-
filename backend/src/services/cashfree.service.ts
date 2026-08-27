@@ -36,7 +36,8 @@ class CashfreeService {
     return {
       'x-client-id': this.verifyAppId,
       'x-client-secret': this.verifySecretKey,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'x-api-version': '2023-08-01'
     };
   }
 
