@@ -23,7 +23,7 @@ if (getApps().length === 0) {
   
   initializeApp({
     credential: cert(serviceAccount),
-    storageBucket: 'nsjewellery-53b2d.firebasestorage.app'
+    storageBucket: `${serviceAccount.project_id}.appspot.com`
   });
 }
 
