@@ -15,14 +15,14 @@ const AdminLayout: React.FC = () => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
-    { name: 'Live Rates', path: '/rates', icon: <TrendingUp size={20} /> },
-    { name: 'Jewellery', path: '/jewellery', icon: <Gem size={20} /> },
-    { name: 'Transactions', path: '/transactions', icon: <CreditCard size={20} /> },
-    { name: 'Users', path: '/users', icon: <Users size={20} /> },
-    { name: 'Digital Customers', path: '/digital-customers', icon: <Users size={20} /> },
-    { name: 'Value Based Schemes', path: '/plans/value', icon: <Landmark size={20} /> },
-    { name: 'Weight Based Schemes', path: '/plans/weight', icon: <Landmark size={20} /> },
+    { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
+    { name: 'Live Rates', path: '/admin/rates', icon: <TrendingUp size={20} /> },
+    { name: 'Jewellery', path: '/admin/jewellery', icon: <Gem size={20} /> },
+    { name: 'Transactions', path: '/admin/transactions', icon: <CreditCard size={20} /> },
+    { name: 'Users', path: '/admin/users', icon: <Users size={20} /> },
+    { name: 'Digital Customers', path: '/admin/digital-customers', icon: <Users size={20} /> },
+    { name: 'Value Based Schemes', path: '/admin/plans/value', icon: <Landmark size={20} /> },
+    { name: 'Weight Based Schemes', path: '/admin/plans/weight', icon: <Landmark size={20} /> },
   ];
 
   return (
