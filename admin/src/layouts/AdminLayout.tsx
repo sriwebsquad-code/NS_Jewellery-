@@ -144,7 +144,7 @@ const AdminLayout: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-3 text-sm">
                   <Phone className="text-primary shrink-0" size={18} />
-                  <p className="text-gray-600">+91 7299573995</p>
+                  <p className="text-gray-600">+91 84009 16916</p>
                 </div>
                 <div className="flex items-center space-x-3 text-sm">
                   <Clock className="text-primary shrink-0" size={18} />

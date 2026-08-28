@@ -51,7 +51,7 @@ const AboutUsScreen = () => {
             <Phone color={colors.primary} size={24} style={styles.icon} />
             <View style={styles.infoTextContainer}>
               <Text style={[styles.infoLabel, { color: colors.text }]}>Contact</Text>
-              <Text style={[styles.infoValue, { color: colors.textMuted }]}>+91 7299573995</Text>
+              <Text style={[styles.infoValue, { color: colors.textMuted }]}>+91 84009 16916</Text>
             </View>
           </View>
 

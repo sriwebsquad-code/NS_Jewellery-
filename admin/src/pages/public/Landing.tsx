@@ -44,7 +44,7 @@ const Landing = () => {
           <p className="font-bold text-xl text-white mb-2">NS Mahaveer Jewellery</p>
           <p>40-41, Lawrence Road, Muthaiya Nagar</p>
           <p>Thirupapuliyur, Cuddalore - 607002</p>
-          <p>Contact: +91 7299573995 | support@nsmahaveer.com</p>
+          <p>Contact: +91 84009 16916 | nsmahaveerjewellery@gmail.com</p>
         </div>
         
         <div className="flex flex-wrap justify-center gap-4 text-sm font-medium">

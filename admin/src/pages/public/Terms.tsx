@@ -26,7 +26,7 @@ const Terms = () => {
           <p>As per Indian regulations, we require valid KYC (Aadhaar/PAN) for specific transaction thresholds. You agree to provide accurate information during verification.</p>
 
           <h3 className="text-xl font-bold mt-6 mb-2">5. Contact Information</h3>
-          <p>If you have any questions regarding these terms, please contact us at support@nsmahaveer.com.</p>
+          <p>If you have any questions regarding these terms, please contact us at nsmahaveerjewellery@gmail.com.</p>
         </div>
       </div>
     </div>

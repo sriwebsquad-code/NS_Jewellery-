@@ -22,8 +22,8 @@ const Contact = () => {
           </p>
           
           <h3 className="text-xl font-bold mt-6 mb-2">Customer Support</h3>
-          <p><strong>Phone:</strong> +91 7299573995</p>
-          <p><strong>Email:</strong> support@nsmahaveer.com</p>
+          <p><strong>Phone:</strong> +91 84009 16916</p>
+          <p><strong>Email:</strong> nsmahaveerjewellery@gmail.com</p>
           <p><strong>Business Hours:</strong> Monday - Sunday: 9:30 AM - 8:30 PM</p>
         </div>
       </div>
