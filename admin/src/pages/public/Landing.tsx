@@ -9,9 +9,7 @@ const Landing = () => {
       {/* Header */}
       <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-amber-600 rounded-full flex items-center justify-center text-white font-serif font-bold text-xl">
-            RN
-          </div>
+          <img src="/rn_logo_black.png" alt="RN Logo" className="w-12 h-12 object-contain" />
           <h1 className="text-2xl font-serif text-amber-900 font-bold">NS Mahaveer Jewellery</h1>
         </div>
         <button 
