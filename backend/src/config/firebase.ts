@@ -5,7 +5,21 @@ import path from 'path';
 
 // Initialize Firebase Admin with default app if not already initialized
 if (getApps().length === 0) {
-  const serviceAccount = require('../../firebase-service-account.json');
+  let serviceAccount;
+  
+  // 1. Try to load from Environment Variable first (Render/Production)
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    } catch (e) {
+      console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT from environment");
+    }
+  } 
+  
+  // 2. Fallback to local file for development
+  if (!serviceAccount) {
+    serviceAccount = require('../../firebase-service-account.json');
+  }
   
   initializeApp({
     credential: cert(serviceAccount),
