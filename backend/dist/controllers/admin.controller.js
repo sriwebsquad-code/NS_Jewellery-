@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyTransaction = exports.getTransactions = exports.getDashboardStats = void 0;
 const firebase_1 = require("../config/firebase");
+const sms_service_1 = require("../services/sms.service");
 const getDashboardStats = async (req, res) => {
     try {
         const usersSnapshot = await firebase_1.db.collection('users').where('role', '==', 'CUSTOMER').get();
@@ -40,14 +41,19 @@ const getTransactions = async (req, res) => {
     try {
         const status = req.query.status;
         const type = req.query.type;
+        const userId = req.query.userId;
         let installmentsRef = firebase_1.db.collection('installments');
         if (status)
             installmentsRef = installmentsRef.where('status', '==', status);
+        if (userId)
+            installmentsRef = installmentsRef.where('userId', '==', userId);
         let digitalRef = firebase_1.db.collection('digitalTransactions');
         if (status)
             digitalRef = digitalRef.where('status', '==', status);
         if (type)
             digitalRef = digitalRef.where('type', '==', type);
+        if (userId)
+            digitalRef = digitalRef.where('userId', '==', userId);
         const [installmentsSnap, digitalSnap] = await Promise.all([
             installmentsRef.limit(100).get(),
             digitalRef.limit(100).get()
@@ -144,9 +150,56 @@ const verifyTransaction = async (req, res) => {
                     });
                 }
             }
+            // Send SMS
+            if (status === 'PAID' || status === 'FAILED') {
+                const installmentData = installmentDoc.data();
+                const userDoc = await firebase_1.db.collection('users').doc(installmentData.userId).get();
+                const userData = userDoc.data();
+                if (userData?.phone) {
+                    if (status === 'PAID') {
+                        await sms_service_1.smsService.sendPaymentSuccess(userData.phone, userData.name || 'Customer', installmentData.amount.toString());
+                    }
+                    else {
+                        await sms_service_1.smsService.sendPaymentFailed(userData.phone, userData.name || 'Customer', installmentData.amount.toString());
+                    }
+                }
+            }
         }
         else if (model === 'digitalTransaction') {
-            await firebase_1.db.collection('digitalTransactions').doc(id).update({ status });
+            const digitalRef = firebase_1.db.collection('digitalTransactions').doc(id);
+            const digitalDoc = await digitalRef.get();
+            if (!digitalDoc.exists)
+                return res.status(404).json({ success: false, message: 'Transaction not found' });
+            await digitalRef.update({ status });
+            if (status === 'SUCCESS') {
+                const txnData = digitalDoc.data();
+                if (txnData.type === 'BUY') {
+                    const balanceRef = firebase_1.db.collection('digitalBalances').doc(txnData.userId);
+                    const balanceDoc = await balanceRef.get();
+                    let newGold = 0;
+                    let newSilver = 0;
+                    if (balanceDoc.exists) {
+                        newGold = balanceDoc.data().goldBalance || 0;
+                        newSilver = balanceDoc.data().silverBalance || 0;
+                    }
+                    if (txnData.metalType === 'GOLD')
+                        newGold += txnData.weight;
+                    if (txnData.metalType === 'SILVER')
+                        newSilver += txnData.weight;
+                    await balanceRef.set({ goldBalance: newGold, silverBalance: newSilver }, { merge: true });
+                    // Send SMS
+                    const userDoc = await firebase_1.db.collection('users').doc(txnData.userId).get();
+                    const userData = userDoc.data();
+                    if (userData?.phone) {
+                        if (txnData.metalType === 'GOLD') {
+                            await sms_service_1.smsService.sendDigitalGold(userData.phone, userData.name || 'Customer', txnData.weight.toString(), newGold.toString());
+                        }
+                        else {
+                            await sms_service_1.smsService.sendDigitalSilver(userData.phone, userData.name || 'Customer', txnData.weight.toString(), newSilver.toString());
+                        }
+                    }
+                }
+            }
         }
         else {
             return res.status(400).json({ success: false, message: 'Invalid model type' });

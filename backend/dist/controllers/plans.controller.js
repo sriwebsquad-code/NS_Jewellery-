@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.redeemUserPlan = exports.getMyPlanTransactions = exports.getUserPlanTransactions = exports.getPlanUsers = exports.payInstallment = exports.getUserPlans = exports.joinPlan = exports.createPlan = exports.getPlans = void 0;
 const firebase_1 = require("../config/firebase");
+const sms_service_1 = require("../services/sms.service");
 const getPlans = async (req, res) => {
     try {
         const snapshot = await firebase_1.db.collection('plans').where('isActive', '==', true).get();
@@ -71,6 +72,12 @@ const joinPlan = async (req, res) => {
             nextPaymentDate: nextPaymentDate.toISOString()
         };
         await docRef.set(userPlan);
+        // Send SMS
+        const userDoc = await firebase_1.db.collection('users').doc(userId).get();
+        const userData = userDoc.data();
+        if (userData?.phone) {
+            await sms_service_1.smsService.sendSchemeJoined(userData.phone, userData.name || 'Customer', planDoc.data().name);
+        }
         res.status(201).json({ success: true, message: 'Joined scheme successfully', data: userPlan });
     }
     catch (error) {

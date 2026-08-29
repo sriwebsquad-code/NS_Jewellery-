@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../config/firebase';
+import { smsService } from '../services/sms.service';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
@@ -163,8 +164,58 @@ export const verifyTransaction = async (req: Request, res: Response) => {
           });
         }
       }
+
+      // Send SMS
+      if (status === 'PAID' || status === 'FAILED') {
+        const installmentData = installmentDoc.data()!;
+        const userDoc = await db.collection('users').doc(installmentData.userId).get();
+        const userData = userDoc.data();
+        if (userData?.phone) {
+          if (status === 'PAID') {
+            await smsService.sendPaymentSuccess(userData.phone, userData.name || 'Customer', installmentData.amount.toString());
+          } else {
+            await smsService.sendPaymentFailed(userData.phone, userData.name || 'Customer', installmentData.amount.toString());
+          }
+        }
+      }
     } else if (model === 'digitalTransaction') {
-      await db.collection('digitalTransactions').doc(id).update({ status });
+      const digitalRef = db.collection('digitalTransactions').doc(id);
+      const digitalDoc = await digitalRef.get();
+      if (!digitalDoc.exists) return res.status(404).json({ success: false, message: 'Transaction not found' });
+      
+      await digitalRef.update({ status });
+
+      if (status === 'SUCCESS') {
+        const txnData = digitalDoc.data()!;
+        if (txnData.type === 'BUY') {
+          const balanceRef = db.collection('digitalBalances').doc(txnData.userId);
+          const balanceDoc = await balanceRef.get();
+          
+          let newGold = 0;
+          let newSilver = 0;
+          
+          if (balanceDoc.exists) {
+            newGold = balanceDoc.data()!.goldBalance || 0;
+            newSilver = balanceDoc.data()!.silverBalance || 0;
+          }
+          
+          if (txnData.metalType === 'GOLD') newGold += txnData.weight;
+          if (txnData.metalType === 'SILVER') newSilver += txnData.weight;
+          
+          await balanceRef.set({ goldBalance: newGold, silverBalance: newSilver }, { merge: true });
+
+          // Send SMS
+          const userDoc = await db.collection('users').doc(txnData.userId).get();
+          const userData = userDoc.data();
+          if (userData?.phone) {
+            if (txnData.metalType === 'GOLD') {
+              await smsService.sendDigitalGold(userData.phone, userData.name || 'Customer', txnData.weight.toString(), newGold.toString());
+            } else {
+              await smsService.sendDigitalSilver(userData.phone, userData.name || 'Customer', txnData.weight.toString(), newSilver.toString());
+            }
+          }
+        }
+      }
     } else {
       return res.status(400).json({ success: false, message: 'Invalid model type' });
     }

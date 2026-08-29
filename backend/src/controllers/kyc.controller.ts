@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../config/firebase';
 import { cashfreeService } from '../services/cashfree.service';
+import { smsService } from '../services/sms.service';
 
 export const sendAadhaarOTP = async (req: Request, res: Response) => {
   try {
@@ -43,6 +44,13 @@ export const verifyAadhaarOTP = async (req: Request, res: Response) => {
         kycDocumentNumber: aadharNumber,
         kycVerifiedAt: new Date().toISOString()
       });
+
+      // Send SMS
+      const userDoc = await db.collection('users').doc(userId).get();
+      const userData = userDoc.data();
+      if (userData?.phone) {
+        await smsService.sendKycApproved(userData.phone, userData.name || 'Customer');
+      }
 
       return res.status(200).json({ 
         success: true, 
@@ -88,6 +96,12 @@ export const verifyPAN = async (req: Request, res: Response) => {
       kycDocumentNumber: panNumber,
       kycVerifiedAt: new Date().toISOString()
     });
+
+    // Send SMS
+    const userData = userDoc.data();
+    if (userData?.phone) {
+      await smsService.sendKycApproved(userData.phone, verificationResult.name || userName);
+    }
 
     res.status(200).json({ 
       success: true, 

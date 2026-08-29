@@ -6,7 +6,9 @@ const auth_middleware_1 = require("../middlewares/auth.middleware");
 const router = (0, express_1.Router)();
 // Endpoint for Fast2SMS phone authentication login
 router.post('/send-otp', auth_controller_1.sendOTP);
+router.post('/send-email-otp', auth_controller_1.sendEmailOTP);
 router.post('/verify-otp', auth_controller_1.verifyOTP);
+router.post('/verify-otp-only', auth_controller_1.verifyOtpOnly);
 // MPIN Routes
 router.post('/mpin/create', auth_middleware_1.authenticate, auth_controller_1.createMPIN);
 router.post('/mpin/login', auth_controller_1.loginWithMPIN);

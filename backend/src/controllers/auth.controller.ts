@@ -3,6 +3,7 @@ import app, { db } from '../config/firebase';
 import { generateToken } from '../utils/jwt';
 import bcrypt from 'bcrypt';
 import { whatsappService } from '../services/whatsapp.service';
+import { smsService } from '../services/sms.service';
 import axios from 'axios';
 import nodemailer from 'nodemailer';
 
@@ -35,26 +36,8 @@ export const sendOTP = async (req: Request, res: Response) => {
     // Store in memory
     otpStore.set(cleanPhone, { otp, expiresAt });
     
-    // For demo purposes, we will bypass actually calling Fast2SMS if no API key is present
-    const apiKey = process.env.FAST2SMS_API_KEY;
-    
-    if (apiKey && cleanPhone !== '9876543210') { // 9876543210 is demo account
-      try {
-        await axios.get('https://www.fast2sms.com/dev/bulkV2', {
-          params: {
-            authorization: apiKey,
-            variables_values: otp,
-            route: 'otp',
-            numbers: cleanPhone,
-          }
-        });
-      } catch (smsError: any) {
-        console.error('Fast2SMS Error:', smsError?.response?.data || smsError.message);
-        // Continue anyway for now so development doesn't block
-      }
-    } else {
-      console.log(`[DEV ONLY] OTP for ${cleanPhone} is ${otp}`);
-    }
+    // Use SMS Service (handles DLT and generic fallback)
+    await smsService.sendLoginOtp(phone, otp);
 
     res.status(200).json({ success: true, message: 'OTP sent successfully' });
   } catch (error: any) {
@@ -227,7 +210,10 @@ export const requestMpinReset = async (req: Request, res: Response) => {
 
     otpStore.set(phone, { otp, expiresAt });
 
-    // Simulate sending OTP to phone and email
+    // Send SMS via SMS Service
+    await smsService.sendMpinResetOtp(phone, otp);
+
+    // Simulate sending OTP to email
     console.log(`\n\n--- OTP NOTIFICATION ---`);
     console.log(`To: ${phone}`);
     console.log(`Message: Your OTP to reset MPIN for NS MAHAVEER JEWELLERY is ${otp}. Valid for 10 minutes.`);

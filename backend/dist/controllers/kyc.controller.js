@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyPAN = exports.verifyAadhaarOTP = exports.sendAadhaarOTP = void 0;
 const firebase_1 = require("../config/firebase");
 const cashfree_service_1 = require("../services/cashfree.service");
+const sms_service_1 = require("../services/sms.service");
 const sendAadhaarOTP = async (req, res) => {
     try {
         const userId = req.user?.userId;
@@ -43,6 +44,12 @@ const verifyAadhaarOTP = async (req, res) => {
                 kycDocumentNumber: aadharNumber,
                 kycVerifiedAt: new Date().toISOString()
             });
+            // Send SMS
+            const userDoc = await firebase_1.db.collection('users').doc(userId).get();
+            const userData = userDoc.data();
+            if (userData?.phone) {
+                await sms_service_1.smsService.sendKycApproved(userData.phone, userData.name || 'Customer');
+            }
             return res.status(200).json({
                 success: true,
                 message: 'Aadhaar Verified Successfully',
@@ -84,6 +91,11 @@ const verifyPAN = async (req, res) => {
             kycDocumentNumber: panNumber,
             kycVerifiedAt: new Date().toISOString()
         });
+        // Send SMS
+        const userData = userDoc.data();
+        if (userData?.phone) {
+            await sms_service_1.smsService.sendKycApproved(userData.phone, verificationResult.name || userName);
+        }
         res.status(200).json({
             success: true,
             message: 'PAN Verified Successfully',

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../config/firebase';
+import { smsService } from '../services/sms.service';
 
 export const getPlans = async (req: Request, res: Response) => {
   try {
@@ -77,6 +78,13 @@ export const joinPlan = async (req: Request, res: Response) => {
     };
     
     await docRef.set(userPlan);
+
+    // Send SMS
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.data();
+    if (userData?.phone) {
+      await smsService.sendSchemeJoined(userData.phone, userData.name || 'Customer', planDoc.data()!.name);
+    }
 
     res.status(201).json({ success: true, message: 'Joined scheme successfully', data: userPlan });
   } catch (error: any) {

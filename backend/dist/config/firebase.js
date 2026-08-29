@@ -6,10 +6,23 @@ const firestore_1 = require("firebase-admin/firestore");
 const storage_1 = require("firebase-admin/storage");
 // Initialize Firebase Admin with default app if not already initialized
 if ((0, app_1.getApps)().length === 0) {
-    const serviceAccount = require('../../firebase-service-account.json');
+    let serviceAccount;
+    // 1. Try to load from Environment Variable first (Render/Production)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        try {
+            serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        }
+        catch (e) {
+            console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT from environment");
+        }
+    }
+    // 2. Fallback to local file for development
+    if (!serviceAccount) {
+        serviceAccount = require('../../firebase-service-account.json');
+    }
     (0, app_1.initializeApp)({
         credential: (0, app_1.cert)(serviceAccount),
-        storageBucket: 'nsjewellery-53b2d.firebasestorage.app'
+        storageBucket: `${serviceAccount.project_id}.appspot.com`
     });
 }
 const app = (0, app_1.getApp)();
