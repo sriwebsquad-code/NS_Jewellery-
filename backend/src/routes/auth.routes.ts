@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendOTP, verifyOTP, createMPIN, loginWithMPIN, requestMpinReset, resetMpin } from '../controllers/auth.controller';
+import { sendOTP, verifyOTP, verifyOtpOnly, createMPIN, loginWithMPIN, requestMpinReset, resetMpin } from '../controllers/auth.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -7,6 +7,7 @@ const router = Router();
 // Endpoint for Fast2SMS phone authentication login
 router.post('/send-otp', sendOTP);
 router.post('/verify-otp', verifyOTP);
+router.post('/verify-otp-only', verifyOtpOnly);
 
 // MPIN Routes
 router.post('/mpin/create', authenticate, createMPIN);

@@ -34,7 +34,9 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleSendOtp = () => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSendOtp = async () => {
     setError('');
     if (method === 'EMAIL') {
       if (!ALLOWED_EMAILS.includes(email.toLowerCase().trim())) {
@@ -47,18 +49,52 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
         return;
       }
     }
-    // Simulate sending OTP
-    setStep('VERIFY_OTP');
+    
+    setLoading(true);
+    try {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: `+91${phone.trim()}` })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setStep('VERIFY_OTP');
+      } else {
+        setError(data.message || 'Failed to send OTP.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = async () => {
     setError('');
     if (otp.length < 4) {
       setError('Please enter a valid OTP.');
       return;
     }
-    // Simulate successful OTP verification
-    setStep('SET_PASSWORD');
+    
+    setLoading(true);
+    try {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/verify-otp-only', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: `+91${phone.trim()}`, otp })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setStep('SET_PASSWORD');
+      } else {
+        setError(data.message || 'Invalid OTP.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChangePassword = () => {
@@ -179,9 +215,10 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
                     </button>
                     <button 
                       onClick={handleSendOtp}
-                      className="flex-1 bg-secondary text-white py-3 rounded-lg font-medium hover:bg-secondary/90 transition-colors shadow-md shadow-secondary/20"
+                      disabled={loading}
+                      className="flex-1 bg-secondary text-white py-3 rounded-lg font-medium hover:bg-secondary/90 transition-colors shadow-md shadow-secondary/20 disabled:opacity-50"
                     >
-                      Send OTP
+                      {loading ? 'Sending...' : 'Send OTP'}
                     </button>
                   </div>
                 </div>
@@ -212,9 +249,10 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
                     </button>
                     <button 
                       onClick={handleVerifyOtp}
-                      className="flex-1 bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-md shadow-primary/20"
+                      disabled={loading}
+                      className="flex-1 bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-md shadow-primary/20 disabled:opacity-50"
                     >
-                      Verify Code
+                      {loading ? 'Verifying...' : 'Verify Code'}
                     </button>
                   </div>
                 </div>

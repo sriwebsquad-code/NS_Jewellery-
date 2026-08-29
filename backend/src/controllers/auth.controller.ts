@@ -286,3 +286,38 @@ export const resetMpin = async (req: Request, res: Response) => {
   }
 };
 
+export const verifyOtpOnly = async (req: Request, res: Response) => {
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || !otp) return res.status(400).json({ success: false, message: 'Phone and OTP are required' });
+
+    const cleanPhone = phone.replace('+91', '');
+    
+    // Demo account bypass
+    if (cleanPhone === '9876543210' && otp === '123456') {
+      return res.status(200).json({ success: true, message: 'OTP verified' });
+    }
+
+    const storedData = otpStore.get(cleanPhone);
+    if (!storedData) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    if (new Date() > storedData.expiresAt) {
+      otpStore.delete(cleanPhone);
+      return res.status(400).json({ success: false, message: 'OTP has expired' });
+    }
+
+    if (storedData.otp !== otp) {
+      return res.status(400).json({ success: false, message: 'Incorrect OTP' });
+    }
+
+    // OTP is valid! Do not create a user, just return success.
+    otpStore.delete(cleanPhone);
+    res.status(200).json({ success: true, message: 'OTP verified successfully' });
+  } catch (error: any) {
+    console.error('Verify OTP Only Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+};
+
