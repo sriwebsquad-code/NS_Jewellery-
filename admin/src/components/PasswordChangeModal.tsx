@@ -52,10 +52,15 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
     
     setLoading(true);
     try {
-      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
+      const endpoint = method === 'EMAIL' ? '/api/auth/send-email-otp' : '/api/auth/send-otp';
+      const body = method === 'EMAIL' 
+        ? JSON.stringify({ email: email.trim() }) 
+        : JSON.stringify({ phone: `+91${phone.trim()}` });
+        
+      const response = await fetch(`https://ns-jewellery.onrender.com${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: `+91${phone.trim()}` })
+        body
       });
       const data = await response.json();
       if (data.success) {
@@ -79,10 +84,14 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
     
     setLoading(true);
     try {
+      const body = method === 'EMAIL'
+        ? JSON.stringify({ email: email.trim(), otp })
+        : JSON.stringify({ phone: `+91${phone.trim()}`, otp });
+
       const response = await fetch('https://ns-jewellery.onrender.com/api/auth/verify-otp-only', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: `+91${phone.trim()}`, otp })
+        body
       });
       const data = await response.json();
       if (data.success) {

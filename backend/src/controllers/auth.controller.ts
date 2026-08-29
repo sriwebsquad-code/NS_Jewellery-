@@ -4,6 +4,16 @@ import { generateToken } from '../utils/jwt';
 import bcrypt from 'bcrypt';
 import { whatsappService } from '../services/whatsapp.service';
 import axios from 'axios';
+import nodemailer from 'nodemailer';
+
+// Nodemailer configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
 // In-memory store for OTPs (In production, use Redis or Firestore)
 const otpStore = new Map<string, { otp: string; expiresAt: Date }>();
@@ -286,25 +296,75 @@ export const resetMpin = async (req: Request, res: Response) => {
   }
 };
 
+export const sendEmailOTP = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Generate 6 digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+
+    // Store in memory using email as key
+    otpStore.set(cleanEmail, { otp, expiresAt });
+
+    const mailOptions = {
+      from: process.env.GMAIL_USER,
+      to: cleanEmail,
+      subject: 'NS Mahaveer Jewellery - Admin Verification',
+      text: `Your Admin Password Reset OTP is ${otp}. It is valid for 10 minutes. Do not share this code.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #6a0d2f;">NS Mahaveer Jewellery</h2>
+          <p>You requested to verify your identity for Admin Access.</p>
+          <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px; display: inline-block;">
+            <p style="margin: 0; font-size: 14px; color: #666;">Your Verification Code:</p>
+            <h1 style="margin: 5px 0 0 0; letter-spacing: 5px; color: #333;">${otp}</h1>
+          </div>
+          <p style="font-size: 12px; color: #999;">This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
+        </div>
+      `
+    };
+
+    if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+      await transporter.sendMail(mailOptions);
+    } else {
+      console.log(`[DEV ONLY] Email OTP for ${cleanEmail} is ${otp}`);
+    }
+
+    res.status(200).json({ success: true, message: 'OTP sent successfully to email' });
+  } catch (error: any) {
+    console.error('Send Email OTP Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to send Email OTP' });
+  }
+};
+
 export const verifyOtpOnly = async (req: Request, res: Response) => {
   try {
-    const { phone, otp } = req.body;
-    if (!phone || !otp) return res.status(400).json({ success: false, message: 'Phone and OTP are required' });
+    const { phone, email, otp } = req.body;
+    
+    if ((!phone && !email) || !otp) {
+      return res.status(400).json({ success: false, message: 'Phone or Email, and OTP are required' });
+    }
 
-    const cleanPhone = phone.replace('+91', '');
+    const identifier = phone ? phone.replace('+91', '') : email.toLowerCase().trim();
     
     // Demo account bypass
-    if (cleanPhone === '9876543210' && otp === '123456') {
+    if (identifier === '9876543210' && otp === '123456') {
       return res.status(200).json({ success: true, message: 'OTP verified' });
     }
 
-    const storedData = otpStore.get(cleanPhone);
+    const storedData = otpStore.get(identifier);
     if (!storedData) {
       return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
     }
 
     if (new Date() > storedData.expiresAt) {
-      otpStore.delete(cleanPhone);
+      otpStore.delete(identifier);
       return res.status(400).json({ success: false, message: 'OTP has expired' });
     }
 
@@ -313,7 +373,7 @@ export const verifyOtpOnly = async (req: Request, res: Response) => {
     }
 
     // OTP is valid! Do not create a user, just return success.
-    otpStore.delete(cleanPhone);
+    otpStore.delete(identifier);
     res.status(200).json({ success: true, message: 'OTP verified successfully' });
   } catch (error: any) {
     console.error('Verify OTP Only Error:', error);
