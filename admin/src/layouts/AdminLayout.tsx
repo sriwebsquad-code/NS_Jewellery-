@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LayoutDashboard, Users, Gem, Landmark, LogOut, TrendingUp, CreditCard, X, MapPin, Phone, Clock } from 'lucide-react';
+import { LayoutDashboard, Users, Gem, Landmark, LogOut, TrendingUp, CreditCard, X, MapPin, Phone, Clock, Settings } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
   const logout = useAuthStore((state) => state.logout);
@@ -23,6 +23,7 @@ const AdminLayout: React.FC = () => {
     { name: 'Digital Customers', path: '/admin/digital-customers', icon: <Users size={20} /> },
     { name: 'Value Based Schemes', path: '/admin/plans/value', icon: <Landmark size={20} /> },
     { name: 'Weight Based Schemes', path: '/admin/plans/weight', icon: <Landmark size={20} /> },
+    { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 
   return (
@@ -124,7 +125,7 @@ const AdminLayout: React.FC = () => {
                 <button 
                   onClick={() => {
                     setShowAbout(false);
-                    navigate('/settings');
+                    navigate('/admin/settings');
                   }}
                   className="inline-block px-3 py-1 bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer text-xs font-bold rounded-full uppercase tracking-wider"
                 >
