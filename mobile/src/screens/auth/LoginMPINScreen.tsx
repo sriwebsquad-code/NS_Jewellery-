@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, SafeAreaView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
-import { Delete } from 'lucide-react-native';
+import { Delete, ChevronLeft } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
@@ -63,10 +63,20 @@ const LoginMPINScreen = () => {
   ];
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.canGoBack() ? navigation.goBack() : logout()}
+        >
+          <ChevronLeft color="#D5A539" size={24} />
+        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.contentContainer}>
         {/* Logo Section */}
         <View style={styles.logoSection}>
           <Image 
@@ -99,12 +109,12 @@ const LoginMPINScreen = () => {
           disabled={mpin.length !== 4 || loading}
         >
           <LinearGradient
-            colors={['#D4AF37', '#AA771C']}
+            colors={['#D5A539', '#A87313']}
             start={{x: 0, y: 0}}
             end={{x: 1, y: 0}}
             style={styles.gradientButton}
           >
-            <Text style={styles.buttonText}>{loading ? 'Unlocking...' : 'Unlock App'}</Text>
+            <Text style={styles.buttonText}>{loading ? 'Unlocking...' : 'Unlock'}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -112,19 +122,12 @@ const LoginMPINScreen = () => {
         <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate('ForgotMpin')}>
           <Text style={styles.forgotText}>Forgot MPIN?</Text>
         </TouchableOpacity>
-
-        <View style={styles.dividerContainer}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerIcon}>✧</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        {/* Logout */}
+        
+        {/* Subtle Logout Option */}
         <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
           <Text style={styles.logoutText}>Logout / Use different account</Text>
         </TouchableOpacity>
-
-      </ScrollView>
+      </View>
 
       {/* Custom Keypad */}
       <View style={styles.keypadContainer}>
@@ -152,7 +155,7 @@ const LoginMPINScreen = () => {
         })}
       </View>
 
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -161,66 +164,80 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#D5A539',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
   contentContainer: {
+    flex: 1,
     paddingHorizontal: 30,
-    paddingTop: height * 0.08,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
+    marginTop: -20,
   },
   logo: {
-    width: width * 0.45,
-    height: width * 0.45,
+    width: width * 0.5,
+    height: width * 0.5,
     resizeMode: 'contain',
   },
   textSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   heading: {
     fontFamily: 'serif',
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#B8860B',
+    color: '#A67A27',
     marginBottom: 8,
   },
   subheading: {
-    fontSize: 13,
-    color: '#666',
+    fontSize: 14,
+    color: '#555',
+    fontWeight: '500',
   },
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 30,
+    marginBottom: 35,
     gap: 15,
   },
   dotOuter: {
-    width: 25,
-    height: 25,
-    borderRadius: 12.5,
-    borderWidth: 1,
-    borderColor: '#D4AF37',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    borderWidth: 1.5,
+    borderColor: '#D5A539',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    shadowColor: '#D4AF37',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   dotInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#B8860B',
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#D5A539',
   },
   button: {
     height: 55,
+    width: '100%',
     borderRadius: 8,
     overflow: 'hidden',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -233,87 +250,65 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   forgotBtn: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   forgotText: {
-    color: '#B8860B',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 40,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#EEEEEE',
-  },
-  dividerIcon: {
-    marginHorizontal: 15,
-    color: '#D4AF37',
-    fontSize: 14,
+    color: '#A67A27',
+    fontSize: 15,
+    fontWeight: '600',
   },
   logoutBtn: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 15,
   },
   logoutText: {
-    color: '#666',
-    fontSize: 13,
+    color: '#AAA',
+    fontSize: 12,
   },
   keypadContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     backgroundColor: '#FAFAFA',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingTop: 30,
-    paddingBottom: 40,
-    marginTop: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 5,
+    paddingTop: 25,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 25,
   },
   keypadButton: {
     width: '33.33%',
-    height: 70,
+    height: 75,
     justifyContent: 'center',
     alignItems: 'center',
   },
   keypadButtonInner: {
-    width: 70,
-    height: 60,
+    width: 75,
+    height: 65,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 3,
   },
   keyNum: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '500',
-    color: '#333',
+    color: '#111',
   },
   keyLetters: {
     fontSize: 9,
-    color: '#999',
+    color: '#777',
     marginTop: -2,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
   },
 });
 

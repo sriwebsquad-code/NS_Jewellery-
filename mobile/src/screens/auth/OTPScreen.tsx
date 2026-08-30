@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, SafeAreaView, Platform } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
-import { ChevronLeft, Edit2, Delete } from 'lucide-react-native';
+import { ChevronLeft, Delete } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -87,7 +88,7 @@ const OTPScreen = () => {
   ];
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* Header */}
@@ -96,50 +97,62 @@ const OTPScreen = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <ChevronLeft color="#B8860B" size={24} />
+          <ChevronLeft color="#D5A539" size={24} />
         </TouchableOpacity>
       </View>
       
-      {/* Logo */}
-      <View style={styles.logoSection}>
-        <Image 
-          source={require('../../../assets/new_logo.png')} 
-          style={styles.logo} 
-        />
-      </View>
+      <View style={styles.contentContainer}>
+        {/* Logo */}
+        <View style={styles.logoSection}>
+          <Image 
+            source={require('../../../assets/new_logo.png')} 
+            style={styles.logo} 
+          />
+        </View>
 
-      {/* Text Section */}
-      <View style={styles.textSection}>
-        <Text style={styles.heading}>Enter OTP</Text>
-        <Text style={styles.subheading}>We have sent a 6-digit code to</Text>
-        
-        <View style={styles.phonePill}>
-          <Text style={styles.phoneText}>📞 +91 {phone}</Text>
-          <TouchableOpacity style={styles.editBtn} onPress={() => navigation.goBack()}>
-            <Text style={styles.editText}>Edit</Text>
-            <Edit2 color="#B8860B" size={12} style={{marginLeft: 4}} />
+        {/* Text Section */}
+        <View style={styles.textSection}>
+          <Text style={styles.heading}>Enter OTP</Text>
+          <Text style={styles.subheading}>We have sent a 6-digit code to</Text>
+          
+          <View style={styles.phonePill}>
+            <Text style={styles.phoneText}>📞 +91 {phone}</Text>
+            <TouchableOpacity style={styles.editBtn} onPress={() => navigation.goBack()}>
+              <Text style={styles.editText}>Edit ✎</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* OTP Boxes */}
+        <View style={styles.otpContainer}>
+          {renderOTPBoxes()}
+        </View>
+
+        <Text style={styles.resendText}>
+          Resend OTP in <Text style={styles.timerText}>00:{timer < 10 ? `0${timer}` : timer}</Text>
+        </Text>
+
+        {/* Submit Button */}
+        <View style={styles.submitContainer}>
+          <TouchableOpacity 
+            style={[styles.submitButton, otp.length !== 6 && styles.submitButtonInactive]} 
+            onPress={() => handleVerify(otp)}
+            disabled={otp.length !== 6}
+          >
+            {otp.length === 6 ? (
+              <LinearGradient
+                colors={['#D5A539', '#A87313']}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
+                style={styles.gradientButton}
+              >
+                <Text style={styles.submitButtonText}>Verify OTP</Text>
+              </LinearGradient>
+            ) : (
+              <Text style={styles.submitButtonTextInactive}>Verify OTP</Text>
+            )}
           </TouchableOpacity>
         </View>
-      </View>
-
-      {/* OTP Boxes */}
-      <View style={styles.otpContainer}>
-        {renderOTPBoxes()}
-      </View>
-
-      <Text style={styles.resendText}>
-        Resend OTP in <Text style={styles.timerText}>00:{timer < 10 ? `0${timer}` : timer}</Text>
-      </Text>
-
-      {/* Submit Button */}
-      <View style={styles.submitContainer}>
-        <TouchableOpacity 
-          style={[styles.submitButton, otp.length === 6 ? styles.submitButtonActive : styles.submitButtonInactive]} 
-          onPress={() => handleVerify(otp)}
-          disabled={otp.length !== 6}
-        >
-          <Text style={styles.submitButtonText}>Verify OTP</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Custom Keypad */}
@@ -167,8 +180,7 @@ const OTPScreen = () => {
           );
         })}
       </View>
-
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -179,72 +191,48 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 10,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#EAEAEA',
+    borderColor: '#D5A539',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   logoSection: {
     alignItems: 'center',
+    marginBottom: 20,
     marginTop: -20,
   },
-  submitContainer: {
-    paddingHorizontal: 30,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  submitButton: {
-    width: '100%',
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#B8860B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  submitButtonActive: {
-    backgroundColor: '#B8860B',
-  },
-  submitButtonInactive: {
-    backgroundColor: '#E0E0E0',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  submitButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   logo: {
-    width: width * 0.45,
-    height: width * 0.45,
+    width: width * 0.5,
+    height: width * 0.5,
     resizeMode: 'contain',
-    marginBottom: 20,
   },
   textSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   heading: {
     fontFamily: 'serif',
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#B8860B',
+    color: '#A67A27',
     marginBottom: 8,
   },
   subheading: {
-    fontSize: 13,
-    color: '#666',
+    fontSize: 14,
+    color: '#555',
     marginBottom: 15,
   },
   phonePill: {
@@ -256,11 +244,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   phoneText: {
     fontSize: 13,
-    color: '#666',
-    marginRight: 10,
+    color: '#333',
+    marginRight: 15,
+    fontWeight: '500',
   },
   editBtn: {
     flexDirection: 'row',
@@ -268,94 +262,117 @@ const styles = StyleSheet.create({
   },
   editText: {
     fontSize: 13,
-    color: '#B8860B',
-    fontWeight: '500',
+    color: '#A67A27',
+    fontWeight: '600',
   },
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
     gap: 8,
   },
   otpBox: {
     width: 45,
-    height: 50,
+    height: 55,
     borderWidth: 1,
     borderColor: '#EAEAEA',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#FFFFFF',
   },
   otpBoxFocused: {
-    borderColor: '#B8860B',
-    backgroundColor: '#FFFFFF',
+    borderColor: '#D5A539',
+    borderWidth: 1.5,
   },
   otpBoxFilled: {
-    borderColor: '#B8860B',
-    backgroundColor: '#FFFFFF',
+    borderColor: '#D5A539',
   },
   otpText: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '500',
     color: '#333',
   },
   resendText: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 13,
     color: '#999',
-    marginBottom: 30,
+    marginBottom: 35,
   },
   timerText: {
-    color: '#B8860B',
+    color: '#A67A27',
     fontWeight: 'bold',
+  },
+  submitContainer: {
+    width: '100%',
+    paddingHorizontal: 10,
+  },
+  submitButton: {
+    width: '100%',
+    height: 55,
+    borderRadius: 30,
+    overflow: 'hidden',
+  },
+  submitButtonInactive: {
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gradientButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: '#FFF',
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  submitButtonTextInactive: {
+    color: '#FFF',
+    fontSize: 17,
+    fontWeight: '600',
   },
   keypadContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     backgroundColor: '#FAFAFA',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingTop: 30,
-    paddingBottom: 40,
-    flex: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 5,
+    paddingTop: 25,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 25,
   },
   keypadButton: {
     width: '33.33%',
-    height: 70,
+    height: 75,
     justifyContent: 'center',
     alignItems: 'center',
   },
   keypadButtonInner: {
-    width: 70,
-    height: 60,
+    width: 75,
+    height: 65,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 3,
   },
   keyNum: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '500',
-    color: '#333',
+    color: '#111',
   },
   keyLetters: {
     fontSize: 9,
-    color: '#999',
+    color: '#777',
     marginTop: -2,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
   },
 });
 
