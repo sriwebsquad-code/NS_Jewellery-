@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
-import { Menu, User, Mail, FileText, CheckCircle2, Calendar, MapPin, UserCircle2, Edit2, X } from 'lucide-react-native';
+import { Menu, User, Mail, FileText, CheckCircle2, Calendar, MapPin, UserCircle2, Edit2, X, ChevronLeft } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
@@ -12,8 +12,16 @@ const MyAccountScreen = () => {
   const navigation = useNavigation<any>();
   const { user, token, updateUser } = useAuthStore() as any;
   const { mode } = useThemeStore();
-  const colors = mode === 'dark' ? Colors.dark : Colors.light;
-  const styles = getStyles(colors, mode);
+  
+  // Custom colors matching the mockup
+  const bgColor = '#F8EFEA'; // Light beige background
+  const cardColor = '#FFFFFF';
+  const iconBgColor = '#FDF3E7'; // Light orange/gold for icon background
+  const iconColor = '#D4AF37'; // Gold
+  const labelColor = '#9E9E9E';
+  const valueColor = '#212121';
+  const verifyBgColor = '#FCEAE8'; // Light pink
+  const verifyTextColor = '#F05A4A'; // Orange/Tomato
 
   const [isEditModalVisible, setIsEditModalVisible] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -53,14 +61,41 @@ const MyAccountScreen = () => {
     }
   };
 
+  const DetailRow = ({ icon: Icon, label, value, isVerification = false, isVerified = false, onVerify }: any) => (
+    <View style={styles.detailRow}>
+      <View style={[styles.iconContainer, { backgroundColor: iconBgColor }]}>
+        <Icon color={iconColor} size={22} strokeWidth={1.5} />
+      </View>
+      <View style={styles.detailInfo}>
+        <Text style={[styles.detailLabel, { color: labelColor }]}>{label}</Text>
+        {!isVerification ? (
+          <Text style={[styles.detailValue, { color: valueColor }]}>{value}</Text>
+        ) : (
+          isVerified ? (
+            <View style={styles.verificationBadge}>
+              <CheckCircle2 color={COLORS.success} size={16} />
+              <Text style={styles.verifiedText}>Verified</Text>
+            </View>
+          ) : (
+            <TouchableOpacity 
+              style={[styles.verificationBadge, { backgroundColor: verifyBgColor }]}
+              onPress={onVerify}
+            >
+              <Text style={[styles.verifyNowText, { color: verifyTextColor }]}>Verify Now</Text>
+            </TouchableOpacity>
+          )
+        )}
+      </View>
+    </View>
+  );
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]} edges={['top']}>
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Menu color={colors.text} size={28} />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.openDrawer()} style={styles.backBtn}>
+          <ChevronLeft color={COLORS.black} size={24} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>My Account</Text>
         <TouchableOpacity onPress={() => {
           setEditForm({
             name: user?.name || '',
@@ -73,170 +108,71 @@ const MyAccountScreen = () => {
           });
           setIsEditModalVisible(true);
         }}>
-          <Edit2 color={colors.primary} size={24} />
+          <Edit2 color={iconColor} size={24} />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.profileCard, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{user?.name?.charAt(0)?.toUpperCase() || 'C'}</Text>
-          </View>
-          <Text style={[styles.name, { color: colors.text }]}>{user?.name || 'Customer'}</Text>
-          <Text style={[styles.phone, { color: colors.textMuted }]}>{user?.phone || '+91 9876543210'}</Text>
-        </View>
-
-        <View style={[styles.detailsContainer, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Account Details</Text>
+        <View style={[styles.card, { backgroundColor: cardColor }]}>
+          <Text style={styles.cardTitle}>Account Details</Text>
           
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <User color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Full Name</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.name || 'Customer Name'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <Mail color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Email Address</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.email || 'Not Provided'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <Calendar color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Date of Birth</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.dob || 'Not Provided'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <UserCircle2 color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Gender</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.gender || 'Not Provided'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <MapPin color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Address</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.address || 'Not Provided'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <MapPin color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>State</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.state || 'Not Provided'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <MapPin color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Pincode</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>{user?.pincode || 'Not Provided'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <FileText color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Aadhar Verification</Text>
-              {user?.kycStatus === 'VERIFIED' ? (
-                <View style={styles.verificationBadge}>
-                  <CheckCircle2 color={COLORS.success} size={16} />
-                  <Text style={styles.verifiedText}>Verified</Text>
-                </View>
-              ) : (
-                <TouchableOpacity 
-                  style={[styles.verificationBadge, { backgroundColor: 'rgba(255, 99, 71, 0.1)' }]}
-                  onPress={() => navigation.navigate('AadharVerification')}
-                >
-                  <Text style={[styles.verifiedText, { color: 'tomato' }]}>Verify Now</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={[styles.iconContainer, { backgroundColor: mode === 'dark' ? 'rgba(253, 216, 53, 0.1)' : 'rgba(92, 10, 16, 0.1)' }]}>
-              <FileText color={colors.primary} size={20} />
-            </View>
-            <View style={styles.detailInfo}>
-              <Text style={[styles.detailLabel, { color: colors.textMuted }]}>PAN Verification</Text>
-              {user?.panStatus === 'VERIFIED' ? (
-                <View style={styles.verificationBadge}>
-                  <CheckCircle2 color={COLORS.success} size={16} />
-                  <Text style={styles.verifiedText}>Verified</Text>
-                </View>
-              ) : (
-                <TouchableOpacity 
-                  style={[styles.verificationBadge, { backgroundColor: 'rgba(255, 99, 71, 0.1)' }]}
-                  onPress={() => navigation.navigate('PanVerification')}
-                >
-                  <Text style={[styles.verifiedText, { color: 'tomato' }]}>Verify Now</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-
+          <DetailRow icon={User} label="Full Name" value={user?.name || 'Customer Name'} />
+          <DetailRow icon={Mail} label="Email Address" value={user?.email || 'Not Provided'} />
+          <DetailRow icon={Calendar} label="Date of Birth" value={user?.dob || 'Not Provided'} />
+          <DetailRow icon={UserCircle2} label="Gender" value={user?.gender || 'Not Provided'} />
+          <DetailRow icon={MapPin} label="Address" value={user?.address || 'Not Provided'} />
+          <DetailRow icon={MapPin} label="State" value={user?.state || 'Not Provided'} />
+          <DetailRow icon={MapPin} label="Pincode" value={user?.pincode || 'Not Provided'} />
+          
+          <DetailRow 
+            icon={FileText} 
+            label="Aadhar Verification" 
+            isVerification={true} 
+            isVerified={user?.kycStatus === 'VERIFIED'}
+            onVerify={() => navigation.navigate('AadharVerification')}
+          />
+          
+          <DetailRow 
+            icon={FileText} 
+            label="PAN Verification" 
+            isVerification={true} 
+            isVerified={user?.panStatus === 'VERIFIED'}
+            onVerify={() => navigation.navigate('PanVerification')}
+          />
         </View>
       </ScrollView>
 
       {/* Edit Profile Modal */}
       <Modal visible={isEditModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+          <View style={[styles.modalContent, { backgroundColor: cardColor }]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Profile</Text>
+              <Text style={styles.modalTitle}>Edit Profile</Text>
               <TouchableOpacity onPress={() => setIsEditModalVisible(false)}>
-                <X color={colors.text} size={24} />
+                <X color={COLORS.black} size={24} />
               </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Full Name</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.name} onChangeText={(t) => setEditForm({...editForm, name: t})} />
+              <Text style={styles.inputLabel}>Full Name</Text>
+              <TextInput style={styles.input} value={editForm.name} onChangeText={(t) => setEditForm({...editForm, name: t})} />
               
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Email Address</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.email} onChangeText={(t) => setEditForm({...editForm, email: t})} keyboardType="email-address" />
+              <Text style={styles.inputLabel}>Email Address</Text>
+              <TextInput style={styles.input} value={editForm.email} onChangeText={(t) => setEditForm({...editForm, email: t})} keyboardType="email-address" />
               
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Date of Birth (YYYY-MM-DD)</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.dob} onChangeText={(t) => setEditForm({...editForm, dob: t})} />
+              <Text style={styles.inputLabel}>Date of Birth (YYYY-MM-DD)</Text>
+              <TextInput style={styles.input} value={editForm.dob} onChangeText={(t) => setEditForm({...editForm, dob: t})} />
               
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Gender</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.gender} onChangeText={(t) => setEditForm({...editForm, gender: t})} />
+              <Text style={styles.inputLabel}>Gender</Text>
+              <TextInput style={styles.input} value={editForm.gender} onChangeText={(t) => setEditForm({...editForm, gender: t})} />
               
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Address</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.address} onChangeText={(t) => setEditForm({...editForm, address: t})} multiline />
+              <Text style={styles.inputLabel}>Address</Text>
+              <TextInput style={styles.input} value={editForm.address} onChangeText={(t) => setEditForm({...editForm, address: t})} multiline />
               
-              <Text style={[styles.inputLabel, { color: colors.text }]}>State</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.state} onChangeText={(t) => setEditForm({...editForm, state: t})} />
+              <Text style={styles.inputLabel}>State</Text>
+              <TextInput style={styles.input} value={editForm.state} onChangeText={(t) => setEditForm({...editForm, state: t})} />
               
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Pincode</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.pincode} onChangeText={(t) => setEditForm({...editForm, pincode: t})} keyboardType="number-pad" />
+              <Text style={styles.inputLabel}>Pincode</Text>
+              <TextInput style={styles.input} value={editForm.pincode} onChangeText={(t) => setEditForm({...editForm, pincode: t})} keyboardType="number-pad" />
               
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={isSaving}>
                 {isSaving ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
@@ -249,120 +185,85 @@ const MyAccountScreen = () => {
   );
 };
 
-const getStyles = (colors: any, mode: string) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: colors.cardBackground,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 5,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    fontFamily: 'serif',
-    color: colors.text,
+  backBtn: {
+    padding: 5,
   },
   content: {
-    padding: 20,
+    padding: 15,
   },
-  profileCard: {
-    backgroundColor: colors.cardBackground,
-    borderRadius: 15,
-    padding: 20,
-    alignItems: 'center',
-    marginBottom: 20,
-    elevation: 2,
-    shadowColor: colors.text,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+  card: {
+    borderRadius: 20,
+    padding: 24,
+    paddingTop: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  avatarText: {
-    color: colors.cardBackground,
-    fontSize: 32,
-    fontWeight: 'bold',
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 5,
-  },
-  phone: {
-    fontSize: 14,
-    color: colors.textMuted,
-  },
-  detailsContainer: {
-    backgroundColor: colors.cardBackground,
-    borderRadius: 15,
-    padding: 20,
-    elevation: 2,
-    shadowColor: colors.text,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.secondary,
-    marginBottom: 15,
+  cardTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    fontFamily: 'cursive', // Handwritten/playful feel
+    color: '#000',
+    marginBottom: 30,
   },
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(212, 175, 55, 0.1)', // Light primary
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: 18,
   },
   detailInfo: {
     flex: 1,
+    justifyContent: 'center',
   },
   detailLabel: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginBottom: 5,
+    fontSize: 13,
+    fontFamily: 'cursive',
+    marginBottom: 4,
   },
   detailValue: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text,
+    fontFamily: 'cursive',
   },
   verificationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(39, 174, 96, 0.1)', // Light success
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
     alignSelf: 'flex-start',
+    marginTop: 2,
+  },
+  verifyNowText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    fontFamily: 'cursive',
   },
   verifiedText: {
     color: COLORS.success,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 'bold',
     marginLeft: 5,
   },
@@ -386,19 +287,21 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    fontFamily: 'serif',
   },
   inputLabel: {
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 8,
     marginTop: 10,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
+    borderColor: '#E0E0E0',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    color: '#000',
   },
   saveBtn: {
     backgroundColor: COLORS.primary,
@@ -408,7 +311,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     marginTop: 25,
   },
   saveBtnText: {
-    color: colors.cardBackground,
+    color: '#FFF',
     fontWeight: 'bold',
     fontSize: 16,
   }
