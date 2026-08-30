@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image, StatusBar, Dimensions } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  KeyboardAvoidingView, 
+  Platform, 
+  Image, 
+  StatusBar, 
+  Dimensions,
+  ImageBackground,
+  ScrollView
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronDown, Lock } from 'lucide-react-native';
+import { ChevronDown, ArrowRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
@@ -14,14 +27,12 @@ const LoginScreen = () => {
     if (phone.length === 10) {
       try {
         const phoneNumber = `+91${phone}`;
-        // Use HTTPS for iOS compatibility (App Transport Security)
         const response = await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone: phoneNumber })
         });
         
-        // Force navigate to OTP screen for UI testing regardless of backend status right now
         navigation.navigate('OTP', { phone });
       } catch (error: any) {
         // Fallback for UI testing if backend is offline
@@ -33,19 +44,28 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
-      {/* Decorative Wave Backgrounds (Simulated with gradients/shapes) */}
-      <View style={styles.topWave} />
-      <View style={styles.bottomWave} />
-
-      <KeyboardAvoidingView 
-        style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <View style={styles.contentContainer}>
-          
+      {/* 
+        TODO: Uncomment the ImageBackground when you add 'login_bg.png' to your assets folder! 
+        For now, it falls back to a plain cream background color.
+      */}
+      {/* <ImageBackground 
+        source={require('../../../assets/login_bg.png')} 
+        style={styles.container}
+        resizeMode="cover"
+      > */}
+      <View style={[styles.container, { backgroundColor: '#FDFCF8' }]}>
+        
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
           {/* Logo Section */}
           <View style={styles.logoSection}>
             <Image 
@@ -56,23 +76,31 @@ const LoginScreen = () => {
 
           {/* Text Section */}
           <View style={styles.textSection}>
-            <Text style={styles.heading}>Sign In</Text>
-            <Text style={styles.subheading}>Enter your mobile number to continue</Text>
+            <Text style={styles.heading}>Welcome!</Text>
+            <Text style={styles.subheading}>Login to continue</Text>
+            
+            {/* Small decorative diamond */}
+            <View style={styles.decorativeLineContainer}>
+              <View style={styles.shortLine} />
+              <View style={styles.diamondSmall} />
+              <View style={styles.shortLine} />
+            </View>
           </View>
 
           {/* Form */}
           <View style={styles.formContainer}>
+            <Text style={styles.inputLabel}>Mobile Number</Text>
+            
             <View style={styles.inputContainer}>
               <View style={styles.prefixContainer}>
-                <Text style={styles.flag}>🇮🇳</Text>
                 <Text style={styles.prefixText}>+91</Text>
-                <ChevronDown color="#666" size={14} style={{ marginLeft: 4 }} />
+                <ChevronDown color="#999" size={16} style={{ marginLeft: 4 }} />
               </View>
               <View style={styles.separator} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter mobile number"
-                placeholderTextColor="#A0A0A0"
+                placeholderTextColor="#999"
                 keyboardType="numeric"
                 maxLength={10}
                 value={phone}
@@ -86,85 +114,74 @@ const LoginScreen = () => {
               disabled={phone.length !== 10}
             >
               <LinearGradient
-                colors={['#D4AF37', '#AA771C']}
+                colors={['#D5A539', '#A87313']}
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 0}}
                 style={styles.gradientButton}
               >
-                <Text style={styles.buttonText}>Send OTP</Text>
+                <Text style={styles.buttonText}>Continue</Text>
+                <ArrowRight color="#FFF" size={20} style={{ marginLeft: 8 }} />
               </LinearGradient>
-            </TouchableOpacity>
-
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <TouchableOpacity 
-              style={styles.outlineButton}
-              onPress={() => {
-                // LoginMPIN is only accessible if the user is already partially logged in
-                alert('MPIN login is only available for returning users. Please login with OTP first.');
-              }}
-            >
-              <Lock color="#B8860B" size={16} style={{ marginRight: 8 }} />
-              <Text style={styles.outlineButtonText}>Login with MPIN</Text>
             </TouchableOpacity>
           </View>
 
-        </View>
+          <View style={{ flex: 1 }} />
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>New user? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Registration')}>
-            <Text style={styles.footerLink}>Register</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Trust Badges Section */}
+          <View style={styles.trustSection}>
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>Certified & Trusted By</Text>
+              <View style={styles.dividerLine} />
+            </View>
 
-      </KeyboardAvoidingView>
-    </View>
+            {/* 
+              TODO: Replace these placeholder boxes with actual <Image> tags once you have the logos!
+            */}
+            <View style={styles.badgesRow}>
+              <View style={styles.badgePlaceholder}><Text style={styles.badgeText}>BIS</Text></View>
+              <View style={styles.badgePlaceholder}><Text style={styles.badgeText}>IGI</Text></View>
+              <View style={styles.badgePlaceholder}><Text style={styles.badgeText}>SEAL</Text></View>
+              <View style={styles.badgePlaceholder}><Text style={styles.badgeText}>GIA</Text></View>
+            </View>
+          </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              By continuing, you agree to our{' '}
+              <Text style={styles.footerLink}>Terms & Conditions</Text>
+              {' '}and{' '}
+              <Text style={styles.footerLink}>Privacy Policy</Text>
+            </Text>
+          </View>
+
+        </ScrollView>
+      </View>
+      {/* </ImageBackground> */}
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    width: '100%',
+    height: '100%',
   },
-  topWave: {
-    position: 'absolute',
-    top: -100,
-    left: -50,
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: 'rgba(212, 175, 55, 0.05)',
-  },
-  bottomWave: {
-    position: 'absolute',
-    bottom: -150,
-    right: -100,
-    width: 350,
-    height: 350,
-    borderRadius: 175,
-    backgroundColor: 'rgba(212, 175, 55, 0.05)',
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  contentContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 30,
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 25,
+    paddingTop: height * 0.12,
+    paddingBottom: 30,
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   logo: {
-    width: width * 0.45,
-    height: width * 0.45,
+    width: width * 0.6,
+    height: width * 0.6,
     resizeMode: 'contain',
   },
   textSection: {
@@ -173,27 +190,52 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: 'serif',
-    fontSize: 28,
+    fontSize: 34,
     fontWeight: 'bold',
-    color: '#B8860B',
-    marginBottom: 8,
+    color: '#A67A27',
+    marginBottom: 5,
   },
   subheading: {
-    fontSize: 13,
-    color: '#666',
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+  },
+  decorativeLineContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 15,
+    gap: 8,
+  },
+  shortLine: {
+    width: 30,
+    height: 1,
+    backgroundColor: '#D5A539',
+  },
+  diamondSmall: {
+    width: 6,
+    height: 6,
+    backgroundColor: '#D5A539',
+    transform: [{ rotate: '45deg' }],
   },
   formContainer: {
     width: '100%',
   },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+    marginLeft: 2,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FDFDFD',
     borderRadius: 8,
     height: 55,
-    marginBottom: 24,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D5A539', // Gold border
   },
   prefixContainer: {
     flexDirection: 'row',
@@ -201,19 +243,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  flag: {
-    fontSize: 18,
-    marginRight: 6,
-  },
   prefixText: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontWeight: 'bold',
   },
   separator: {
     width: 1,
-    height: 25,
-    backgroundColor: '#E0E0E0',
+    height: 30,
+    backgroundColor: '#EAEAEA',
   },
   input: {
     flex: 1,
@@ -226,63 +264,76 @@ const styles = StyleSheet.create({
     height: 55,
     borderRadius: 8,
     overflow: 'hidden',
+    marginTop: 10,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.7,
   },
   gradientButton: {
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
     color: '#FFF',
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  trustSection: {
+    width: '100%',
+    marginTop: 40,
+    marginBottom: 30,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 30,
+    marginBottom: 20,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#D5A539',
+    opacity: 0.5,
   },
   dividerText: {
     marginHorizontal: 15,
-    color: '#999',
-    fontSize: 12,
+    color: '#555',
+    fontSize: 13,
   },
-  outlineButton: {
+  badgesRow: {
     flexDirection: 'row',
-    height: 55,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  badgePlaceholder: {
+    width: width * 0.16,
+    height: width * 0.16,
+    backgroundColor: '#F0F0F0',
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D4AF37',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
-  outlineButtonText: {
-    color: '#333',
-    fontSize: 15,
-    fontWeight: '500',
+  badgeText: {
+    fontSize: 10,
+    color: '#999',
+    fontWeight: 'bold',
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 40,
+    paddingHorizontal: 20,
   },
   footerText: {
     color: '#666',
-    fontSize: 14,
+    fontSize: 11,
+    textAlign: 'center',
+    lineHeight: 16,
   },
   footerLink: {
-    color: '#B8860B',
-    fontSize: 14,
+    color: '#D5A539',
     fontWeight: 'bold',
   },
 });
