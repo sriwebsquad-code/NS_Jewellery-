@@ -16,7 +16,9 @@ interface User {
   role: string;
   kycStatus: string;
   kycDocumentType?: string;
-  kycDocumentNumber?: string;
+  aadharNumber?: string;
+  panStatus?: string;
+  panNumber?: string;
   createdAt: string;
   activeSchemes?: any[];
 }
@@ -379,13 +381,20 @@ const UsersManagement: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="space-y-2">
-                          <div className="flex items-center space-x-1.5">
-                            {user.kycStatus === 'VERIFIED' ? (
+                          <div className="flex items-center space-x-1.5 flex-wrap gap-y-2">
+                            {user.kycStatus === 'VERIFIED' && (
                               <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-green-100/80 text-green-700 text-[11px] font-bold rounded-full border border-green-200 shadow-sm">
                                 <ShieldCheck size={12} />
-                                <span>{user.kycDocumentType || 'Verified'} {user.kycDocumentNumber ? `**${user.kycDocumentNumber.slice(-4)}` : ''}</span>
+                                <span>Aadhar {user.aadharNumber ? `**${user.aadharNumber.slice(-4)}` : ''}</span>
                               </span>
-                            ) : (
+                            )}
+                            {user.panStatus === 'VERIFIED' && (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-green-100/80 text-green-700 text-[11px] font-bold rounded-full border border-green-200 shadow-sm">
+                                <ShieldCheck size={12} />
+                                <span>PAN {user.panNumber ? `**${user.panNumber.slice(-4)}` : ''}</span>
+                              </span>
+                            )}
+                            {user.kycStatus !== 'VERIFIED' && user.panStatus !== 'VERIFIED' && (
                               <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-100/80 text-amber-700 text-[11px] font-bold rounded-full border border-amber-200 shadow-sm">
                                 <Clock size={12} />
                                 <span>Pending KYC</span>
@@ -467,9 +476,18 @@ const UsersManagement: React.FC = () => {
                               <div className="flex items-start gap-3">
                                 <div className="p-2 bg-indigo-50 rounded-full text-indigo-600 border border-indigo-100"><FileText size={16} /></div>
                                 <div>
-                                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">KYC Verification</p>
+                                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Aadhar Verification</p>
                                   <p className={`font-bold text-sm ${user.kycStatus === 'VERIFIED' ? 'text-green-600' : 'text-amber-600'}`}>
-                                    {user.kycStatus === 'VERIFIED' ? `Verified (${user.kycDocumentType || 'Aadhar'})` : 'Verify Now'}
+                                    {user.kycStatus === 'VERIFIED' ? 'Verified' : 'Verify Now'}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <div className="p-2 bg-indigo-50 rounded-full text-indigo-600 border border-indigo-100"><FileText size={16} /></div>
+                                <div>
+                                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">PAN Verification</p>
+                                  <p className={`font-bold text-sm ${user.panStatus === 'VERIFIED' ? 'text-green-600' : 'text-amber-600'}`}>
+                                    {user.panStatus === 'VERIFIED' ? 'Verified' : 'Verify Now'}
                                   </p>
                                 </div>
                               </div>

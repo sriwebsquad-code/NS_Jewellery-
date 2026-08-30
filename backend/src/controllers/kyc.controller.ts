@@ -37,11 +37,11 @@ export const verifyAadhaarOTP = async (req: Request, res: Response) => {
     const result = await cashfreeService.verifyAadhaarOTP(referenceId, otp);
     
     if (result.success) {
-      // Mark user as KYC Verified
+      // Mark user as KYC Verified (Aadhar)
       await db.collection('users').doc(userId).update({
         kycStatus: 'VERIFIED',
         kycDocumentType: 'AADHAAR',
-        kycDocumentNumber: aadharNumber,
+        aadharNumber: aadharNumber,
         kycVerifiedAt: new Date().toISOString()
       });
 
@@ -90,11 +90,11 @@ export const verifyPAN = async (req: Request, res: Response) => {
       });
     }
 
+    // Mark user as PAN Verified
     await db.collection('users').doc(userId).update({
-      kycStatus: 'VERIFIED',
-      kycDocumentType: 'PAN',
-      kycDocumentNumber: panNumber,
-      kycVerifiedAt: new Date().toISOString()
+      panStatus: 'VERIFIED',
+      panNumber: panNumber,
+      panVerifiedAt: new Date().toISOString()
     });
 
     // Send SMS
