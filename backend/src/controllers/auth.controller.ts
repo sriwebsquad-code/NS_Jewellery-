@@ -367,3 +367,26 @@ export const verifyOtpOnly = async (req: Request, res: Response) => {
   }
 };
 
+export const sendAdminPhoneOTP = async (req: Request, res: Response) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, message: 'Phone number is required' });
+    }
+
+    const cleanPhone = phone.replace('+91', '');
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+
+    // Store in memory
+    otpStore.set(cleanPhone, { otp, expiresAt });
+
+    await smsService.sendAdminResetOtp(phone, otp);
+
+    res.status(200).json({ success: true, message: 'Admin OTP sent successfully to phone' });
+  } catch (error: any) {
+    console.error('Send Admin Phone OTP Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to send Admin Phone OTP' });
+  }
+};
+

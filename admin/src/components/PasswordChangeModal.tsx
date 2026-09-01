@@ -52,7 +52,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
     
     setLoading(true);
     try {
-      const endpoint = method === 'EMAIL' ? '/api/auth/send-email-otp' : '/api/auth/send-otp';
+      const endpoint = method === 'EMAIL' ? '/api/auth/send-email-otp' : '/api/auth/send-admin-phone-otp';
       const body = method === 'EMAIL' 
         ? JSON.stringify({ email: email.trim() }) 
         : JSON.stringify({ phone: `+91${phone.trim()}` });

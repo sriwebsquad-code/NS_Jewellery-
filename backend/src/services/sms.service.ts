@@ -115,6 +115,14 @@ class SMSService {
     }
     await this.sendDLTMessage(phone, templateId, { otp });
   }
+
+  public async sendAdminResetOtp(phone: string, otp: string) {
+    const templateId = process.env.TEMPLATE_ID_ADMIN_RESET;
+    if (!templateId) {
+      return this.sendLoginOtp(phone, otp);
+    }
+    await this.sendDLTMessage(phone, templateId, { otp });
+  }
 }
 
 export const smsService = new SMSService();
