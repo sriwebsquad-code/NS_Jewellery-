@@ -32,13 +32,32 @@ const AppNavigator = () => {
   const { isLoggedIn, hasMpin, user, lastActiveAt, logout } = useAuthStore();
   const { mode } = useThemeStore();
 
+  const { updateActivity } = useAuthStore();
+
   useEffect(() => {
-    if (isLoggedIn && lastActiveAt) {
-      const fifteenDaysMs = 15 * 24 * 60 * 60 * 1000;
-      if (Date.now() - lastActiveAt > fifteenDaysMs) {
-        logout();
+    const checkExpiry = () => {
+      if (isLoggedIn && lastActiveAt) {
+        const fortyFiveDaysMs = 45 * 24 * 60 * 60 * 1000;
+        if (Date.now() - lastActiveAt > fortyFiveDaysMs) {
+          logout();
+        } else {
+          updateActivity();
+        }
       }
-    }
+    };
+
+    checkExpiry();
+
+    const { AppState } = require('react-native');
+    const subscription = AppState.addEventListener('change', (nextAppState: string) => {
+      if (nextAppState === 'active') {
+        checkExpiry();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, [isLoggedIn, lastActiveAt]);
 
   const CustomDefaultTheme = {
