@@ -115,13 +115,7 @@ const OTPScreen = () => {
       </View>
       
       <View style={styles.contentContainer}>
-        {/* Logo */}
-        <View style={styles.logoSection}>
-          <Image 
-            source={require('../../../assets/new_logo.png')} 
-            style={styles.logo} 
-          />
-        </View>
+        {/* Logo Removed */}
 
         {/* Text Section */}
         <View style={styles.textSection}>
