@@ -40,6 +40,12 @@ const CustomDrawer = (props: any) => {
 
       </DrawerContentScrollView>
 
+      <View style={styles.developerContainer}>
+        <Text style={styles.developerText}>
+          developed by : <Text style={styles.textBlack}>SRI</Text> <Text style={styles.textBlue}>WEB</Text> <Text style={styles.textBlack}>SQUAD</Text>
+        </Text>
+      </View>
+
       <View style={styles.themeToggleContainer}>
         <View style={styles.themeToggleLeft}>
           {mode === 'dark' ? <Moon color={'#8B6508'} size={20} /> : <Sun color={'#8B6508'} size={20} />}
@@ -172,6 +178,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 15,
     fontWeight: '500',
+  },
+  developerContainer: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  developerText: {
+    fontSize: 10,
+    color: '#8B6508',
+    fontWeight: '500',
+  },
+  textBlack: {
+    color: '#000000',
+    fontWeight: 'bold',
+  },
+  textBlue: {
+    color: '#2196F3',
+    fontWeight: 'bold',
   }
 });
 

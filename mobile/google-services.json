@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "815745394235",
-    "project_id": "nsjewellery-53b2d",
-    "storage_bucket": "nsjewellery-53b2d.firebasestorage.app"
+    "project_number": "200575473693",
+    "project_id": "nsmj2023-6b271",
+    "storage_bucket": "nsmj2023-6b271.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:815745394235:android:224599c59670467bd21e1e",
+        "mobilesdk_app_id": "1:200575473693:android:ae104459179228933f0ef4",
         "android_client_info": {
-          "package_name": "com.anonymous.nsjewellery"
+          "package_name": "com.nsjewellery.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBTCqG861gtmJoOXPpSnTo3cKo9cO8lbwE"
+          "current_key": "AIzaSyDimOICoGO4HtvYVvahP9rG1thHLRmnL1E"
         }
       ],
       "services": {

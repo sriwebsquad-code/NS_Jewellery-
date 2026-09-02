@@ -31,14 +31,14 @@ const DigitalSilverScreen = () => {
       const API_URL = 'https://ns-jewellery.onrender.com'; // local backend
       const response = await fetch(`${API_URL}/api/rates`);
       const data = await response.json();
-      if (data.success && data.data && data.data.silverRate) {
+      if (data.success && data.data && data.data.silverRate !== undefined && data.data.silverRate !== null) {
         setSilverRate(data.data.silverRate);
       } else {
-        setSilverRate(85);
+        setSilverRate(0);
       }
     } catch (error) {
       console.log('Failed to fetch rates, using fallback:', error);
-      setSilverRate(85);
+      setSilverRate(0);
     } finally {
       setIsLoading(false);
     }
@@ -476,7 +476,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     elevation: 0,
   },
   buyBtnText: {
-    color: colors.cardBackground,
+    color: '#F4E7CE',
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 1,

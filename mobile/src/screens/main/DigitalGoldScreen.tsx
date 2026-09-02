@@ -31,14 +31,14 @@ const DigitalGoldScreen = () => {
       const API_URL = 'https://ns-jewellery.onrender.com'; // local backend
       const response = await fetch(`${API_URL}/api/rates`);
       const data = await response.json();
-      if (data.success && data.data && data.data.goldRate) {
+      if (data.success && data.data && data.data.goldRate !== undefined && data.data.goldRate !== null) {
         setGoldRate(data.data.goldRate);
       } else {
-        setGoldRate(7250);
+        setGoldRate(0);
       }
     } catch (error) {
       console.log('Failed to fetch rates, using fallback:', error);
-      setGoldRate(7250);
+      setGoldRate(0);
     } finally {
       setIsLoading(false);
     }
@@ -476,7 +476,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     elevation: 0,
   },
   buyBtnText: {
-    color: colors.cardBackground,
+    color: '#F4E7CE',
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 1,

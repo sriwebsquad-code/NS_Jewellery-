@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import JailMonkey from 'jail-monkey';
+import * as Device from 'expo-device';
 import { ShieldAlert } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -19,19 +19,10 @@ export default function SecurityBoundary({ children }: Props) {
 
   const checkSecurity = async () => {
     try {
-      const isJailBroken = JailMonkey.isJailBroken();
+      const isJailBroken = await Device.isRootedExperimentalAsync();
       
-      // isDevelopmentSettingsMode() returns a Promise
-      const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
-
       if (isJailBroken) {
         setViolationType('ROOT');
-        setIsSecure(false);
-        return;
-      }
-
-      if (isDevMode) {
-        setViolationType('DEV_MODE');
         setIsSecure(false);
         return;
       }

@@ -3,7 +3,7 @@ import axios from 'axios';
 class SMSService {
   private async sendDLTMessage(phone: string, templateId: string, variables: Record<string, string>) {
     const apiKey = process.env.FAST2SMS_API_KEY;
-    const senderId = process.env.FAST2SMS_SENDER_ID || 'NSMAHA';
+    const senderId = process.env.FAST2SMS_SENDER_ID || 'NSMJCU';
 
     if (!apiKey) {
       console.log(`[SMS MOCK] (No API Key) To: ${phone}, Template: ${templateId}, Vars:`, variables);
@@ -110,14 +110,6 @@ class SMSService {
 
   public async sendMpinResetOtp(phone: string, otp: string) {
     const templateId = process.env.TEMPLATE_ID_MPIN_RESET;
-    if (!templateId) {
-      return this.sendLoginOtp(phone, otp);
-    }
-    await this.sendDLTMessage(phone, templateId, { otp });
-  }
-
-  public async sendAdminResetOtp(phone: string, otp: string) {
-    const templateId = process.env.TEMPLATE_ID_ADMIN_RESET;
     if (!templateId) {
       return this.sendLoginOtp(phone, otp);
     }
