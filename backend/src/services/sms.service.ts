@@ -6,7 +6,7 @@ class SMSService {
     const senderId = process.env.FAST2SMS_SENDER_ID || 'NSMJCU';
 
     if (!apiKey) {
-      console.log(`[SMS MOCK] (No API Key) To: ${phone}, Template: ${templateId}, Vars:`, variables);
+      console.error(`[SMS ERROR] Missing FAST2SMS_API_KEY in environment variables. OTP/Message was not sent to ${phone}!`);
       return;
     }
 
@@ -85,7 +85,10 @@ class SMSService {
     if (!templateId) {
       // Fallback to generic route
       const apiKey = process.env.FAST2SMS_API_KEY;
-      if (!apiKey) return;
+      if (!apiKey) {
+        console.error(`[SMS ERROR] Missing FAST2SMS_API_KEY in environment variables. OTP was not sent to ${phone}!`);
+        return;
+      }
       
       const cleanPhone = phone.replace('+91', '');
       if (cleanPhone === '9876543210') return;
