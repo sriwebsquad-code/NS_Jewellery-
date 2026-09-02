@@ -9,7 +9,7 @@ const { width } = Dimensions.get('window');
 
 const OTPScreen = () => {
   const [otp, setOtp] = useState('');
-  const [timer, setTimer] = useState(45);
+  const [timer, setTimer] = useState(600);
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { phone } = route.params || { phone: '9876543210' };
@@ -21,6 +21,19 @@ const OTPScreen = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleResend = async () => {
+    try {
+      await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+      setTimer(600); // Reset timer to 10 minutes
+    } catch (e) {
+      console.log('Failed to resend OTP', e);
+    }
+  };
 
   const handleVerify = async (code: string) => {
     try {
@@ -128,9 +141,15 @@ const OTPScreen = () => {
           {renderOTPBoxes()}
         </View>
 
-        <Text style={styles.resendText}>
-          Resend OTP in <Text style={styles.timerText}>00:{timer < 10 ? `0${timer}` : timer}</Text>
-        </Text>
+        {timer > 0 ? (
+          <Text style={styles.resendText}>
+            Resend OTP in <Text style={styles.timerText}>{Math.floor(timer / 60).toString().padStart(2, '0')}:{(timer % 60).toString().padStart(2, '0')}</Text>
+          </Text>
+        ) : (
+          <TouchableOpacity onPress={handleResend}>
+            <Text style={[styles.resendText, { color: '#D5A539', fontWeight: 'bold' }]}>Resend OTP</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Submit Button */}
         <View style={styles.submitContainer}>
