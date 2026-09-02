@@ -119,8 +119,12 @@ const DigitalGoldScreen = () => {
     
     if (hours < 11 || hours >= 18) {
       Alert.alert(
-        "Market Closed",
-        "Digital Gold purchases are only allowed between 11:00 AM and 6:00 PM IST based on live market hours."
+        "Important Notice",
+        "THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF GOLD ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED. IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Proceed", onPress: () => navigation.navigate('Payment', { amount: parseFloat(amount) }) }
+        ]
       );
       return;
     }
