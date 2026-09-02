@@ -136,10 +136,20 @@ const LoginScreen = () => {
             </View>
 
             <View style={styles.badgesRow}>
-              <Image 
-                source={require('../../../assets/trust_badges.png')} 
-                style={{ width: '100%', height: 40, resizeMode: 'contain' }} 
-              />
+              <View style={styles.badgeContainer}>
+                <Text style={styles.badgeTitle}>BIS</Text>
+                <Text style={styles.badgeSub}>Hallmark</Text>
+              </View>
+              <View style={styles.badgeDivider} />
+              <View style={styles.badgeContainer}>
+                <Text style={styles.badgeTitle}>IGI</Text>
+                <Text style={styles.badgeSub}>Certified</Text>
+              </View>
+              <View style={styles.badgeDivider} />
+              <View style={styles.badgeContainer}>
+                <Text style={styles.badgeTitle}>GIA</Text>
+                <Text style={styles.badgeSub}>Certified</Text>
+              </View>
             </View>
           </View>
 
@@ -310,20 +320,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
   },
-  badgePlaceholder: {
-    width: width * 0.16,
-    height: width * 0.16,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 8,
-    justifyContent: 'center',
+  badgeContainer: {
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    justifyContent: 'center',
   },
-  badgeText: {
+  badgeTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#4A4C62', // A sophisticated deep blue/grey similar to their logos
+    letterSpacing: 2,
+    fontFamily: 'serif',
+  },
+  badgeSub: {
     fontSize: 10,
-    color: '#999',
+    color: '#777',
     fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 2,
+  },
+  badgeDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: '#CCC',
   },
   footer: {
     alignItems: 'center',

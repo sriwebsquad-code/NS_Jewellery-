@@ -27,6 +27,18 @@ export default function SecurityBoundary({ children }: Props) {
         return;
       }
 
+      try {
+        const JailMonkey = require('jail-monkey').default;
+        const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
+        if (isDevMode) {
+          setViolationType('DEV_MODE');
+          setIsSecure(false);
+          return;
+        }
+      } catch (e) {
+        console.log('JailMonkey not available');
+      }
+
       setIsSecure(true);
     } catch (error) {
       console.error('Security check failed:', error);
