@@ -85,7 +85,7 @@ export const verifyPAN = async (req: Request, res: Response) => {
     if (!verificationResult.success) {
       return res.status(400).json({ 
         success: false, 
-        message: 'PAN Verification Failed', 
+        message: verificationResult.message || 'PAN Verification Failed', 
         error: verificationResult.message 
       });
     }
