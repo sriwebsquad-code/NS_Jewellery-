@@ -19,30 +19,40 @@ export default function SecurityBoundary({ children }: Props) {
 
   const checkSecurity = async () => {
     try {
-      const isJailBroken = await Device.isRootedExperimentalAsync();
-      
-      if (isJailBroken) {
-        setViolationType('ROOT');
-        setIsSecure(false);
-        return;
-      }
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 3000)
+      );
 
-      try {
-        const JailMonkey = require('jail-monkey').default;
-        const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
-        if (isDevMode) {
-          setViolationType('DEV_MODE');
-          setIsSecure(false);
-          return;
+      const securityChecks = async () => {
+        const isJailBroken = await Device.isRootedExperimentalAsync();
+        
+        if (isJailBroken) {
+          return { violation: 'ROOT' };
         }
-      } catch (e) {
-        console.log('JailMonkey not available');
-      }
 
-      setIsSecure(true);
+        try {
+          const JailMonkey = require('jail-monkey').default || require('jail-monkey');
+          const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
+          if (isDevMode) {
+            return { violation: 'DEV_MODE' };
+          }
+        } catch (e) {
+          console.log('JailMonkey not available');
+        }
+        
+        return { violation: null };
+      };
+
+      const result: any = await Promise.race([securityChecks(), timeoutPromise]);
+
+      if (result.violation) {
+        setViolationType(result.violation);
+        setIsSecure(false);
+      } else {
+        setIsSecure(true);
+      }
     } catch (error) {
-      console.error('Security check failed:', error);
-      // Fallback to secure so we don't accidentally block legitimate users if library fails
+      console.error('Security check failed/timed out:', error);
       setIsSecure(true);
     }
   };
