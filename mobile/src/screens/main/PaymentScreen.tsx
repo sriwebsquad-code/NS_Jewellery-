@@ -47,7 +47,6 @@ const PaymentScreen = () => {
   }, [planType]);
 
   const handlePay = async () => {
-    if (!planId) return;
     setLoading(true);
     
     try {
@@ -100,14 +99,16 @@ const PaymentScreen = () => {
         
         if (verifyData.success) {
           // 3. Mark installment as paid (since the generic payment worked)
-          await fetch(`${API_URL}/api/plans/payInstallment`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ userPlanId: planId, amount })
-          });
+          if (planId) {
+            await fetch(`${API_URL}/api/plans/payInstallment`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ userPlanId: planId, amount })
+            });
+          }
           
           navigation.replace('PaymentSuccess');
         } else {

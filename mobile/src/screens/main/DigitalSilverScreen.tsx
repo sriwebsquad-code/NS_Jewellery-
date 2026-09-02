@@ -123,13 +123,13 @@ const DigitalSilverScreen = () => {
         "THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF SILVER ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED. IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.",
         [
           { text: "Cancel", style: "cancel" },
-          { text: "Proceed", onPress: () => navigation.navigate('Payment', { amount: parseFloat(amount) }) }
+          { text: "Proceed", onPress: () => navigation.navigate('Payment', { amount: parseFloat(amount), planName: 'Digital Silver', planType: 'SILVER' }) }
         ]
       );
       return;
     }
 
-    navigation.navigate('Payment', { amount: parseFloat(amount) });
+    navigation.navigate('Payment', { amount: parseFloat(amount), planName: 'Digital Silver', planType: 'SILVER' });
   };
 
   return (
