@@ -135,14 +135,11 @@ const LoginScreen = () => {
               <View style={styles.dividerLine} />
             </View>
 
-            {/* 
-              TODO: Replace these placeholder boxes with actual <Image> tags once you have the logos!
-            */}
             <View style={styles.badgesRow}>
-              <View style={styles.badgePlaceholder}><Text style={styles.badgeText}>BIS</Text></View>
-              <View style={styles.badgePlaceholder}><Text style={styles.badgeText}>IGI</Text></View>
-              <View style={styles.badgePlaceholder}><Text style={styles.badgeText}>SEAL</Text></View>
-              <View style={styles.badgePlaceholder}><Text style={styles.badgeText}>GIA</Text></View>
+              <Image 
+                source={require('../../../assets/trust_badges.png')} 
+                style={{ width: '100%', height: 40, resizeMode: 'contain' }} 
+              />
             </View>
           </View>
 
@@ -150,9 +147,9 @@ const LoginScreen = () => {
           <View style={styles.footer}>
             <Text style={styles.footerText}>
               By continuing, you agree to our{' '}
-              <Text style={styles.footerLink}>Terms & Conditions</Text>
+              <Text style={styles.footerLink} onPress={() => navigation.navigate('TermsPrivacy')}>Terms & Conditions</Text>
               {' '}and{' '}
-              <Text style={styles.footerLink}>Privacy Policy</Text>
+              <Text style={styles.footerLink} onPress={() => navigation.navigate('TermsPrivacy')}>Privacy Policy</Text>
             </Text>
           </View>
 
@@ -177,12 +174,18 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 30,
+    width: width * 0.54,
+    height: width * 0.54,
+    overflow: 'hidden',
+    borderRadius: 30,
+    alignSelf: 'center',
   },
   logo: {
-    width: width * 0.6,
-    height: width * 0.6,
-    resizeMode: 'contain',
+    width: width * 0.62,
+    height: width * 0.62,
+    resizeMode: 'cover',
   },
   textSection: {
     alignItems: 'center',

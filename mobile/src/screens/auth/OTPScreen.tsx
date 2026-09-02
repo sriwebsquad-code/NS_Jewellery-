@@ -211,13 +211,18 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
     marginTop: -20,
+    width: width * 0.45,
+    height: width * 0.45,
+    overflow: 'hidden',
+    borderRadius: 30,
   },
   logo: {
-    width: width * 0.5,
-    height: width * 0.5,
-    resizeMode: 'contain',
+    width: width * 0.52,
+    height: width * 0.52,
+    resizeMode: 'cover',
   },
   textSection: {
     alignItems: 'center',

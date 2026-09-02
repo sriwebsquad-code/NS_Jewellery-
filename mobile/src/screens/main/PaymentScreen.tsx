@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, Linking } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { WebView } from 'react-native-webview';
 import { COLORS } from '../../constants/theme';
@@ -10,6 +10,7 @@ import { ArrowLeft } from 'lucide-react-native';
 
 const PaymentScreen = () => {
   const [loading, setLoading] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<'UPI' | 'NET_BANKING'>('UPI');
   const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const navigation = useNavigation<any>();
@@ -25,6 +26,25 @@ const PaymentScreen = () => {
   const planId = route.params?.planId;
   const planName = route.params?.planName || 'Plan EMI';
   const planType = route.params?.planType || 'AMOUNT';
+
+  const [liveRate, setLiveRate] = useState<number | null>(null);
+
+  React.useEffect(() => {
+    if (planType === 'GOLD' || planType === 'SILVER') {
+      const fetchRate = async () => {
+        try {
+          const res = await fetch(`${API_URL}/api/rates`);
+          const data = await res.json();
+          if (data.success && data.data) {
+            setLiveRate(planType === 'GOLD' ? data.data.goldRate : data.data.silverRate);
+          }
+        } catch (error) {
+          console.log('Error fetching live rate in payment', error);
+        }
+      };
+      fetchRate();
+    }
+  }, [planType]);
 
   const handlePay = async () => {
     if (!planId) return;
@@ -122,6 +142,24 @@ const PaymentScreen = () => {
           style={{ flex: 1 }}
           javaScriptEnabled={true}
           domStorageEnabled={true}
+          originWhitelist={['*']}
+          onShouldStartLoadWithRequest={(request) => {
+            const { url } = request;
+            // Handle UPI and App Intents
+            if (
+              url.startsWith('upi://') || 
+              url.startsWith('intent://') || 
+              url.startsWith('paytmmp://') || 
+              url.startsWith('gpay://') || 
+              url.startsWith('phonepe://')
+            ) {
+              Linking.openURL(url).catch(err => {
+                Alert.alert("App Not Found", "No suitable payment app was found on your device to handle this link.");
+              });
+              return false; // Prevent WebView from trying to load it
+            }
+            return true; // Let WebView load normal HTTP/HTTPS links
+          }}
         />
       </SafeAreaView>
     );
@@ -155,30 +193,44 @@ const PaymentScreen = () => {
           
           {isMetal && (
             <View style={[styles.metalInfoBox, { backgroundColor: 'rgba(212, 175, 55, 0.1)' }]}>
-              <Text style={styles.metalInfoText}>
-                {planType === 'GOLD' ? 'Gold' : 'Silver'} weight will be added based on today's live rate upon successful payment.
-              </Text>
+              {liveRate ? (
+                <>
+                  <Text style={[styles.metalInfoText, { fontWeight: 'bold', fontSize: 14, marginBottom: 4 }]}>
+                    Estimated Weight: {(amount / liveRate).toFixed(4)}g
+                  </Text>
+                  <Text style={[styles.metalInfoText, { fontSize: 11, opacity: 0.8 }]}>
+                    Based on live {planType === 'GOLD' ? 'Gold' : 'Silver'} rate of ₹{liveRate}/g
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.metalInfoText}>
+                  {planType === 'GOLD' ? 'Gold' : 'Silver'} weight will be added based on today's live rate upon successful payment.
+                </Text>
+              )}
             </View>
           )}
         </View>
 
         <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Select Payment Method</Text>
 
-        <TouchableOpacity style={[styles.paymentMethod, { backgroundColor: colors.cardBackground }]}>
+        <TouchableOpacity 
+          style={[styles.paymentMethod, { backgroundColor: colors.cardBackground }]}
+          onPress={() => setSelectedMethod('UPI')}
+        >
           <Text style={[styles.methodText, { color: colors.text }]}>UPI (GPay, PhonePe, Paytm)</Text>
-          <View style={[styles.radioSelected, { borderColor: colors.primary }]}>
-             <View style={[styles.radioSelectedInner, { backgroundColor: colors.primary }]} />
+          <View style={[selectedMethod === 'UPI' ? styles.radioSelected : styles.radioUnselected, { borderColor: selectedMethod === 'UPI' ? colors.primary : colors.border }]}>
+             {selectedMethod === 'UPI' && <View style={[styles.radioSelectedInner, { backgroundColor: colors.primary }]} />}
           </View>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={[styles.paymentMethod, { backgroundColor: colors.cardBackground }]}>
-          <Text style={[styles.methodText, { color: colors.text }]}>Credit / Debit Card</Text>
-          <View style={[styles.radioUnselected, { borderColor: colors.border }]} />
-        </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.paymentMethod, { backgroundColor: colors.cardBackground }]}>
+        <TouchableOpacity 
+          style={[styles.paymentMethod, { backgroundColor: colors.cardBackground }]}
+          onPress={() => setSelectedMethod('NET_BANKING')}
+        >
           <Text style={[styles.methodText, { color: colors.text }]}>Net Banking</Text>
-          <View style={[styles.radioUnselected, { borderColor: colors.border }]} />
+          <View style={[selectedMethod === 'NET_BANKING' ? styles.radioSelected : styles.radioUnselected, { borderColor: selectedMethod === 'NET_BANKING' ? colors.primary : colors.border }]}>
+             {selectedMethod === 'NET_BANKING' && <View style={[styles.radioSelectedInner, { backgroundColor: colors.primary }]} />}
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity 

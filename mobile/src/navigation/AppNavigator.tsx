@@ -22,6 +22,7 @@ import AadharVerificationScreen from '../screens/main/AadharVerificationScreen';
 import PanVerificationScreen from '../screens/main/PanVerificationScreen';
 import AdminDashboard from '../screens/admin/AdminDashboard';
 import FavoritesScreen from '../screens/main/FavoritesScreen';
+import TermsPrivacyScreen from '../screens/main/TermsPrivacyScreen';
 
 import RegistrationScreen from '../screens/auth/RegistrationScreen';
 
@@ -65,6 +66,7 @@ const AppNavigator = () => {
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="OTP" component={OTPScreen} />
+            <Stack.Screen name="TermsPrivacy" component={TermsPrivacyScreen} />
           </>
         ) : user?.isNewUser ? (
           <Stack.Screen name="Registration" component={RegistrationScreen} />

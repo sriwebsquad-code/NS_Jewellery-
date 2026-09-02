@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { useThemeStore } from '../../store/themeStore';
-import { COLORS, SIZES } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
+import { ShieldCheck } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const CreateMPINScreen = () => {
   const [mpin, setMpin] = useState('');
@@ -13,7 +14,9 @@ const CreateMPINScreen = () => {
   const token = useAuthStore((state) => state.token);
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
-  const styles = getStyles(colors, mode);
+
+  const mpinInputRef = useRef<TextInput>(null);
+  const confirmMpinInputRef = useRef<TextInput>(null);
 
   const handleCreate = async () => {
     if (mpin === confirmMpin) {
@@ -46,125 +49,194 @@ const CreateMPINScreen = () => {
 
   const isValid = mpin.length === 4 && confirmMpin.length === 4;
 
-  return (
-    <KeyboardAvoidingView 
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Secure Your Account</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>Create a 4-digit MPIN for quick access</Text>
-      </View>
+  const renderBoxes = (value: string, onPress: () => void) => {
+    const boxes = [];
+    for (let i = 0; i < 4; i++) {
+      const hasValue = value.length > i;
+      boxes.push(
+        <TouchableOpacity 
+          key={i} 
+          style={[styles.box, hasValue ? styles.boxFilled : null]}
+          onPress={onPress}
+          activeOpacity={1}
+        >
+          {hasValue && <View style={styles.dot} />}
+        </TouchableOpacity>
+      );
+    }
+    return <View style={styles.boxesContainer}>{boxes}</View>;
+  };
 
-      <View style={[styles.formContainer, { backgroundColor: colors.background }]}>
-        <Text style={[styles.label, { color: colors.text }]}>Enter 4-Digit MPIN</Text>
-        <View style={[styles.inputContainer, { backgroundColor: mode === 'dark' ? 'rgba(255,255,255,0.05)' : COLORS.lightGray, borderColor: colors.border }]}>
-          <TextInput
-            style={[styles.input, { color: colors.text }]}
-            placeholder="• • • •"
-            placeholderTextColor={colors.textMuted}
-            keyboardType="numeric"
-            maxLength={4}
-            secureTextEntry
-            value={mpin}
-            onChangeText={setMpin}
-            textAlign="center"
-          />
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: '#FDFDFD' }]}>
+      <KeyboardAvoidingView 
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Secure Your Account</Text>
+          <Text style={styles.subtitle}>Create a 4-digit MPIN for quick access</Text>
         </View>
 
-        <Text style={[styles.label, { marginTop: 20, color: colors.text }]}>Confirm MPIN</Text>
-        <View style={[styles.inputContainer, { backgroundColor: mode === 'dark' ? 'rgba(255,255,255,0.05)' : COLORS.lightGray, borderColor: colors.border }]}>
+        <View style={styles.formContainer}>
+          <Text style={styles.label}>Enter 4-Digit MPIN</Text>
+          {renderBoxes(mpin, () => mpinInputRef.current?.focus())}
           <TextInput
-            style={[styles.input, { color: colors.text }]}
-            placeholder="• • • •"
-            placeholderTextColor={colors.textMuted}
+            ref={mpinInputRef}
+            style={styles.hiddenInput}
             keyboardType="numeric"
             maxLength={4}
-            secureTextEntry
+            value={mpin}
+            onChangeText={(val) => {
+              setMpin(val);
+              if (val.length === 4) confirmMpinInputRef.current?.focus();
+            }}
+          />
+
+          <Text style={styles.label}>Confirm MPIN</Text>
+          {renderBoxes(confirmMpin, () => confirmMpinInputRef.current?.focus())}
+          <TextInput
+            ref={confirmMpinInputRef}
+            style={styles.hiddenInput}
+            keyboardType="numeric"
+            maxLength={4}
             value={confirmMpin}
             onChangeText={setConfirmMpin}
-            textAlign="center"
           />
-        </View>
 
-        <TouchableOpacity 
-          style={[styles.button, isValid ? { backgroundColor: colors.primary } : styles.buttonDisabled]}
-          onPress={handleCreate}
-          disabled={!isValid || loading}
-        >
-          <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Set MPIN & Continue'}</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          <View style={styles.infoBox}>
+            <ShieldCheck color="#555" size={24} style={{ marginRight: 12 }} />
+            <Text style={styles.infoText}>
+              Your MPIN keeps your account safe and secure.{'\n'}Do not share your MPIN with anyone.
+            </Text>
+          </View>
+
+          <View style={{ flex: 1 }} />
+
+          <TouchableOpacity 
+            style={[styles.button, !isValid && styles.buttonDisabled]}
+            onPress={handleCreate}
+            disabled={!isValid || loading}
+          >
+            {isValid ? (
+              <LinearGradient
+                colors={['#D5A539', '#B8860B']}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
+                style={styles.gradientButton}
+              >
+                <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Set MPIN & Continue'}</Text>
+              </LinearGradient>
+            ) : (
+              <View style={[styles.gradientButton, { backgroundColor: '#E0E0E0' }]}>
+                <Text style={styles.buttonTextDisabled}>Set MPIN & Continue</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
-const getStyles = (colors: any, mode: string) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.cardBackground,
+    backgroundColor: '#FDFDFD',
   },
   header: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.secondary,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    marginTop: 60,
+    marginBottom: 40,
   },
   title: {
-    color: COLORS.primary,
-    fontSize: SIZES.h2,
+    color: '#B8860B',
+    fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   subtitle: {
-    color: colors.cardBackground,
-    fontSize: SIZES.h4,
+    color: '#555',
+    fontSize: 15,
+    fontWeight: '500',
   },
   formContainer: {
-    flex: 2,
-    padding: SIZES.padding,
-    paddingTop: 40,
+    flex: 1,
+    paddingHorizontal: 25,
   },
   label: {
-    fontSize: SIZES.h4,
-    color: colors.textMuted,
-    marginBottom: 10,
-    fontWeight: '500',
+    fontSize: 15,
+    color: '#000',
+    fontWeight: '700',
     textAlign: 'center',
+    marginBottom: 15,
   },
-  inputContainer: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: SIZES.radius,
-    height: 60,
-    backgroundColor: colors.background,
+  boxesContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
-    marginHorizontal: 40,
+    gap: 15,
+    marginBottom: 35,
   },
-  input: {
-    fontSize: 30,
-    color: colors.text,
-    letterSpacing: 20,
-    fontWeight: 'bold',
-  },
-  button: {
-    height: 55,
-    borderRadius: SIZES.radius,
+  box: {
+    width: 60,
+    height: 60,
+    borderWidth: 1,
+    borderColor: '#D5A539',
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
+    backgroundColor: '#FFFFFF',
   },
-  buttonActive: {
-    backgroundColor: COLORS.primary,
+  boxFilled: {
+    backgroundColor: '#FFFFFF',
+  },
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#D5A539',
+  },
+  hiddenInput: {
+    position: 'absolute',
+    width: 1,
+    height: 1,
+    opacity: 0,
+  },
+  infoBox: {
+    flexDirection: 'row',
+    backgroundColor: '#F9F4EB',
+    padding: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  infoText: {
+    flex: 1,
+    color: '#555',
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  button: {
+    width: '100%',
+    marginBottom: 30,
   },
   buttonDisabled: {
-    backgroundColor: colors.border,
+    opacity: 1,
+  },
+  gradientButton: {
+    height: 55,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
-    color: colors.cardBackground,
-    fontSize: SIZES.h3,
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonTextDisabled: {
+    color: '#999',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

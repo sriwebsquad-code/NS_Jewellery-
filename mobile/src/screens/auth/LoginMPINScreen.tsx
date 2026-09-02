@@ -162,7 +162,7 @@ const LoginMPINScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FDFCF8',
   },
   header: {
     paddingHorizontal: 20,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     borderColor: '#D5A539',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent',
   },
   contentContainer: {
     flex: 1,
@@ -186,13 +186,18 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
     marginTop: -20,
+    width: width * 0.45,
+    height: width * 0.45,
+    overflow: 'hidden',
+    borderRadius: 30,
   },
   logo: {
-    width: width * 0.5,
-    height: width * 0.5,
-    resizeMode: 'contain',
+    width: width * 0.52,
+    height: width * 0.52,
+    resizeMode: 'cover',
   },
   textSection: {
     alignItems: 'center',
