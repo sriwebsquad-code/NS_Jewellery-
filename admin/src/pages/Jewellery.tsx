@@ -19,6 +19,7 @@ const JewelleryManagement: React.FC = () => {
   const [itemPurity, setItemPurity] = useState('22K');
   const [itemStock, setItemStock] = useState('10');
   const [itemBasePrice, setItemBasePrice] = useState('');
+  const [itemDescription, setItemDescription] = useState('');
   const [itemImage, setItemImage] = useState<File | null>(null);
 
   useEffect(() => {
@@ -76,6 +77,7 @@ const JewelleryManagement: React.FC = () => {
     formData.append('purity', itemPurity);
     formData.append('stock', itemStock);
     if (itemBasePrice) formData.append('basePrice', itemBasePrice);
+    if (itemDescription) formData.append('description', itemDescription);
     if (itemImage) formData.append('image', itemImage);
 
     try {
@@ -89,6 +91,7 @@ const JewelleryManagement: React.FC = () => {
         setItemName('');
         setItemWeight('');
         setItemBasePrice('');
+        setItemDescription('');
         setItemStock('10');
         setItemImage(null);
         fetchData();
@@ -206,6 +209,8 @@ const JewelleryManagement: React.FC = () => {
               <input required type="number" placeholder="Stock Qty" value={itemStock} onChange={e => setItemStock(e.target.value)} className="w-1/2 px-4 py-3 bg-background border border-primary/20 rounded focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-secondary" />
               <input type="number" placeholder="Base Price (₹) - Optional" value={itemBasePrice} onChange={e => setItemBasePrice(e.target.value)} className="w-1/2 px-4 py-3 bg-background border border-primary/20 rounded focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-secondary" />
             </div>
+            
+            <textarea placeholder="Description" value={itemDescription} onChange={e => setItemDescription(e.target.value)} rows={3} className="w-full px-4 py-3 bg-background border border-primary/20 rounded focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-secondary md:col-span-2" />
 
             <input type="file" accept="image/*" onChange={e => setItemImage(e.target.files?.[0] || null)} className="w-full px-4 py-3 bg-background border border-primary/20 rounded focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-secondary md:col-span-2" />
           </div>
