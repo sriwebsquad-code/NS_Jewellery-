@@ -20,7 +20,7 @@
     "expo-device": "~8.0.10",
     "expo-linear-gradient": "~15.0.8",
     "expo-status-bar": "~3.0.9",
-    "jail-monkey": "^3.0.0",
+    "jail-monkey": "^2.8.1",
     "lucide-react-native": "^1.25.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
