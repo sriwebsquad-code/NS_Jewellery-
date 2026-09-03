@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function SecurityBoundary({ children }: Props) {
-  const [isSecure, setIsSecure] = useState<boolean | null>(null);
+  const [isSecure, setIsSecure] = useState<boolean>(true);
   const [violationType, setViolationType] = useState<string>('');
 
   useEffect(() => {
@@ -18,10 +18,11 @@ export default function SecurityBoundary({ children }: Props) {
   }, []);
 
   const checkSecurity = async () => {
+    let timeoutId: NodeJS.Timeout;
     try {
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 3000)
-      );
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Timeout')), 3000);
+      });
 
       const securityChecks = async () => {
         const isJailBroken = await Device.isRootedExperimentalAsync();
@@ -44,27 +45,18 @@ export default function SecurityBoundary({ children }: Props) {
       };
 
       const result: any = await Promise.race([securityChecks(), timeoutPromise]);
+      clearTimeout(timeoutId!);
 
       if (result.violation) {
         setViolationType(result.violation);
         setIsSecure(false);
-      } else {
-        setIsSecure(true);
       }
     } catch (error) {
+      clearTimeout(timeoutId!);
       console.error('Security check failed/timed out:', error);
-      setIsSecure(true);
+      // Fail open: don't lock the user out if the library hangs or fails
     }
   };
-
-  if (isSecure === null) {
-    // Show nothing or a splash screen while checking
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Securing environment...</Text>
-      </View>
-    );
-  }
 
   if (!isSecure) {
     return (
@@ -95,7 +87,10 @@ export default function SecurityBoundary({ children }: Props) {
 
         <TouchableOpacity 
           style={styles.retryButton} 
-          onPress={checkSecurity}
+          onPress={() => {
+            setIsSecure(true);
+            setTimeout(checkSecurity, 1000);
+          }}
         >
           <Text style={styles.retryButtonText}>Check Again</Text>
         </TouchableOpacity>
