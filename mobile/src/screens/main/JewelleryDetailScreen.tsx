@@ -7,6 +7,7 @@ import { ArrowLeft, Heart, MessageCircle } from 'lucide-react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
 import { useFavoritesStore } from '../../store/favoritesStore';
+import { useAuthStore } from '../../store/authStore';
 
 const JewelleryDetailScreen = () => {
   const navigation = useNavigation();
@@ -18,6 +19,7 @@ const JewelleryDetailScreen = () => {
   const styles = getStyles(colors, mode);
 
   const { isFavorite, toggleFavorite } = useFavoritesStore();
+  const { user } = useAuthStore();
   const isFav = isFavorite(item.id);
   const [loadingWhatsapp, setLoadingWhatsapp] = React.useState(false);
 
@@ -33,7 +35,10 @@ const JewelleryDetailScreen = () => {
         return;
       }
       
-      const message = `Hi, I would like to inquire about:\n\nItem: ${item.name}\nCategory: ${item.category?.name || 'N/A'}\nPurity: ${item.purity}\nWeight: ${item.weight}g\nMaking Charges: ${item.makingCharges}%`;
+      const customerName = user?.name || 'A Customer';
+      const imageUrl = item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : 'No image available';
+      
+      const message = `Hello, this is ${customerName}.\n\nI would like to inquire about the following item:\n\nItem: ${item.name}\nCategory: ${item.category?.name || 'N/A'}\nPurity: ${item.purity}\nWeight: ${item.weight}g\n\nImage: ${imageUrl}`;
       const url = `whatsapp://send?phone=91${num}&text=${encodeURIComponent(message)}`;
       
       const canOpen = await Linking.canOpenURL(url);
@@ -68,13 +73,9 @@ const JewelleryDetailScreen = () => {
 
         {/* Info Section */}
         <View style={styles.infoSection}>
+          <Text style={[styles.categorySubtitle, { color: colors.primary }]}>{item.category?.name?.toUpperCase() || 'CATEGORY'}</Text>
           <Text style={[styles.title, { color: colors.text }]}>{item.name}</Text>
           
-          <View style={styles.detailsRow}>
-            <Text style={[styles.label, { color: colors.textMuted }]}>Category</Text>
-            <Text style={[styles.value, { color: colors.text }]}>{item.category?.name || 'N/A'}</Text>
-          </View>
-
           <View style={styles.detailsRow}>
             <Text style={[styles.label, { color: colors.textMuted }]}>Purity</Text>
             <Text style={[styles.value, { color: colors.text }]}>{item.purity}</Text>
@@ -83,11 +84,6 @@ const JewelleryDetailScreen = () => {
           <View style={styles.detailsRow}>
             <Text style={[styles.label, { color: colors.textMuted }]}>Weight</Text>
             <Text style={[styles.value, { color: colors.text }]}>{item.weight} g</Text>
-          </View>
-
-          <View style={styles.detailsRow}>
-            <Text style={[styles.label, { color: colors.textMuted }]}>Making Charges</Text>
-            <Text style={[styles.value, { color: colors.text }]}>{item.makingCharges}%</Text>
           </View>
 
           {item.description ? (
@@ -152,6 +148,12 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   },
   infoSection: {
     padding: 20,
+  },
+  categorySubtitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    marginBottom: 6,
   },
   title: {
     fontSize: 26,
