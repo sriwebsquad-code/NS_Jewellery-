@@ -41,10 +41,9 @@ const JewelleryDetailScreen = () => {
       const message = `Hello, this is ${customerName}.\n\nI would like to inquire about the following item:\n\nItem: ${item.name}\nCategory: ${item.category?.name || 'N/A'}\nPurity: ${item.purity}\nWeight: ${item.weight}g\n\nImage: ${imageUrl}`;
       const url = `whatsapp://send?phone=91${num}&text=${encodeURIComponent(message)}`;
       
-      const canOpen = await Linking.canOpenURL(url);
-      if (canOpen) {
+      try {
         await Linking.openURL(url);
-      } else {
+      } catch (err) {
         Alert.alert('Error', 'WhatsApp is not installed on your device');
       }
     } catch (error) {
