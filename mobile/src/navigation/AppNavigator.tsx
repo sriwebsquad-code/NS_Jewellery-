@@ -37,16 +37,19 @@ const AppNavigator = () => {
 
   useEffect(() => {
     const checkExpiry = () => {
-      if (isLoggedIn && lastActiveAt) {
+      // Use the current state values directly if possible, or just don't re-trigger
+      const currentState = useAuthStore.getState();
+      if (currentState.isLoggedIn && currentState.lastActiveAt) {
         const fortyFiveDaysMs = 45 * 24 * 60 * 60 * 1000;
-        if (Date.now() - lastActiveAt > fortyFiveDaysMs) {
-          logout();
+        if (Date.now() - currentState.lastActiveAt > fortyFiveDaysMs) {
+          currentState.logout();
         } else {
-          updateActivity();
+          currentState.updateActivity();
         }
       }
     };
 
+    // Run once on mount
     checkExpiry();
 
     const subscription = AppState.addEventListener('change', (nextAppState) => {
@@ -58,7 +61,7 @@ const AppNavigator = () => {
     return () => {
       subscription.remove();
     };
-  }, [isLoggedIn, lastActiveAt]);
+  }, []); // Empty dependency array prevents infinite loops
 
   const CustomDefaultTheme = {
     ...DefaultTheme,
