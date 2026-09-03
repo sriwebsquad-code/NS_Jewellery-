@@ -263,18 +263,34 @@ export const verifyMpinResetOtp = async (req: Request, res: Response) => {
 
 export const resetMpin = async (req: Request, res: Response) => {
   try {
-    const { phone, resetToken, newMpin } = req.body;
-    if (!phone || !resetToken || !newMpin) {
+    const { phone, resetToken, otp, newMpin } = req.body;
+    if (!phone || !newMpin || (!resetToken && !otp)) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
-    }
-
-    // Verify reset token (in a real app, you'd decode and verify the JWT)
-    if (!resetToken) {
-       return res.status(401).json({ success: false, message: 'Invalid reset token' });
     }
 
     const cleanPhone = phone.replace('+91', '');
     const phoneNumber = `+91${cleanPhone}`;
+
+    if (otp) {
+      // Verify OTP inline
+      const storedData = otpStore.get(cleanPhone);
+      if (!storedData) {
+        return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+      }
+      if (new Date() > storedData.expiresAt) {
+        otpStore.delete(cleanPhone);
+        return res.status(400).json({ success: false, message: 'OTP expired' });
+      }
+      if (storedData.otp !== otp) {
+        return res.status(400).json({ success: false, message: 'Incorrect OTP' });
+      }
+      otpStore.delete(cleanPhone); // Clear OTP
+    } else if (resetToken) {
+      // Verify reset token (in a real app, you'd decode and verify the JWT)
+      if (!resetToken) {
+         return res.status(401).json({ success: false, message: 'Invalid reset token' });
+      }
+    }
 
     const snapshot = await db.collection('users').where('phone', '==', phoneNumber).limit(1).get();
     if (snapshot.empty) {
