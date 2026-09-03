@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
@@ -48,8 +49,7 @@ const AppNavigator = () => {
 
     checkExpiry();
 
-    const { AppState } = require('react-native');
-    const subscription = AppState.addEventListener('change', (nextAppState: string) => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'active') {
         checkExpiry();
       }

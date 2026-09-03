@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import JailMonkey from 'jail-monkey';
 import * as Device from 'expo-device';
 import { ShieldAlert } from 'lucide-react-native';
 
@@ -32,7 +33,6 @@ export default function SecurityBoundary({ children }: Props) {
         }
 
         try {
-          const JailMonkey = require('jail-monkey').default || require('jail-monkey');
           const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
           if (isDevMode) {
             return { violation: 'DEV_MODE' };
