@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import JailMonkey from 'jail-monkey';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Device from 'expo-device';
 import { ShieldAlert } from 'lucide-react-native';
-
-const { width } = Dimensions.get('window');
 
 interface Props {
   children: React.ReactNode;
@@ -31,15 +28,6 @@ export default function SecurityBoundary({ children }: Props) {
         if (isJailBroken) {
           return { violation: 'ROOT' };
         }
-
-        try {
-          const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
-          if (isDevMode) {
-            return { violation: 'DEV_MODE' };
-          }
-        } catch (e) {
-          console.log('JailMonkey not available');
-        }
         
         return { violation: null };
       };
@@ -65,25 +53,12 @@ export default function SecurityBoundary({ children }: Props) {
         
         <Text style={styles.title}>Security Alert</Text>
         
-        {violationType === 'DEV_MODE' ? (
-          <>
-            <Text style={styles.description}>
-              Developer Options are currently enabled on your device.
-            </Text>
-            <Text style={styles.instruction}>
-              To protect your account and data, this application cannot run while Developer Options or USB Debugging is active. Please disable it in your device Settings to continue.
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text style={styles.description}>
-              Your device appears to be rooted or jailbroken.
-            </Text>
-            <Text style={styles.instruction}>
-              For your financial security, NS Mahaveer Jewellery does not support rooted or modified devices.
-            </Text>
-          </>
-        )}
+        <Text style={styles.description}>
+          Your device appears to be rooted or jailbroken.
+        </Text>
+        <Text style={styles.instruction}>
+          For your financial security, NS Mahaveer Jewellery does not support rooted or modified devices.
+        </Text>
 
         <TouchableOpacity 
           style={styles.retryButton} 
