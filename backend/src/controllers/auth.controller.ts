@@ -200,7 +200,10 @@ export const requestMpinReset = async (req: Request, res: Response) => {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ success: false, message: 'Phone number is required' });
 
-    const snapshot = await db.collection('users').where('phone', '==', phone).limit(1).get();
+    const cleanPhone = phone.replace('+91', '');
+    const phoneNumber = `+91${cleanPhone}`;
+
+    const snapshot = await db.collection('users').where('phone', '==', phoneNumber).limit(1).get();
     if (snapshot.empty) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -209,10 +212,10 @@ export const requestMpinReset = async (req: Request, res: Response) => {
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
-    otpStore.set(phone, { otp, expiresAt });
+    otpStore.set(cleanPhone, { otp, expiresAt });
 
     // Send SMS via SMS Service
-    await smsService.sendMpinResetOtp(phone, otp);
+    await smsService.sendMpinResetOtp(cleanPhone, otp);
 
     // Simulate sending OTP to email
     console.log(`\n\n--- OTP NOTIFICATION ---`);
@@ -231,13 +234,15 @@ export const verifyMpinResetOtp = async (req: Request, res: Response) => {
     const { phone, otp } = req.body;
     if (!phone || !otp) return res.status(400).json({ success: false, message: 'Phone and OTP required' });
 
-    const storedData = otpStore.get(phone);
+    const cleanPhone = phone.replace('+91', '');
+
+    const storedData = otpStore.get(cleanPhone);
     if (!storedData) {
       return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
     }
 
     if (new Date() > storedData.expiresAt) {
-      otpStore.delete(phone);
+      otpStore.delete(cleanPhone);
       return res.status(400).json({ success: false, message: 'OTP expired' });
     }
 
@@ -246,9 +251,9 @@ export const verifyMpinResetOtp = async (req: Request, res: Response) => {
     }
 
     // Generate a temporary reset token
-    const resetToken = generateToken({ userId: phone, role: 'reset' });
+    const resetToken = generateToken({ userId: cleanPhone, role: 'reset' });
 
-    otpStore.delete(phone); // Clear OTP
+    otpStore.delete(cleanPhone); // Clear OTP
 
     res.status(200).json({ success: true, message: 'OTP verified', data: { resetToken } });
   } catch (error: any) {
@@ -268,7 +273,10 @@ export const resetMpin = async (req: Request, res: Response) => {
        return res.status(401).json({ success: false, message: 'Invalid reset token' });
     }
 
-    const snapshot = await db.collection('users').where('phone', '==', phone).limit(1).get();
+    const cleanPhone = phone.replace('+91', '');
+    const phoneNumber = `+91${cleanPhone}`;
+
+    const snapshot = await db.collection('users').where('phone', '==', phoneNumber).limit(1).get();
     if (snapshot.empty) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
