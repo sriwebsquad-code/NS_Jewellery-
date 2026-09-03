@@ -23,6 +23,10 @@ const RatesManagement: React.FC = () => {
   const [history, setHistory] = useState<RateHistory[]>([]);
   const token = useAuthStore((state) => state.token);
 
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   useEffect(() => {
     fetchRates();
     fetchHistory();
@@ -56,8 +60,21 @@ const RatesManagement: React.FC = () => {
     }
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const initiateUpdate = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowPasswordModal(true);
+    setAdminPassword('');
+    setPasswordError('');
+  };
+
+  const executeUpdate = async () => {
+    const savedPassword = localStorage.getItem('adminPassword') || 'RN_NS_Mahaveerj@2026';
+    if (adminPassword !== savedPassword) {
+      setPasswordError('Incorrect password');
+      return;
+    }
+    setShowPasswordModal(false);
+
     setIsLoading(true);
     try {
       const isoEffectiveDate = effectiveDate ? new Date(effectiveDate).toISOString() : new Date().toISOString();
@@ -95,7 +112,7 @@ const RatesManagement: React.FC = () => {
         </div>
       </div>
 
-      <form onSubmit={handleUpdate} className="bg-white p-8 rounded-xl shadow-sm border border-primary/10 relative overflow-hidden">
+      <form onSubmit={initiateUpdate} className="bg-white p-8 rounded-xl shadow-sm border border-primary/10 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-primary/40" />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8 mt-4">
@@ -206,6 +223,40 @@ const RatesManagement: React.FC = () => {
           </table>
         </div>
       </div>
+      
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-6">
+            <h3 className="text-xl font-bold text-secondary mb-2">Confirm Rate Change</h3>
+            <p className="text-sm text-gray-600 mb-6">Please enter your admin password to save the new rates.</p>
+            <input
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              className={`w-full px-4 py-3 rounded-lg border ${passwordError ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-primary focus:border-primary transition-colors outline-none`}
+              placeholder="Admin Password"
+              autoFocus
+            />
+            {passwordError && <p className="text-red-500 text-sm mt-2">{passwordError}</p>}
+            <div className="flex space-x-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowPasswordModal(false)}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeUpdate}
+                className="flex-1 bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary-dark transition-colors shadow-md shadow-primary/20"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
