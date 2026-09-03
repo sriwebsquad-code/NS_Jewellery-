@@ -55,10 +55,11 @@ const JewelleryDetailScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <View style={[styles.header, { flexDirection: 'row', alignItems: 'center' }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <ArrowLeft color={colors.text} size={24} />
         </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{item.category?.name?.toUpperCase() || 'CATEGORY'}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
@@ -72,7 +73,6 @@ const JewelleryDetailScreen = () => {
 
         {/* Info Section */}
         <View style={styles.infoSection}>
-          <Text style={[styles.categorySubtitle, { color: colors.primary }]}>{item.category?.name?.toUpperCase() || 'CATEGORY'}</Text>
           <Text style={[styles.title, { color: colors.text }]}>{item.name}</Text>
           
           <View style={styles.detailsRow}>
@@ -121,6 +121,11 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingVertical: 15,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 15,
   },
   backBtn: {
     padding: 5,
