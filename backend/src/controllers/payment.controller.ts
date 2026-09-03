@@ -8,7 +8,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
     const { amount, itemType } = req.body;
-    
+
     if (!amount || amount <= 0) {
       return res.status(400).json({ success: false, message: 'Invalid amount' });
     }
@@ -19,7 +19,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
     const phone = userData?.phone || '9999999999';
 
     // Generate unique order ID
-    const orderId = `ORDER_${userId.substring(0,5)}_${Date.now()}`;
+    const orderId = `ORDER_${userId.substring(0, 5)}_${Date.now()}`;
 
     // Call Cashfree API
     const result = await cashfreeService.createOrder(orderId, amount, userId, phone);
@@ -36,10 +36,10 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         createdAt: new Date().toISOString()
       });
 
-      return res.status(200).json({ 
-        success: true, 
-        orderId, 
-        paymentSessionId: result.paymentSessionId 
+      return res.status(200).json({
+        success: true,
+        orderId,
+        paymentSessionId: result.paymentSessionId
       });
     }
 
@@ -115,8 +115,7 @@ export const renderCheckoutPage = (req: Request, res: Response) => {
       <script>
         const cashfree = Cashfree({ mode: "${isProd ? 'production' : 'sandbox'}" });
         cashfree.checkout({
-          paymentSessionId: "${sessionId}",
-          redirectTarget: "_self"
+          paymentSessionId: "${sessionId}"
         }).then(function(result) {
           if (result.error) {
             // Send message to React Native WebView
