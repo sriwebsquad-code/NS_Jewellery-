@@ -127,7 +127,7 @@ class CashfreeService {
           customer_phone: customerPhone
         },
         order_meta: {
-          return_url: `https://example.com/payment-status?order_id=${orderId}`
+          return_url: `https://ns-jewellery.onrender.com/api/payment/return?order_id=${orderId}`
         }
       };
 

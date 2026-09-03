@@ -115,7 +115,8 @@ export const renderCheckoutPage = (req: Request, res: Response) => {
       <script>
         const cashfree = Cashfree({ mode: "${isProd ? 'production' : 'sandbox'}" });
         cashfree.checkout({
-          paymentSessionId: "${sessionId}"
+          paymentSessionId: "${sessionId}",
+          redirectTarget: "_self"
         }).then(function(result) {
           if (result.error) {
             // Send message to React Native WebView
@@ -129,6 +130,36 @@ export const renderCheckoutPage = (req: Request, res: Response) => {
             }
           }
         });
+      </script>
+    </body>
+    </html>
+  `;
+  res.send(html);
+};
+
+export const handlePaymentReturn = async (req: Request, res: Response) => {
+  const { order_id } = req.query;
+  
+  // Return an HTML page that posts a message to the React Native WebView
+  // This avoids needing a new APK release to handle deep links.
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Payment Return</title>
+      <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #fcfcfc; }
+        h3 { color: #333; }
+      </style>
+    </head>
+    <body>
+      <h3>Verifying Payment...</h3>
+      <script>
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'PAYMENT_SUCCESS', details: { orderId: "${order_id}" } }));
+        }
       </script>
     </body>
     </html>
