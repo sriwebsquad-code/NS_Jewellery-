@@ -42,7 +42,7 @@ const CustomDrawer = (props: any) => {
 
       <View style={styles.developerContainer}>
         <Text style={styles.developerText}>
-          developed by : <Text style={styles.textBlack}>SRI</Text> <Text style={styles.textBlue}>WEB</Text> <Text style={styles.textBlack}>SQUAD</Text>
+          developed by : <Text style={styles.textBlack}>Sri Web Squad</Text>
         </Text>
       </View>
 
@@ -191,10 +191,7 @@ const styles = StyleSheet.create({
   textBlack: {
     color: '#000000',
     fontWeight: 'bold',
-  },
-  textBlue: {
-    color: '#2196F3',
-    fontWeight: 'bold',
+    fontSize: 10,
   }
 });
 
