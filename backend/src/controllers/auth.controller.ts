@@ -37,8 +37,9 @@ export const sendOTP = async (req: Request, res: Response) => {
     otpStore.set(cleanPhone, { otp, expiresAt });
     
     // Use SMS Service (handles DLT and generic fallback)
+    // Fire and forget to make the API response instantaneous
     console.log(`[AUTH DEBUG] Triggering SMS service to send OTP to ${cleanPhone}`);
-    await smsService.sendLoginOtp(phone, otp);
+    smsService.sendLoginOtp(phone, otp).catch(err => console.error('SMS Send Error:', err));
 
     res.status(200).json({ success: true, message: 'OTP sent successfully' });
   } catch (error: any) {

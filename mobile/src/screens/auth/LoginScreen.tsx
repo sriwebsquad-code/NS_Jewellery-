@@ -9,9 +9,9 @@ import {
   Platform, 
   Image, 
   StatusBar, 
-  Dimensions,
   ImageBackground,
-  ScrollView
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronDown, ArrowRight } from 'lucide-react-native';
@@ -23,11 +23,14 @@ const LoginScreen = () => {
   const [phone, setPhone] = useState('');
   const navigation = useNavigation<any>();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSendOTP = async () => {
     if (phone.length === 10) {
+      setIsLoading(true);
       try {
         const phoneNumber = `+91${phone}`;
-        const response = await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
+        await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone: phoneNumber })
@@ -37,6 +40,8 @@ const LoginScreen = () => {
       } catch (error: any) {
         // Fallback for UI testing if backend is offline
         navigation.navigate('OTP', { phone });
+      } finally {
+        setIsLoading(false);
       }
     } else {
       alert('Please enter a valid 10-digit phone number');
@@ -109,9 +114,9 @@ const LoginScreen = () => {
             </View>
 
             <TouchableOpacity 
-              style={[styles.button, phone.length !== 10 && styles.buttonDisabled]}
+              style={[styles.button, (phone.length !== 10 || isLoading) && styles.buttonDisabled]}
               onPress={handleSendOTP}
-              disabled={phone.length !== 10}
+              disabled={phone.length !== 10 || isLoading}
             >
               <LinearGradient
                 colors={['#D5A539', '#A87313']}
@@ -119,8 +124,12 @@ const LoginScreen = () => {
                 end={{x: 1, y: 0}}
                 style={styles.gradientButton}
               >
-                <Text style={styles.buttonText}>Continue</Text>
-                <ArrowRight color="#FFF" size={20} style={{ marginLeft: 8 }} />
+                <Text style={styles.buttonText}>{isLoading ? 'Sending OTP...' : 'Continue'}</Text>
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" size="small" style={{ marginLeft: 8 }} />
+                ) : (
+                  <ArrowRight color="#FFF" size={20} style={{ marginLeft: 8 }} />
+                )}
               </LinearGradient>
             </TouchableOpacity>
           </View>
