@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -216,32 +216,37 @@ const MyAccountScreen = () => {
                 <X color={colors.text} size={24} />
               </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Full Name</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.name} onChangeText={(t) => setEditForm({...editForm, name: t})} />
-              
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Email Address</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.email} onChangeText={(t) => setEditForm({...editForm, email: t})} keyboardType="email-address" />
-              
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Date of Birth (YYYY-MM-DD)</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.dob} onChangeText={(t) => setEditForm({...editForm, dob: t})} />
-              
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Gender</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.gender} onChangeText={(t) => setEditForm({...editForm, gender: t})} />
-              
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Address</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.address} onChangeText={(t) => setEditForm({...editForm, address: t})} multiline />
-              
-              <Text style={[styles.inputLabel, { color: colors.text }]}>State</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.state} onChangeText={(t) => setEditForm({...editForm, state: t})} />
-              
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Pincode</Text>
-              <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.pincode} onChangeText={(t) => setEditForm({...editForm, pincode: t})} keyboardType="number-pad" />
-              
-              <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={isSaving}>
-                {isSaving ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
-              </TouchableOpacity>
-            </ScrollView>
+            <KeyboardAvoidingView 
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+              style={{ flex: 1 }}
+            >
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Full Name *</Text>
+                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.name} onChangeText={(t) => setEditForm({...editForm, name: t})} />
+                
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Email Address (optional)</Text>
+                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.email} onChangeText={(t) => setEditForm({...editForm, email: t})} keyboardType="email-address" />
+                
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Date of Birth (YYYY-MM-DD) *</Text>
+                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.dob} onChangeText={(t) => setEditForm({...editForm, dob: t})} />
+                
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Gender *</Text>
+                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.gender} onChangeText={(t) => setEditForm({...editForm, gender: t})} />
+                
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Address *</Text>
+                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.address} onChangeText={(t) => setEditForm({...editForm, address: t})} multiline />
+                
+                <Text style={[styles.inputLabel, { color: colors.text }]}>State *</Text>
+                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.state} onChangeText={(t) => setEditForm({...editForm, state: t})} />
+                
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Pincode *</Text>
+                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.pincode} onChangeText={(t) => setEditForm({...editForm, pincode: t})} keyboardType="number-pad" />
+                
+                <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={isSaving}>
+                  {isSaving ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
+                </TouchableOpacity>
+              </ScrollView>
+            </KeyboardAvoidingView>
           </View>
         </View>
       </Modal>
