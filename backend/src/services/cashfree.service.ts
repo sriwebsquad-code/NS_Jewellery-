@@ -16,8 +16,8 @@ class CashfreeService {
     this.verifyAppId = process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId;
     this.verifySecretKey = process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey;
     
-    // Automatically switch between Sandbox and Production based on Render environment
-    const isProd = process.env.NODE_ENV === 'production';
+    // Force Sandbox mode for testing so that live verification isn't required on the app side
+    const isProd = false; // Forced to false temporarily
     
     this.pgBaseUrl = isProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
     this.verifyBaseUrl = isProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';

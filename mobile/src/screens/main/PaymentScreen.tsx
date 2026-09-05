@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, Linking } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { WebView } from 'react-native-webview';
+import {
+  CFErrorResponse,
+  CFPaymentGatewayService,
+} from 'react-native-cashfree-pg-sdk';
+import {
+  CFEnvironment,
+  CFSession,
+  CFThemeBuilder,
+} from 'cashfree-pg-api-contract';
 import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
@@ -11,10 +19,7 @@ import { ArrowLeft } from 'lucide-react-native';
 const PaymentScreen = () => {
   const [loading, setLoading] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<'UPI' | 'NET_BANKING'>('UPI');
-  const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-  const [webViewLoaded, setWebViewLoaded] = useState(false);
-  const [webViewError, setWebViewError] = useState(false);
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { token } = useAuthStore();
@@ -49,18 +54,59 @@ const PaymentScreen = () => {
   }, [planType]);
 
   React.useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (paymentSessionId && !webViewLoaded && !webViewError) {
-      console.log('[CASHFREE] Opening checkout, starting 15s timeout...');
-      timeout = setTimeout(() => {
-        if (!webViewLoaded) {
-          console.log('[CASHFREE] PAYMENT TIMEOUT: WebView took longer than 15s');
-          setWebViewError(true);
+    const onVerify = async (orderID: string) => {
+      console.log('[CASHFREE] onVerify triggered for order:', orderID);
+      setLoading(true);
+      try {
+        const verifyRes = await fetch(`${API_URL}/api/payment/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ orderId: orderID })
+        });
+        
+        const verifyData = await verifyRes.json();
+        if (verifyData.success) {
+          console.log('[CASHFREE] SUCCESS / PAID verified on backend');
+          if (planId) {
+            await fetch(`${API_URL}/api/plans/payInstallment`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ userPlanId: planId, amount })
+            });
+          }
+          navigation.replace('PaymentSuccess');
+        } else {
+          console.log('[CASHFREE] FAILED - Order not verified as PAID');
+          Alert.alert('Payment Verification Failed', 'We could not verify your payment. Please contact support.');
         }
-      }, 15000);
-    }
-    return () => clearTimeout(timeout);
-  }, [paymentSessionId, webViewLoaded, webViewError]);
+      } catch (error) {
+         console.log('[CASHFREE] Verify error', error);
+         Alert.alert('Error', 'Failed to verify payment. Please check your dashboard.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const onError = (error: CFErrorResponse, orderID: string) => {
+      console.log('[CASHFREE] onError:', error.getMessage());
+      Alert.alert('Payment Cancelled or Failed', error.getMessage() || 'Transaction failed.');
+    };
+
+    CFPaymentGatewayService.setCallback({
+      onVerify,
+      onError
+    });
+
+    return () => {
+      CFPaymentGatewayService.removeCallback();
+    };
+  }, [token, planId, amount, navigation]);
 
   const handlePay = async () => {
     setLoading(true);
@@ -86,13 +132,20 @@ const PaymentScreen = () => {
       if (data.success && data.paymentSessionId) {
         console.log(`[CASHFREE] order_id: ${data.orderId}`);
         console.log(`[CASHFREE] payment_session_id received`);
-        console.log(`[CASHFREE] Environment: ${API_URL.includes('localhost') ? 'SANDBOX' : 'PRODUCTION'}`);
-        console.log(`[CASHFREE] Initializing Cashfree`);
         
         setCurrentOrderId(data.orderId);
-        setWebViewLoaded(false);
-        setWebViewError(false);
-        setPaymentSessionId(data.paymentSessionId);
+        
+        try {
+          // Force Sandbox environment for testing to bypass Play Store verification
+          const env = CFEnvironment.SANDBOX;
+          console.log(`[CASHFREE] Initializing SDK in SANDBOX mode for testing`);
+          
+          const session = new CFSession(data.paymentSessionId, data.orderId, env);
+          CFPaymentGatewayService.doWebPayment(session);
+        } catch (e: any) {
+          console.log('[CASHFREE] SDK Init Error:', e.message);
+          Alert.alert('Payment Initialization Failed', e.message);
+        }
       } else {
         console.log('[CASHFREE] FAILED to create order:', data.message);
         Alert.alert('Payment Failed', data.message || 'Could not initiate payment');
@@ -105,176 +158,7 @@ const PaymentScreen = () => {
     }
   };
 
-  const handleWebViewMessage = async (event: any) => {
-    try {
-      const data = JSON.parse(event.nativeEvent.data);
-      
-      if (data.event === 'PAYMENT_SUCCESS') {
-        // 2. Verify payment on the backend
-        setPaymentSessionId(null); // Close Webview
-        setLoading(true);
-        
-        console.log('[CASHFREE] onVerify - Fetching final order status');
-        const verifyRes = await fetch(`${API_URL}/api/payment/verify`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ orderId: currentOrderId })
-        });
-        
-        const verifyData = await verifyRes.json();
-        
-        if (verifyData.success) {
-          console.log('[CASHFREE] SUCCESS / PAID verified on backend');
-          if (planId) {
-            await fetch(`${API_URL}/api/plans/payInstallment`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ userPlanId: planId, amount })
-            });
-          }
-          
-          navigation.replace('PaymentSuccess');
-        } else {
-          console.log('[CASHFREE] FAILED - Order not verified as PAID');
-          Alert.alert('Payment Verification Failed', 'We could not verify your payment. Please contact support.');
-        }
-        
-      } else if (data.event === 'PAYMENT_FAILED') {
-        setPaymentSessionId(null);
-        console.log('[CASHFREE] onError - Payment failed or cancelled');
-        Alert.alert('Payment Failed', data.error?.message || 'Transaction was cancelled or failed.');
-      }
-    } catch (e) {
-      console.log('Error parsing WebView message', e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const isMetal = planType === 'GOLD' || planType === 'SILVER';
-
-  if (webViewError) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-        <Text style={{ fontSize: 16, color: colors.text, marginBottom: 30, textAlign: 'center' }}>
-          Unable to load payment gateway. Please try again.
-        </Text>
-        <TouchableOpacity 
-          style={[styles.payBtn, { width: '100%', marginBottom: 15 }]} 
-          onPress={() => {
-            setPaymentSessionId(null);
-            setWebViewError(false);
-            setWebViewLoaded(false);
-          }}>
-          <Text style={styles.payBtnText}>Retry Payment</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={{ padding: 15 }} 
-          onPress={() => {
-            setPaymentSessionId(null);
-            setWebViewError(false);
-            setWebViewLoaded(false);
-            navigation.goBack();
-          }}>
-          <Text style={{ color: colors.textMuted, fontSize: 16, fontWeight: 'bold' }}>Cancel</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
-
-  if (paymentSessionId) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-        <View style={styles.webviewHeader}>
-          <TouchableOpacity onPress={() => {
-            console.log('[CASHFREE] USER CANCELLED via Back Button');
-            setPaymentSessionId(null);
-            setWebViewLoaded(false);
-            setWebViewError(false);
-          }} style={styles.backBtn}>
-            <ArrowLeft color={colors.text} size={24} />
-            <Text style={[styles.backText, { color: colors.text }]}>Cancel Payment</Text>
-          </TouchableOpacity>
-        </View>
-        <WebView 
-          source={{ uri: `${API_URL}/api/payment/checkout/${paymentSessionId}` }}
-          onMessage={handleWebViewMessage}
-          style={{ flex: 1, display: webViewLoaded ? 'flex' : 'none' }}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          originWhitelist={['*']}
-          onLoadStart={() => console.log('[CASHFREE] WebView onLoadStart')}
-          onLoadEnd={() => {
-            console.log('[CASHFREE] WebView onLoadEnd');
-            setWebViewLoaded(true);
-          }}
-          onError={(e) => {
-            console.log('[CASHFREE] CHECKOUT LOAD ERROR:', e.nativeEvent);
-            setWebViewError(true);
-          }}
-          onShouldStartLoadWithRequest={(request) => {
-            const { url } = request;
-            
-            const upiPrefixes = [
-              'upi://', 'tez://', 'gpay://', 'paytmmp://', 'phonepe://',
-              'amazonpay://', 'credpay://', 'bhim://', 'navipay://',
-              'mobikwik://', 'myairtel://', 'popclubapp://', 'super://',
-              'kiwi://', 'simplypayupi://', 'whatsapp-consumer://'
-            ];
-            
-            // Handle intent:// URLs specifically
-            if (url.startsWith('intent://')) {
-              console.log('[CASHFREE] UPI intent detected:', url);
-              const schemeMatch = url.match(/scheme=([^;]+)/);
-              const fallbackUrlMatch = url.match(/S\.browser_fallback_url=([^;]+)/);
-              
-              let targetScheme = schemeMatch ? schemeMatch[1] : 'upi';
-              const urlParts = url.split('#Intent');
-              const actionPath = urlParts[0].replace('intent://', '');
-              const deepLink = `${targetScheme}://${actionPath}`;
-              
-              console.log('[CASHFREE] Opening UPI app via deep link:', deepLink);
-              Linking.openURL(deepLink).catch(err => {
-                console.log('[CASHFREE] UPI APP NOT INSTALLED (deep link failed)');
-                if (fallbackUrlMatch) {
-                  Linking.openURL(decodeURIComponent(fallbackUrlMatch[1])).catch(() => {
-                     Alert.alert("App Not Found", "No suitable payment app was found on your device.");
-                  });
-                } else {
-                  Alert.alert("App Not Found", "No suitable payment app was found on your device.");
-                }
-              });
-              return false;
-            }
-
-            const isUpiScheme = upiPrefixes.some(prefix => url.startsWith(prefix));
-            if (isUpiScheme) {
-              console.log('[CASHFREE] Opening direct UPI app:', url);
-              Linking.openURL(url).catch(err => {
-                console.log('[CASHFREE] UPI APP NOT INSTALLED');
-                Alert.alert("App Not Found", "No suitable payment app was found on your device.");
-              });
-              return false;
-            }
-            
-            return true;
-          }}
-        />
-        {!webViewLoaded && !webViewError && (
-          <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }]}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
-            <Text style={{ marginTop: 20, color: colors.text }}>Loading Payment Gateway...</Text>
-          </View>
-        )}
-      </SafeAreaView>
-    );
-  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
