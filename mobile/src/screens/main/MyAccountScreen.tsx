@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -26,6 +27,21 @@ const MyAccountScreen = () => {
     state: user?.state || '',
     pincode: user?.pincode || '',
   });
+  
+  const [showDatePicker, setShowDatePicker] = React.useState(false);
+  const [date, setDate] = React.useState(user?.dob ? new Date(user.dob) : new Date());
+
+  const onChangeDate = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+      // Format as YYYY-MM-DD
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      setEditForm({...editForm, dob: `${year}-${month}-${day}`});
+    }
+  };
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
@@ -222,25 +238,62 @@ const MyAccountScreen = () => {
             >
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Full Name *</Text>
-                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.name} onChangeText={(t) => setEditForm({...editForm, name: t})} />
+                <View style={[styles.inputContainer, { borderColor: colors.border }]}>
+                  <User color={COLORS.primary} size={20} style={styles.inputIcon} />
+                  <TextInput style={[styles.inputField, { color: colors.text }]} value={editForm.name} onChangeText={(t) => setEditForm({...editForm, name: t})} />
+                </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Email Address (optional)</Text>
-                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.email} onChangeText={(t) => setEditForm({...editForm, email: t})} keyboardType="email-address" />
+                <View style={[styles.inputContainer, { borderColor: colors.border }]}>
+                  <Mail color={COLORS.primary} size={20} style={styles.inputIcon} />
+                  <TextInput style={[styles.inputField, { color: colors.text }]} value={editForm.email} onChangeText={(t) => setEditForm({...editForm, email: t})} keyboardType="email-address" />
+                </View>
                 
-                <Text style={[styles.inputLabel, { color: colors.text }]}>Date of Birth (YYYY-MM-DD) *</Text>
-                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.dob} onChangeText={(t) => setEditForm({...editForm, dob: t})} />
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Date of Birth *</Text>
+                <TouchableOpacity style={[styles.inputContainer, { borderColor: colors.border }]} onPress={() => setShowDatePicker(true)}>
+                  <Calendar color={COLORS.primary} size={20} style={styles.inputIcon} />
+                  <Text style={[styles.inputField, { color: editForm.dob ? colors.text : colors.textMuted, paddingTop: Platform.OS === 'ios' ? 0 : 2, textAlignVertical: 'center' }]}>
+                    {editForm.dob || 'YYYY-MM-DD'}
+                  </Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={onChangeDate}
+                    maximumDate={new Date()}
+                  />
+                )}
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Gender *</Text>
-                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.gender} onChangeText={(t) => setEditForm({...editForm, gender: t})} />
+                <View style={styles.genderContainer}>
+                  {['Male', 'Female', 'Other'].map(g => (
+                    <TouchableOpacity 
+                      key={g} 
+                      style={[styles.genderBtn, { borderColor: colors.border }, editForm.gender === g && styles.genderBtnSelected]}
+                      onPress={() => setEditForm({...editForm, gender: g})}
+                    >
+                      <Text style={[styles.genderText, { color: colors.text }, editForm.gender === g && styles.genderTextSelected]}>{g}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Address *</Text>
-                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.address} onChangeText={(t) => setEditForm({...editForm, address: t})} multiline />
+                <View style={[styles.inputContainer, { borderColor: colors.border, alignItems: 'flex-start' }]}>
+                  <MapPin color={COLORS.primary} size={20} style={[styles.inputIcon, { marginTop: 12 }]} />
+                  <TextInput style={[styles.inputField, { color: colors.text, minHeight: 60, textAlignVertical: 'top', paddingTop: 10 }]} value={editForm.address} onChangeText={(t) => setEditForm({...editForm, address: t})} multiline />
+                </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>State *</Text>
-                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.state} onChangeText={(t) => setEditForm({...editForm, state: t})} />
+                <View style={[styles.inputContainer, { borderColor: colors.border }]}>
+                  <TextInput style={[styles.inputField, { color: colors.text, paddingLeft: 12 }]} value={editForm.state} onChangeText={(t) => setEditForm({...editForm, state: t})} />
+                </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Pincode *</Text>
-                <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} value={editForm.pincode} onChangeText={(t) => setEditForm({...editForm, pincode: t})} keyboardType="number-pad" />
+                <View style={[styles.inputContainer, { borderColor: colors.border }]}>
+                  <TextInput style={[styles.inputField, { color: colors.text, paddingLeft: 12 }]} value={editForm.pincode} onChangeText={(t) => setEditForm({...editForm, pincode: t})} keyboardType="number-pad" />
+                </View>
                 
                 <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={isSaving}>
                   {isSaving ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
@@ -399,11 +452,45 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     marginBottom: 8,
     marginTop: 10,
   },
-  input: {
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    backgroundColor: 'transparent',
+  },
+  inputIcon: {
+    marginLeft: 15,
+    marginRight: 10,
+  },
+  inputField: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingRight: 12,
+    fontSize: 15,
+  },
+  genderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  genderBtn: {
+    flex: 1,
+    borderWidth: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  genderBtnSelected: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  genderText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  genderTextSelected: {
+    color: COLORS.white,
   },
   saveBtn: {
     backgroundColor: COLORS.primary,
