@@ -134,6 +134,11 @@ export const payInstallment = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'Invalid plan' });
     }
 
+    const userPlanData = userPlanDoc.data()!;
+    if (parseFloat(amount) !== userPlanData.monthlyAmount) {
+      return res.status(400).json({ success: false, message: `Installment amount must be exactly ₹${userPlanData.monthlyAmount}` });
+    }
+
     const docRef = db.collection('installments').doc();
     const installment = {
       id: docRef.id,

@@ -36,6 +36,7 @@ const MyPlansScreen = () => {
   // Show dropdown toggles
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showPlanDropdown, setShowPlanDropdown] = useState(false);
+  const [showAmountDropdown, setShowAmountDropdown] = useState(false);
 
   useEffect(() => {
     if (route.params?.defaultCategory) {
@@ -260,17 +261,35 @@ const MyPlansScreen = () => {
 
           {/* Monthly Installment Amount */}
           <Text style={[styles.label, { color: colors.text }]}>Monthly Installment Amount (₹)</Text>
-          <View style={[styles.dropdownField, styles.inputFieldContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginBottom: 5 }]}>
-            <Text style={[styles.rupeeIcon, { color: colors.text }]}>₹</Text>
-            <TextInput
-              style={[styles.textInput, { color: colors.text }]}
-              placeholder="e.g. 5000"
-              placeholderTextColor={colors.textMuted}
-              keyboardType="numeric"
-              value={installmentAmount}
-              onChangeText={setInstallmentAmount}
-            />
-          </View>
+          <TouchableOpacity 
+            style={[styles.dropdownField, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+            activeOpacity={0.8}
+            onPress={() => setShowAmountDropdown(!showAmountDropdown)}
+          >
+            <Text style={[styles.dropdownText, { color: installmentAmount ? colors.text : colors.textMuted }]}>
+              {installmentAmount ? `₹ ${installmentAmount}` : 'Select Amount'}
+            </Text>
+            <ChevronDown color={colors.icon} size={24} />
+          </TouchableOpacity>
+          
+          {showAmountDropdown && (
+            <View style={[styles.dropdownList, { backgroundColor: colors.cardBackground, borderColor: colors.border, maxHeight: 200 }]}>
+              <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={true}>
+                {[500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 7000, 8000, 9000, 10000, 15000, 20000, 25000, 50000].map((amt, idx) => (
+                  <TouchableOpacity 
+                    key={idx} 
+                    style={styles.dropdownItem}
+                    onPress={() => {
+                      setInstallmentAmount(amt.toString());
+                      setShowAmountDropdown(false);
+                    }}
+                  >
+                    <Text style={[styles.dropdownItemText, { color: colors.text }]}>₹ {amt}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
           
           {/* Estimated Weight Calculator */}
           {selectedPlan && (selectedPlan.type === 'GOLD' || selectedPlan.type === 'SILVER') && (
