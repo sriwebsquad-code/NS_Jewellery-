@@ -140,16 +140,6 @@ const LoginScreen = () => {
                 <Text style={styles.badgeTitle}>BIS</Text>
                 <Text style={styles.badgeSub}>Hallmark</Text>
               </View>
-              <View style={styles.badgeDivider} />
-              <View style={styles.badgeContainer}>
-                <Text style={styles.badgeTitle}>IGI</Text>
-                <Text style={styles.badgeSub}>Certified</Text>
-              </View>
-              <View style={styles.badgeDivider} />
-              <View style={styles.badgeContainer}>
-                <Text style={styles.badgeTitle}>GIA</Text>
-                <Text style={styles.badgeSub}>Certified</Text>
-              </View>
             </View>
           </View>
 

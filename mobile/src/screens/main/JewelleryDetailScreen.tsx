@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Alert, ActivityIndicator } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import Share from 'react-native-share';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -36,15 +38,42 @@ const JewelleryDetailScreen = () => {
       }
       
       const customerName = user?.name || 'A Customer';
-      const imageUrl = item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : 'No image available';
+      const imageUrl = item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : null;
       
-      const message = `Hello, this is ${customerName}.\n\nI would like to inquire about the following item:\n\nItem: ${item.name}\nCategory: ${item.category?.name || 'N/A'}\nPurity: ${item.purity}\nWeight: ${item.weight}g\n\nImage: ${imageUrl}`;
-      const url = `whatsapp://send?phone=91${num}&text=${encodeURIComponent(message)}`;
+      const message = `Hello, this is ${customerName}.\n\nI would like to inquire about the following item:\n\nItem: ${item.name}\nCategory: ${item.category?.name || 'N/A'}\nPurity: ${item.purity}\nWeight: ${item.weight}g\n`;
       
-      try {
-        await Linking.openURL(url);
-      } catch (err) {
-        Alert.alert('Error', 'WhatsApp is not installed on your device');
+      if (imageUrl) {
+        try {
+          // Download the image and convert it to base64
+          const fileUri = FileSystem.documentDirectory + 'item_image.jpg';
+          const { uri } = await FileSystem.downloadAsync(imageUrl, fileUri);
+          const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+          const base64Data = `data:image/jpeg;base64,${base64}`;
+
+          await Share.shareSingle({
+            social: Share.Social.WHATSAPP,
+            message: message,
+            url: base64Data,
+            whatsAppNumber: `91${num}`,
+            filename: 'item_image'
+          });
+        } catch (shareErr) {
+          console.log('Share error', shareErr);
+          // Fallback if sharing fails
+          const fallbackUrl = `whatsapp://send?phone=91${num}&text=${encodeURIComponent(message + `\nImage: ${imageUrl}`)}`;
+          try {
+            await Linking.openURL(fallbackUrl);
+          } catch (err) {
+            Alert.alert('Error', 'WhatsApp is not installed on your device');
+          }
+        }
+      } else {
+        const url = `whatsapp://send?phone=91${num}&text=${encodeURIComponent(message)}`;
+        try {
+          await Linking.openURL(url);
+        } catch (err) {
+          Alert.alert('Error', 'WhatsApp is not installed on your device');
+        }
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to connect to server. Please try again.');
