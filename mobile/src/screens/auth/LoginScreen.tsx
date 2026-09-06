@@ -9,6 +9,7 @@ import {
   Platform, 
   Image, 
   StatusBar, 
+  Dimensions,
   ImageBackground,
   ScrollView,
   ActivityIndicator
