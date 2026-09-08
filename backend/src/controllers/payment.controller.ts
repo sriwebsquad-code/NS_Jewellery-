@@ -39,7 +39,8 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
       return res.status(200).json({
         success: true,
         orderId,
-        paymentSessionId: result.paymentSessionId
+        paymentSessionId: result.paymentSessionId,
+        environment: result.environment
       });
     }
 

@@ -138,9 +138,10 @@ const PaymentScreen = () => {
         setCurrentOrderId(data.orderId);
         
         try {
-          // Backend is currently forced to SANDBOX, so we must use SANDBOX here to avoid authentication mismatch
-          const env = CFEnvironment.SANDBOX;
-          console.log(`[CASHFREE] Initializing SDK in SANDBOX mode (matching backend)`);
+          // Use the exact environment the backend used to generate this order
+          const isProd = data.environment === 'PRODUCTION';
+          const env = isProd ? CFEnvironment.PRODUCTION : CFEnvironment.SANDBOX;
+          console.log(`[CASHFREE] Initializing SDK in ${env === CFEnvironment.PRODUCTION ? 'PRODUCTION' : 'SANDBOX'} mode (matching backend)`);
           
           const session = new CFSession(data.paymentSessionId, data.orderId, env);
           CFPaymentGatewayService.doWebPayment(session);

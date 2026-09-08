@@ -16,11 +16,16 @@ class CashfreeService {
     this.verifyAppId = process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId;
     this.verifySecretKey = process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey;
     
-    // Force Sandbox mode for testing so that live verification isn't required on the app side
-    const isProd = false; // Forced to false temporarily
+    // Automatically detect Sandbox vs Production based on App ID or Environment variables
+    const isProd = process.env.CASHFREE_ENV === 'production' || 
+                   (!process.env.CASHFREE_ENV && this.pgAppId && !this.pgAppId.startsWith('TEST'));
     
     this.pgBaseUrl = isProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
     this.verifyBaseUrl = isProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
+  }
+
+  public getEnvironment() {
+    return this.pgBaseUrl.includes('sandbox') ? 'SANDBOX' : 'PRODUCTION';
   }
 
   private get pgHeaders() {
@@ -140,7 +145,12 @@ class CashfreeService {
       const data = await response.json();
       
       if (response.ok && data.payment_session_id) {
-        return { success: true, paymentSessionId: data.payment_session_id, orderId: data.order_id };
+        return { 
+          success: true, 
+          paymentSessionId: data.payment_session_id, 
+          orderId: data.order_id,
+          environment: this.getEnvironment()
+        };
       }
       
       console.error('Cashfree Create Order Error:', data);
