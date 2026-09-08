@@ -130,9 +130,6 @@ class CashfreeService {
         customer_details: {
           customer_id: customerId,
           customer_phone: customerPhone
-        },
-        order_meta: {
-          return_url: `https://ns-jewellery.onrender.com/api/payment/return?order_id=${orderId}`
         }
       };
 
