@@ -95,7 +95,14 @@ export const getLockerDashboard = async (req: Request, res: Response) => {
     const rateSnapshot = await db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
     const currentRates = rateSnapshot.empty ? { goldRate: 0, silverRate: 0, updatedAt: new Date() } : rateSnapshot.docs[0]!.data();
 
-    res.status(200).json({ success: true, data: { locker, currentRates, installments: [] } });
+    const txnsSnapshot = await db.collection('digitalTransactions')
+      .where('userId', '==', userId)
+      .orderBy('createdAt', 'desc')
+      .get();
+      
+    const transactions = txnsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    res.status(200).json({ success: true, data: { locker, currentRates, installments: [], transactions } });
   } catch (error: any) {
     res.status(500).json({ success: false, message: 'Failed to fetch locker dashboard', error: error.message });
   }
