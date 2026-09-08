@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowRight, User, Mail, MapPin, Calendar, Users, Map } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import { ENV } from '../../config/env';
 
 const { width } = Dimensions.get('window');
 
@@ -47,7 +48,7 @@ const RegistrationScreen = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('https://ns-jewellery.onrender.com/api/user/profile', {
+      const response = await fetch(`${ENV.API_URL}/user/profile`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',

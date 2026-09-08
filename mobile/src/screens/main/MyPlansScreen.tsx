@@ -6,6 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { Menu, ChevronDown, Calendar, Check } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { ENV } from '../../config/env';
 
 const formatPlanName = (name: string) => {
   if (!name) return name;
@@ -51,7 +52,7 @@ const MyPlansScreen = () => {
 
   const fetchRates = async () => {
     try {
-      const response = await fetch('https://ns-jewellery.onrender.com/api/rates');
+      const response = await fetch(`${ENV.API_URL}/rates`);
       const data = await response.json();
       if (data.success && data.data) {
         setLiveRates({
@@ -66,7 +67,7 @@ const MyPlansScreen = () => {
 
   const fetchPlans = async () => {
     try {
-      const API_URL = 'https://ns-jewellery.onrender.com';
+      const API_URL = ENV.BASE_URL;
       const response = await fetch(`${API_URL}/api/plans`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

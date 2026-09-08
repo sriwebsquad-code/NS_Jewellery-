@@ -17,7 +17,8 @@
       "bundleIdentifier": "com.nsjewellery.app",
       "buildNumber": "1",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "LSApplicationQueriesSchemes": ["phonepe", "tez", "paytm", "bhim"]
       }
     },
     "android": {
@@ -52,7 +53,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "34f20e9b-aa16-4359-8ed2-c41c44b4fdd1"
+        "projectId": "22b85272-4fad-4988-a123-641a4ab22cb0"
       }
     }
   }

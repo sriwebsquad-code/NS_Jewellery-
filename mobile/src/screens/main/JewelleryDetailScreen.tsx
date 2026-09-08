@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Alert, ActivityIndicator } from 'react-native';
-import * as FileSystem from 'expo-file-system';
-import Share from 'react-native-share';
+import * as FileSystem from 'expo-file-system/legacy';
+import Share, { Social } from 'react-native-share';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -10,6 +10,7 @@ import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
 import { useFavoritesStore } from '../../store/favoritesStore';
 import { useAuthStore } from '../../store/authStore';
+import { ENV } from '../../config/env';
 
 const JewelleryDetailScreen = () => {
   const navigation = useNavigation();
@@ -28,7 +29,7 @@ const JewelleryDetailScreen = () => {
   const handleProceedToBuy = async () => {
     setLoadingWhatsapp(true);
     try {
-      const res = await fetch('https://ns-jewellery.onrender.com/api/settings');
+      const res = await fetch(`${ENV.API_URL}/settings`);
       const data = await res.json();
       const num = data?.data?.whatsappNumber;
       
@@ -38,14 +39,15 @@ const JewelleryDetailScreen = () => {
       }
       
       const customerName = user?.name || 'A Customer';
-      const imageUrl = item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : null;
+      const imageUrl = item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `${ENV.BASE_URL}${item.images[0]}`) : null;
       
       const message = `Hello, this is ${customerName}.\n\nI would like to inquire about the following item:\n\nItem: ${item.name}\nCategory: ${item.category?.name || 'N/A'}\nPurity: ${item.purity}\nWeight: ${item.weight}g\n`;
       
       if (imageUrl) {
         try {
           // Download the image and convert it to base64
-          const fileUri = FileSystem.documentDirectory + 'item_image.jpg';
+          const documentDirectory = FileSystem.documentDirectory || '';
+          const fileUri = documentDirectory + 'item_image.jpg';
           const { uri } = await FileSystem.downloadAsync(imageUrl, fileUri);
           const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
           const base64Data = `data:image/jpeg;base64,${base64}`;
@@ -56,7 +58,7 @@ const JewelleryDetailScreen = () => {
             url: base64Data,
             whatsAppNumber: `91${num}`,
             filename: 'item_image'
-          });
+          } as any);
         } catch (shareErr) {
           console.log('Share error', shareErr);
           // Fallback if sharing fails
@@ -95,7 +97,7 @@ const JewelleryDetailScreen = () => {
         {/* Full width Image */}
         <View style={[styles.imageContainer, { backgroundColor: colors.cardBackground }]}>
           <Image 
-            source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : 'https://via.placeholder.com/400' }} 
+            source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `${ENV.BASE_URL}${item.images[0]}`) : 'https://via.placeholder.com/400' }} 
             style={styles.mainImage} 
           />
         </View>

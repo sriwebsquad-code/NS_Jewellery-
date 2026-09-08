@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, Save, TrendingUp, Users, Database, FileText, Bell } from 'lucide-react-native';
 import { COLORS } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
+import { ENV } from '../../config/env';
 
 const AdminDashboard = () => {
   const navigation = useNavigation<any>();
@@ -14,7 +15,7 @@ const AdminDashboard = () => {
 
   const fetchRates = async () => {
     try {
-      const res = await fetch('https://ns-jewellery.onrender.com/api/rates');
+      const res = await fetch(`${ENV.API_URL}/rates`);
       const data = await res.json();
       if (data.success && data.data) {
         setRates({
@@ -35,7 +36,7 @@ const AdminDashboard = () => {
     if (!rates.gold22 || !rates.silver) return;
     setLoading(true);
     try {
-      const res = await fetch('https://ns-jewellery.onrender.com/api/rates', {
+      const res = await fetch(`${ENV.API_URL}/rates`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

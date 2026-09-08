@@ -17,6 +17,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { ChevronDown, ArrowRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ENV } from '../../config/env';
 
 const { width, height } = Dimensions.get('window');
 
@@ -31,7 +32,7 @@ const LoginScreen = () => {
       setIsLoading(true);
       try {
         const phoneNumber = `+91${phone}`;
-        await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
+        await fetch(`${ENV.API_URL}/auth/send-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone: phoneNumber })

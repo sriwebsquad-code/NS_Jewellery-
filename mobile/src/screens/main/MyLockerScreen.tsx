@@ -6,6 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { Menu, ArrowRight, TrendingUp, ChevronDown, CheckCircle2, Circle } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { ENV } from '../../config/env';
 
 const MyLockerScreen = () => {
   const navigation = useNavigation<any>();
@@ -29,10 +30,10 @@ const MyLockerScreen = () => {
     setLoading(true);
     try {
       const [lockerRes, plansRes] = await Promise.all([
-        fetch('https://ns-jewellery.onrender.com/api/digital/locker-dashboard', {
+        fetch(`${ENV.API_URL}/digital/locker-dashboard`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('https://ns-jewellery.onrender.com/api/plans/my-plans', {
+        fetch(`${ENV.API_URL}/plans/my-plans`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);

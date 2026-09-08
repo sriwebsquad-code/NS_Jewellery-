@@ -6,6 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { COLORS, SIZES } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
 import { Ionicons } from '@expo/vector-icons';
+import { ENV } from '../../config/env';
 // import { api } from '../../services/api'; // Assuming you have an API service configured
 
 const AadharVerificationScreen = () => {
@@ -30,7 +31,7 @@ const AadharVerificationScreen = () => {
     setLoading(true);
     try {
       const token = useAuthStore.getState().token;
-      const res = await fetch('https://ns-jewellery.onrender.com/api/kyc/aadhar/send-otp', {
+      const res = await fetch(`${ENV.API_URL}/kyc/aadhar/send-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +63,7 @@ const AadharVerificationScreen = () => {
     setLoading(true);
     try {
       const token = useAuthStore.getState().token;
-      const res = await fetch('https://ns-jewellery.onrender.com/api/kyc/aadhar/verify', {
+      const res = await fetch(`${ENV.API_URL}/kyc/aadhar/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

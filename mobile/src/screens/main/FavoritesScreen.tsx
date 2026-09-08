@@ -7,6 +7,7 @@ import { ArrowLeft, Heart, HeartOff } from 'lucide-react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
 import { useFavoritesStore, FavoriteItem } from '../../store/favoritesStore';
+import { ENV } from '../../config/env';
 
 const FavoritesScreen = () => {
   const navigation = useNavigation() as any;
@@ -24,7 +25,7 @@ const FavoritesScreen = () => {
         onPress={() => navigation.navigate('JewelleryDetail', { item })}
       >
         <Image 
-          source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : 'https://via.placeholder.com/200' }} 
+          source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `${ENV.BASE_URL}${item.images[0]}`) : 'https://via.placeholder.com/200' }} 
           style={styles.jewelleryImage} 
         />
         <TouchableOpacity style={styles.wishlistBtn} onPress={() => toggleFavorite(item)}>

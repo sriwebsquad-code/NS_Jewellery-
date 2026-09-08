@@ -6,6 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { ArrowLeft, Clock, TrendingUp, TrendingDown } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { ENV } from '../../config/env';
 
 const TransactionsScreen = () => {
   const navigation = useNavigation<any>();
@@ -28,7 +29,7 @@ const TransactionsScreen = () => {
       let endpoint = '';
       if (type === 'DIGITAL_GOLD' || type === 'DIGITAL_SILVER') {
         const metal = type === 'DIGITAL_GOLD' ? 'GOLD' : 'SILVER';
-        endpoint = `https://ns-jewellery.onrender.com/api/digital/transactions`; // Note: Ideally we filter in backend or use the new getUserMetalTransactions if authenticated, but here we can just fetch all and filter
+        endpoint = `${ENV.BASE_URL}/api/digital/transactions`; // Note: Ideally we filter in backend or use the new getUserMetalTransactions if authenticated, but here we can just fetch all and filter
         const response = await fetch(endpoint, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -38,7 +39,7 @@ const TransactionsScreen = () => {
           setTransactions(filtered);
         }
       } else if (type === 'PLAN' && planId) {
-        endpoint = `https://ns-jewellery.onrender.com/api/plans/my-plan/${planId}/transactions`;
+        endpoint = `${ENV.BASE_URL}/api/plans/my-plan/${planId}/transactions`;
         const response = await fetch(endpoint, {
           headers: { 'Authorization': `Bearer ${token}` }
         });

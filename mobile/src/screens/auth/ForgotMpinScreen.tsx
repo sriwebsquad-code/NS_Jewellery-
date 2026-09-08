@@ -6,6 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS, SIZES } from '../../constants/theme';
 import { ArrowLeft, Lock, Phone } from 'lucide-react-native';
+import { ENV } from '../../config/env';
 
 const ForgotMpinScreen = () => {
   const navigation = useNavigation<any>();
@@ -28,7 +29,7 @@ const ForgotMpinScreen = () => {
     
     setLoading(true);
     try {
-      const res = await fetch('https://ns-jewellery.onrender.com/api/auth/mpin/request-reset', {
+      const res = await fetch(`${ENV.API_URL}/auth/mpin/request-reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone })
@@ -55,7 +56,7 @@ const ForgotMpinScreen = () => {
 
     setLoading(true);
     try {
-      const res = await fetch('https://ns-jewellery.onrender.com/api/auth/mpin/reset', {
+      const res = await fetch(`${ENV.API_URL}/auth/mpin/reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, otp, newMpin })

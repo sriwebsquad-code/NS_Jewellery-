@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, Linking } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import {
-  CFErrorResponse,
-  CFPaymentGatewayService,
-} from 'react-native-cashfree-pg-sdk';
-import {
-  CFEnvironment,
-  CFSession,
-  CFThemeBuilder,
-} from 'cashfree-pg-api-contract';
+// Temporarily removed cashfree imports to isolate native crash on Android startup
+// import { CFErrorResponse, CFPaymentGatewayService } from 'react-native-cashfree-pg-sdk';
+// import { CFEnvironment, CFSession, CFThemeBuilder } from 'cashfree-pg-api-contract';
 import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { ArrowLeft } from 'lucide-react-native';
+import { ENV } from '../../config/env';
 
 const PaymentScreen = () => {
   const [loading, setLoading] = useState(false);
@@ -27,7 +22,7 @@ const PaymentScreen = () => {
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
   
-  const API_URL = 'https://ns-jewellery.onrender.com';
+  const API_URL = ENV.BASE_URL;
   
   const amount = route.params?.amount || 0;
   const planId = route.params?.planId;
@@ -93,6 +88,7 @@ const PaymentScreen = () => {
       }
     };
 
+    /*
     const onError = (error: CFErrorResponse, orderID: string) => {
       console.log('[CASHFREE] onError:', error.getMessage());
       Alert.alert('Payment Cancelled or Failed', error.getMessage() || 'Transaction failed.');
@@ -106,6 +102,7 @@ const PaymentScreen = () => {
     return () => {
       CFPaymentGatewayService.removeCallback();
     };
+    */
   }, [token, planId, amount, navigation]);
 
   const handlePay = async () => {
@@ -130,6 +127,10 @@ const PaymentScreen = () => {
       console.log('[CASHFREE] Order API response received');
       
       if (data.success && data.paymentSessionId) {
+        // TEMPORARILY DISABLED FOR CRASH DEBUGGING
+        alert('Payments are temporarily disabled while we investigate a crash issue.');
+        setLoading(false);
+        /*
         console.log(`[CASHFREE] order_id: ${data.orderId}`);
         console.log(`[CASHFREE] payment_session_id received`);
         
@@ -146,6 +147,7 @@ const PaymentScreen = () => {
           console.log('[CASHFREE] SDK Init Error:', e.message);
           Alert.alert('Payment Initialization Failed', e.message);
         }
+        */
       } else {
         console.log('[CASHFREE] FAILED to create order:', data.message);
         Alert.alert('Payment Failed', data.message || 'Could not initiate payment');

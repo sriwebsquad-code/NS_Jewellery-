@@ -6,6 +6,7 @@ import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { ENV } from '../../config/env';
 
 const LiveRateScreen = () => {
   const navigation = useNavigation<any>();
@@ -20,7 +21,7 @@ const LiveRateScreen = () => {
   const fetchRates = async () => {
     setLoading(true);
     try {
-      const API_URL = 'https://ns-jewellery.onrender.com';
+      const API_URL = ENV.BASE_URL;
       const res = await fetch(`${API_URL}/api/rates`);
       const data = await res.json();
       if (data.success && data.data) {

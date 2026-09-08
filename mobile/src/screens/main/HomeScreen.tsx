@@ -6,6 +6,7 @@ import { Menu, Crown, Coins, BellRing, Clock } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { Colors } from '../../constants/Colors';
+import { ENV } from '../../config/env';
 
 const { width } = Dimensions.get('window');
 
@@ -44,7 +45,7 @@ const HomeScreen = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const API_URL = 'https://ns-jewellery.onrender.com';
+      const API_URL = ENV.BASE_URL;
       const res = await fetch(`${API_URL}/api/digital/locker`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

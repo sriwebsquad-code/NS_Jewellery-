@@ -5,6 +5,7 @@ import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { ShieldCheck } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ENV } from '../../config/env';
 
 const CreateMPINScreen = () => {
   const [mpin, setMpin] = useState('');
@@ -22,7 +23,7 @@ const CreateMPINScreen = () => {
     if (mpin === confirmMpin) {
       setLoading(true);
       try {
-        const response = await fetch('https://ns-jewellery.onrender.com/api/auth/mpin/create', {
+        const response = await fetch(`${ENV.API_URL}/auth/mpin/create`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',

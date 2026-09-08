@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AuthState {
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
   isLoggedIn: boolean;
   hasMpin: boolean;
   token: string | null;
@@ -21,6 +23,8 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
+      _hasHydrated: false,
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
       isLoggedIn: false,
       hasMpin: false,
       token: null,
@@ -38,6 +42,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage', // unique name
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHasHydrated(true);
+        }
+      },
     }
   )
 );

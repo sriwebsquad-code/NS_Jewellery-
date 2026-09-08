@@ -7,6 +7,7 @@ import { Menu, Heart, Search, Sparkles } from 'lucide-react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
 import { useFavoritesStore } from '../../store/favoritesStore';
+import { ENV } from '../../config/env';
 
 const CatalogueScreen = () => {
   const navigation = useNavigation() as any;
@@ -29,7 +30,7 @@ const CatalogueScreen = () => {
 
   const fetchData = async () => {
     try {
-      const API_URL = 'https://ns-jewellery.onrender.com';
+      const API_URL = ENV.BASE_URL;
       const [catRes, itemRes] = await Promise.all([
         fetch(`${API_URL}/api/jewellery/categories`),
         fetch(`${API_URL}/api/jewellery/items`)
@@ -61,7 +62,7 @@ const CatalogueScreen = () => {
         }]}>
           {item.image ? (
             <Image 
-              source={{uri: item.image.startsWith('http') ? item.image : `https://ns-jewellery.onrender.com${item.image}`}} 
+              source={{uri: item.image.startsWith('http') ? item.image : `${ENV.BASE_URL}${item.image}`}} 
               style={styles.categoryImg} 
             />
           ) : (
@@ -81,7 +82,7 @@ const CatalogueScreen = () => {
         onPress={() => navigation.navigate('JewelleryDetail', { item })}
       >
         <Image 
-          source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `https://ns-jewellery.onrender.com${item.images[0]}`) : 'https://via.placeholder.com/200' }} 
+          source={{ uri: item.images?.[0] ? (item.images[0].startsWith('http') ? item.images[0] : `${ENV.BASE_URL}${item.images[0]}`) : 'https://via.placeholder.com/200' }} 
           style={styles.jewelleryImage} 
         />
         <TouchableOpacity style={styles.wishlistBtn} onPress={() => toggleFavorite(item)}>

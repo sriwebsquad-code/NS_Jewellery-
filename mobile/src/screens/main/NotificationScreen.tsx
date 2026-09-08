@@ -7,6 +7,7 @@ import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { Colors } from '../../constants/Colors';
 import { formatDistanceToNow } from 'date-fns';
+import { ENV } from '../../config/env';
 
 const NotificationScreen = () => {
   const navigation = useNavigation<any>();
@@ -21,7 +22,7 @@ const NotificationScreen = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('https://ns-jewellery.onrender.com/api/notifications', {
+      const response = await fetch(`${ENV.API_URL}/notifications`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { AppState } from 'react-native';
+import { AppState, View } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import { Colors } from '../constants/Colors';
+import * as SplashScreen from 'expo-splash-screen';
 
 // Screens
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -30,7 +31,7 @@ import RegistrationScreen from '../screens/auth/RegistrationScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
-  const { isLoggedIn, hasMpin, user, lastActiveAt, logout } = useAuthStore();
+  const { isLoggedIn, hasMpin, user, lastActiveAt, logout, _hasHydrated } = useAuthStore();
   const { mode } = useThemeStore();
 
   const { updateActivity } = useAuthStore();
@@ -80,6 +81,17 @@ const AppNavigator = () => {
       text: Colors.dark.text,
     },
   };
+
+  useEffect(() => {
+    if (_hasHydrated) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [_hasHydrated]);
+
+  if (!_hasHydrated) {
+    // Keep a blank view while hydrating, the native splash screen covers it.
+    return <View style={{ flex: 1, backgroundColor: mode === 'dark' ? Colors.dark.background : Colors.light.background }} />;
+  }
 
   return (
     <NavigationContainer theme={mode === 'dark' ? CustomDarkTheme : CustomDefaultTheme}>

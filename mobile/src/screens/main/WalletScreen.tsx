@@ -6,6 +6,7 @@ import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { ENV } from '../../config/env';
 
 const WalletScreen = () => {
   const navigation = useNavigation<any>();
@@ -28,7 +29,7 @@ const WalletScreen = () => {
   const fetchWallet = async () => {
     setLoading(true);
     try {
-      const API_URL = 'https://ns-jewellery.onrender.com';
+      const API_URL = ENV.BASE_URL;
       const res = await fetch(`${API_URL}/api/digital/locker`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

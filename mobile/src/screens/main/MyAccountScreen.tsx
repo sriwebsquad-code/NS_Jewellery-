@@ -8,6 +8,7 @@ import { Menu, User, Mail, FileText, CheckCircle2, Calendar, MapPin, UserCircle2
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
+import { ENV } from '../../config/env';
 
 const MyAccountScreen = () => {
   const navigation = useNavigation<any>();
@@ -46,7 +47,7 @@ const MyAccountScreen = () => {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch('https://ns-jewellery.onrender.com/api/user/profile', {
+      const response = await fetch(`${ENV.API_URL}/user/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

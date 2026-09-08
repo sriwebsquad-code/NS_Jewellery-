@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { Delete, ChevronLeft } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ENV } from '../../config/env';
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,7 +17,7 @@ const LoginMPINScreen = () => {
   const handleLogin = async (code: string) => {
     setLoading(true);
     try {
-      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/mpin/login', {
+      const response = await fetch(`${ENV.API_URL}/auth/mpin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: user?.phone, mpin: code })

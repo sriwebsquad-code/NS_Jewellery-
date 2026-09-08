@@ -7,6 +7,7 @@ import { Menu, Bell, ChevronRight, Coins, Sparkles } from 'lucide-react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
+import { ENV } from '../../config/env';
 
 const DigitalSilverScreen = () => {
   const navigation = useNavigation() as any;
@@ -28,7 +29,7 @@ const DigitalSilverScreen = () => {
 
   const fetchRates = async () => {
     try {
-      const API_URL = 'https://ns-jewellery.onrender.com'; // local backend
+      const API_URL = ENV.BASE_URL; // local backend
       const response = await fetch(`${API_URL}/api/rates`);
       const data = await response.json();
       if (data.success && data.data && data.data.silverRate !== undefined && data.data.silverRate !== null) {

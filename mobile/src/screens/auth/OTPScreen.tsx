@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { ChevronLeft, Delete } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ENV } from '../../config/env';
 
 const { width } = Dimensions.get('window');
 
@@ -24,7 +25,7 @@ const OTPScreen = () => {
 
   const handleResend = async () => {
     try {
-      await fetch('https://ns-jewellery.onrender.com/api/auth/send-otp', {
+      await fetch(`${ENV.API_URL}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone })
@@ -39,7 +40,7 @@ const OTPScreen = () => {
     try {
       let payload: any = { phone, otp: code };
       
-      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/verify-otp', {
+      const response = await fetch(`${ENV.API_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
