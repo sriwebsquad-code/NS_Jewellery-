@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, Linking } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-// Temporarily removed cashfree imports to isolate native crash on Android startup
-// import { CFErrorResponse, CFPaymentGatewayService } from 'react-native-cashfree-pg-sdk';
-// import { CFEnvironment, CFSession, CFThemeBuilder } from 'cashfree-pg-api-contract';
+import {
+  CFErrorResponse,
+  CFPaymentGatewayService,
+} from 'react-native-cashfree-pg-sdk';
+import {
+  CFEnvironment,
+  CFSession,
+  CFThemeBuilder,
+} from 'cashfree-pg-api-contract';
 import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
@@ -88,10 +94,10 @@ const PaymentScreen = () => {
       }
     };
 
-    /*
     const onError = (error: CFErrorResponse, orderID: string) => {
       console.log('[CASHFREE] onError:', error.getMessage());
       Alert.alert('Payment Cancelled or Failed', error.getMessage() || 'Transaction failed.');
+      setLoading(false);
     };
 
     CFPaymentGatewayService.setCallback({
@@ -102,7 +108,6 @@ const PaymentScreen = () => {
     return () => {
       CFPaymentGatewayService.removeCallback();
     };
-    */
   }, [token, planId, amount, navigation]);
 
   const handlePay = async () => {
@@ -127,27 +132,33 @@ const PaymentScreen = () => {
       console.log('[CASHFREE] Order API response received');
       
       if (data.success && data.paymentSessionId) {
-        // TEMPORARILY DISABLED FOR CRASH DEBUGGING
-        alert('Payments are temporarily disabled while we investigate a crash issue.');
-        setLoading(false);
-        /*
         console.log(`[CASHFREE] order_id: ${data.orderId}`);
         console.log(`[CASHFREE] payment_session_id received`);
         
-        setCurrentOrderId(data.orderId);
-        
+        const session = new CFSession(
+          data.paymentSessionId,
+          data.orderId,
+          ENV.IS_DEV ? CFEnvironment.SANDBOX : CFEnvironment.PRODUCTION
+        );
+
+        const theme = new CFThemeBuilder()
+          .setNavigationBarBackgroundColor(COLORS.primary)
+          .setNavigationBarTextColor('#FFFFFF')
+          .setButtonBackgroundColor(COLORS.primary)
+          .setButtonTextColor('#FFFFFF')
+          .setPrimaryTextColor(COLORS.text)
+          .setSecondaryTextColor(COLORS.textLight)
+          .build();
+
         try {
-          // Force Sandbox environment for testing to bypass Play Store verification
-          const env = CFEnvironment.SANDBOX;
-          console.log(`[CASHFREE] Initializing SDK in SANDBOX mode for testing`);
-          
-          const session = new CFSession(data.paymentSessionId, data.orderId, env);
-          CFPaymentGatewayService.doWebPayment(session);
+          CFPaymentGatewayService.doPayment({
+            session,
+            theme,
+          });
         } catch (e: any) {
           console.log('[CASHFREE] SDK Init Error:', e.message);
           Alert.alert('Payment Initialization Failed', e.message);
         }
-        */
       } else {
         console.log('[CASHFREE] FAILED to create order:', data.message);
         Alert.alert('Payment Failed', data.message || 'Could not initiate payment');
