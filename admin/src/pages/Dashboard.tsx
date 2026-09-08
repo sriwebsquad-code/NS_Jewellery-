@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Gem, TrendingUp, Landmark, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuthStore } from '../store/authStore';
 
 const Dashboard: React.FC = () => {
   const [statsData, setStatsData] = useState<any>({
@@ -14,9 +15,14 @@ const Dashboard: React.FC = () => {
   });
 
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const token = useAuthStore(state => state.token);
 
   useEffect(() => {
-    fetch('https://ns-jewellery.onrender.com/api/admin/dashboard/stats')
+    fetch('https://ns-jewellery.onrender.com/api/admin/dashboard/stats', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -24,7 +30,7 @@ const Dashboard: React.FC = () => {
         }
       })
       .catch(err => console.error('Error fetching dashboard stats:', err));
-  }, []);
+  }, [token]);
 
   const formatCurrency = (value: number) => {
     if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
