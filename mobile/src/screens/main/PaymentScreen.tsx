@@ -80,8 +80,30 @@ const PaymentScreen = () => {
               },
               body: JSON.stringify({ userPlanId: planId, amount })
             });
+          } else if ((planType === 'GOLD' || planType === 'SILVER') && liveRate) {
+            // Register digital metal purchase
+            const metalWeight = amount / liveRate;
+            await fetch(`${API_URL}/api/digital/transactions`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                type: 'BUY',
+                metalType: planType,
+                weight: metalWeight.toFixed(4),
+                amount: amount,
+                status: 'SUCCESS'
+              })
+            });
           }
-          navigation.replace('PaymentSuccess');
+          navigation.replace('PaymentSuccess', { 
+            amount, 
+            planName, 
+            orderId: orderID,
+            planType
+          });
         } else {
           console.log('[CASHFREE] FAILED - Order not verified as PAID');
           Alert.alert('Payment Verification Failed', 'We could not verify your payment. Please contact support.');

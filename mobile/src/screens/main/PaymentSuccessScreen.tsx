@@ -1,15 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS, SIZES } from '../../constants/theme';
 
 const PaymentSuccessScreen = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
+
+  const amount = route.params?.amount || 0;
+  const planName = route.params?.planName || 'Plan';
+  const orderId = route.params?.orderId || `TXN${Math.floor(Math.random() * 1000000000)}`;
+  const planType = route.params?.planType;
+  
+  const subtitleText = (planType === 'GOLD' || planType === 'SILVER') 
+    ? `Your purchase of ₹${amount} for ${planName} was successful.`
+    : `Your EMI of ₹${amount} for ${planName} has been received.`;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -18,12 +28,12 @@ const PaymentSuccessScreen = () => {
       </View>
       
       <Text style={[styles.title, { color: colors.text }]}>Payment Successful!</Text>
-      <Text style={[styles.subtitle, { color: colors.textMuted }]}>Your EMI of ₹5,000 for 11-Month Swarna Plan has been received.</Text>
+      <Text style={[styles.subtitle, { color: colors.textMuted }]}>{subtitleText}</Text>
 
       <View style={[styles.detailsCard, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
         <View style={styles.row}>
           <Text style={[styles.label, { color: colors.textMuted }]}>Transaction ID</Text>
-          <Text style={[styles.value, { color: colors.text }]}>TXN9876543210</Text>
+          <Text style={[styles.value, { color: colors.text }]}>{orderId}</Text>
         </View>
         <View style={styles.row}>
           <Text style={[styles.label, { color: colors.textMuted }]}>Date & Time</Text>
@@ -35,9 +45,7 @@ const PaymentSuccessScreen = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={[styles.downloadBtn, { borderColor: colors.primary }]}>
-        <Text style={[styles.downloadText, { color: colors.primary }]}>📥 Download Invoice PDF</Text>
-      </TouchableOpacity>
+      <Text style={{color: colors.textMuted, fontSize: 12, marginBottom: 20, textAlign: 'center'}}>A receipt will be sent to your registered email or phone.</Text>
 
       <TouchableOpacity 
         style={[styles.homeBtn, { backgroundColor: colors.primary }]}
@@ -59,8 +67,6 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
   label: { color: colors.textMuted },
   value: { fontWeight: 'bold', color: colors.text },
-  downloadBtn: { padding: 15, borderRadius: SIZES.radius, borderWidth: 1, borderColor: COLORS.primary, width: '100%', alignItems: 'center', marginBottom: 15 },
-  downloadText: { color: COLORS.primary, fontWeight: 'bold', fontSize: SIZES.h4 },
   homeBtn: { backgroundColor: COLORS.secondary, padding: 15, borderRadius: SIZES.radius, width: '100%', alignItems: 'center' },
   homeBtnText: { color: colors.cardBackground, fontWeight: 'bold', fontSize: SIZES.h4 }
 });

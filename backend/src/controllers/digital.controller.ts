@@ -44,7 +44,7 @@ export const createTransaction = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
-    const { type, metalType, weight, amount } = req.body;
+    const { type, metalType, weight, amount, status = 'PENDING' } = req.body;
 
     if (!type || !metalType || !weight || !amount) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -58,11 +58,25 @@ export const createTransaction = async (req: Request, res: Response) => {
       metalType,
       weight: parseFloat(weight),
       amount: parseFloat(amount),
-      status: 'PENDING',
+      status,
       createdAt: new Date().toISOString()
     };
 
     await docRef.set(txn);
+
+    if (status === 'SUCCESS' && type === 'BUY') {
+      const balanceRef = db.collection('digitalBalances').doc(userId);
+      const balanceDoc = await balanceRef.get();
+      const currentBalance = balanceDoc.exists ? balanceDoc.data() : { goldBalance: 0, silverBalance: 0 };
+      
+      if (metalType === 'GOLD') {
+        currentBalance.goldBalance += parseFloat(weight);
+      } else if (metalType === 'SILVER') {
+        currentBalance.silverBalance += parseFloat(weight);
+      }
+      
+      await balanceRef.set(currentBalance);
+    }
 
     res.status(201).json({ success: true, message: 'Transaction initiated', data: txn });
   } catch (error: any) {
