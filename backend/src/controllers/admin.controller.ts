@@ -4,14 +4,44 @@ import { smsService } from '../services/sms.service';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
-    const usersSnapshot = await db.collection('users').where('role', '==', 'CUSTOMER').get();
-    const totalUsers = usersSnapshot.size;
+    const usersSnapshot = await db.collection('users').get();
+    let totalUsers = 0;
+    usersSnapshot.forEach(doc => {
+      if (doc.data().role !== 'ADMIN') {
+        totalUsers++;
+      }
+    });
 
     const plansSnapshot = await db.collection('userPlans').where('status', '==', 'ACTIVE').get();
     const activePlans = plansSnapshot.size;
+    
+    let plansBreakdown = {
+      goldValue: 0,
+      silverValue: 0,
+      goldWeight: 0,
+      silverWeight: 0
+    };
 
-    const jewellerySnapshot = await db.collection('jewelleryItems').get();
-    const totalJewellery = jewellerySnapshot.size;
+    plansSnapshot.forEach(doc => {
+      const p = doc.data();
+      if (p.planId?.toLowerCase().includes('gold') || p.metalType === 'GOLD') {
+         if (p.schemeType === 'VALUE_BASED') plansBreakdown.goldValue++;
+         else plansBreakdown.goldWeight++;
+      } else {
+         if (p.schemeType === 'VALUE_BASED') plansBreakdown.silverValue++;
+         else plansBreakdown.silverWeight++;
+      }
+    });
+
+    const digitalBalancesSnapshot = await db.collection('digitalBalances').get();
+    let totalGoldMembers = 0;
+    let totalSilverMembers = 0;
+    
+    digitalBalancesSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.goldBalance > 0) totalGoldMembers++;
+      if (data.silverBalance > 0) totalSilverMembers++;
+    });
 
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
@@ -26,14 +56,29 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     installmentsSnapshot.forEach(doc => {
       monthlyRevenue += (doc.data().amount || 0);
     });
+    
+    // Recent Actions
+    const recentTxnsSnapshot = await db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(5).get();
+    const recentActions = recentTxnsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: `${data.type} ${data.metalType}`,
+        time: data.createdAt,
+        user: data.userId?.substring(0, 4) || 'US'
+      };
+    });
 
     res.status(200).json({
       success: true,
       data: {
         totalUsers,
         activePlans,
-        totalJewellery,
-        monthlyRevenue
+        plansBreakdown,
+        totalGoldMembers,
+        totalSilverMembers,
+        monthlyRevenue,
+        recentActions
       }
     });
   } catch (error: any) {

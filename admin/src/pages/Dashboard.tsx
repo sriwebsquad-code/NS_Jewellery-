@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Gem, TrendingUp, Landmark } from 'lucide-react';
+import { Users, Gem, TrendingUp, Landmark, ChevronDown, ChevronUp, Clock } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 const Dashboard: React.FC = () => {
-  const [statsData, setStatsData] = useState({
+  const [statsData, setStatsData] = useState<any>({
     totalUsers: 0,
     activePlans: 0,
-    totalJewellery: 0,
-    monthlyRevenue: 0
+    plansBreakdown: { goldValue: 0, silverValue: 0, goldWeight: 0, silverWeight: 0 },
+    totalGoldMembers: 0,
+    totalSilverMembers: 0,
+    monthlyRevenue: 0,
+    recentActions: []
   });
+
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('https://ns-jewellery.onrender.com/api/admin/dashboard/stats')
@@ -22,14 +28,30 @@ const Dashboard: React.FC = () => {
 
   const formatCurrency = (value: number) => {
     if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
-    return `₹${value.toLocaleString()}`;
+    return `₹${value?.toLocaleString() || 0}`;
+  };
+
+  const toggleCard = (card: string) => {
+    setExpandedCard(expandedCard === card ? null : card);
   };
 
   const stats = [
-    { label: 'Total Users', value: statsData.totalUsers.toString(), icon: <Users size={24} className="text-secondary" /> },
-    { label: 'Active Plans', value: statsData.activePlans.toString(), icon: <Landmark size={24} className="text-secondary" /> },
-    { label: 'Total Jewellery', value: statsData.totalJewellery.toString(), icon: <Gem size={24} className="text-secondary" /> },
-    { label: 'Monthly Revenue', value: formatCurrency(statsData.monthlyRevenue), icon: <TrendingUp size={24} className="text-primary" /> },
+    { label: 'Total Users', value: statsData.totalUsers.toString(), icon: <Users size={24} className="text-secondary" />, expandable: false },
+    { 
+      label: 'Active Plans', 
+      value: statsData.activePlans.toString(), 
+      icon: <Landmark size={24} className="text-secondary" />, 
+      expandable: true,
+      id: 'plans'
+    },
+    { 
+      label: 'Total Jewellery', 
+      value: (statsData.totalGoldMembers + statsData.totalSilverMembers).toString(), 
+      icon: <Gem size={24} className="text-secondary" />, 
+      expandable: true,
+      id: 'jewellery'
+    },
+    { label: 'Monthly Revenue', value: formatCurrency(statsData.monthlyRevenue), icon: <TrendingUp size={24} className="text-primary" />, expandable: false },
   ];
 
   return (
@@ -38,23 +60,64 @@ const Dashboard: React.FC = () => {
         {stats.map((stat, index) => (
           <div 
             key={stat.label} 
-            className="glass-card p-6 rounded-2xl glass-card-hover relative overflow-hidden"
+            className={`glass-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 ${stat.expandable ? 'cursor-pointer hover:border-primary/30' : ''} ${expandedCard === stat.id && stat.expandable ? 'ring-2 ring-primary border-transparent shadow-lg shadow-primary/10' : ''}`}
             style={{ animationDelay: `${index * 100}ms` }}
+            onClick={() => stat.expandable ? toggleCard(stat.id) : null}
           >
             <div className="absolute top-0 right-0 p-4 opacity-10">
               {React.cloneElement(stat.icon as React.ReactElement<any>, { size: 80, className: 'text-gray-900' })}
             </div>
+            
             <div className="relative z-10 flex flex-col h-full justify-between">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-white/50 rounded-xl shadow-sm backdrop-blur-md">
                   {stat.icon}
                 </div>
+                {stat.expandable && (
+                  <div className="p-1 bg-gray-50 rounded-full text-gray-400 group-hover:text-primary transition-colors">
+                    {expandedCard === stat.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </div>
+                )}
               </div>
               <div>
                 <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">{stat.label}</p>
                 <h3 className="text-4xl font-serif text-secondary tracking-tight">{stat.value}</h3>
               </div>
             </div>
+
+            {/* Expanded Content for Plans */}
+            {expandedCard === 'plans' && stat.id === 'plans' && (
+              <div className="mt-6 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-3">
+                <div className="bg-primary/5 p-3 rounded-lg">
+                  <p className="text-xs font-bold text-gray-500 uppercase mb-2">Value Based</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">Gold Members: <span className="font-bold text-secondary">{statsData.plansBreakdown?.goldValue || 0}</span></span>
+                    <span className="text-gray-700">Silver Members: <span className="font-bold text-secondary">{statsData.plansBreakdown?.silverValue || 0}</span></span>
+                  </div>
+                </div>
+                <div className="bg-secondary/5 p-3 rounded-lg">
+                  <p className="text-xs font-bold text-gray-500 uppercase mb-2">Weight Based</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">Gold Members: <span className="font-bold text-secondary">{statsData.plansBreakdown?.goldWeight || 0}</span></span>
+                    <span className="text-gray-700">Silver Members: <span className="font-bold text-secondary">{statsData.plansBreakdown?.silverWeight || 0}</span></span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Expanded Content for Jewellery */}
+            {expandedCard === 'jewellery' && stat.id === 'jewellery' && (
+              <div className="mt-6 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-3">
+                <div className="bg-[#D4AF37]/10 p-3 rounded-lg flex justify-between items-center">
+                  <span className="text-sm font-bold text-gray-700">Digi Gold Members</span>
+                  <span className="text-lg font-serif font-bold text-[#D4AF37]">{statsData.totalGoldMembers || 0}</span>
+                </div>
+                <div className="bg-[#C0C0C0]/20 p-3 rounded-lg flex justify-between items-center">
+                  <span className="text-sm font-bold text-gray-700">Digi Silver Members</span>
+                  <span className="text-lg font-serif font-bold text-gray-600">{statsData.totalSilverMembers || 0}</span>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -72,22 +135,33 @@ const Dashboard: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 to-transparent pointer-events-none" />
           <h3 className="font-serif text-secondary mb-6 text-2xl relative z-10">Recent Actions</h3>
           <div className="space-y-4 relative z-10">
-             {[1,2,3].map((i) => (
-                <div key={i} className="flex items-center space-x-4 p-3 bg-white/40 rounded-xl hover:bg-white/60 transition-colors cursor-pointer">
-                  <div className="w-10 h-10 rounded-full bg-background border border-primary/20 flex items-center justify-center text-primary text-xs font-bold font-serif">
-                    US
+             {statsData.recentActions && statsData.recentActions.length > 0 ? (
+               statsData.recentActions.map((action: any, i: number) => (
+                <div key={i} className="flex items-center space-x-4 p-3 bg-white/40 rounded-xl hover:bg-white/60 transition-colors cursor-pointer border border-transparent hover:border-primary/10">
+                  <div className="w-10 h-10 rounded-full bg-background border border-primary/20 flex items-center justify-center text-primary text-xs font-bold font-serif shadow-sm">
+                    {action.user}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-800">User Registered</p>
-                    <p className="text-xs text-gray-500">2 hours ago</p>
+                    <p className="text-sm font-bold text-gray-800">{action.title}</p>
+                    <p className="text-xs text-gray-500 flex items-center mt-0.5">
+                      <Clock size={10} className="mr-1" />
+                      {action.time ? formatDistanceToNow(new Date(action.time), { addSuffix: true }) : 'Recently'}
+                    </p>
                   </div>
                 </div>
-             ))}
+               ))
+             ) : (
+               <div className="text-center text-gray-400 text-sm py-10">
+                 No recent actions found.
+               </div>
+             )}
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+export default Dashboard;
 
 export default Dashboard;
