@@ -24,6 +24,7 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const goldCarouselRef = useRef<ScrollView>(null);
   const silverCarouselRef = useRef<ScrollView>(null);
@@ -31,6 +32,7 @@ const HomeScreen = () => {
   useEffect(() => {
     if (updateActivity) updateActivity();
     fetchDashboardData();
+    fetchUnreadNotifications();
   }, []);
 
   useEffect(() => {
@@ -63,9 +65,26 @@ const HomeScreen = () => {
     }
   };
 
+  const fetchUnreadNotifications = async () => {
+    try {
+      const response = await fetch(`${ENV.API_URL}/notifications`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success && Array.isArray(data.data)) {
+        // Assume unread if status is not 'READ', or simply show red dot if there's any notification
+        const unread = data.data.filter((n: any) => n.status !== 'READ').length || (data.data.length > 0 ? 1 : 0);
+        setUnreadCount(unread);
+      }
+    } catch (error) {
+      console.log('Error fetching notifications:', error);
+    }
+  };
+
   const onRefresh = () => {
     setRefreshing(true);
     fetchDashboardData();
+    fetchUnreadNotifications();
   };
 
   const updatedDate = new Date(rates.effectiveDate || rates.createdAt || new Date()).toLocaleString('en-IN', {
@@ -94,7 +113,9 @@ const HomeScreen = () => {
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuIcon}>
           <BellRing color={mode === 'dark' ? colors.gold : '#D4AF37'} size={28} />
           {/* Unread badge indicator */}
-          <View style={{ position: 'absolute', right: 4, top: 4, width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, borderWidth: 1, borderColor: colors.background }} />
+          {unreadCount > 0 && (
+            <View style={{ position: 'absolute', right: 4, top: 4, width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, borderWidth: 1, borderColor: colors.background }} />
+          )}
         </TouchableOpacity>
       </View>
       <View style={[styles.ratesRow, { marginTop: 10, paddingBottom: 10 }]}>

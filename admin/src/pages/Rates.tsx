@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, RefreshCw, Save, Calendar } from 'lucide-react';
+import { TrendingUp, RefreshCw, Save, Calendar, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 interface RateHistory {
@@ -26,6 +26,7 @@ const RatesManagement: React.FC = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     fetchRates();
@@ -229,14 +230,23 @@ const RatesManagement: React.FC = () => {
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-6">
             <h3 className="text-xl font-bold text-secondary mb-2">Confirm Rate Change</h3>
             <p className="text-sm text-gray-600 mb-6">Please enter your admin password to save the new rates.</p>
-            <input
-              type="password"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className={`w-full px-4 py-3 rounded-lg border ${passwordError ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-primary focus:border-primary transition-colors outline-none`}
-              placeholder="Admin Password"
-              autoFocus
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg border ${passwordError ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-primary focus:border-primary transition-colors outline-none pr-12`}
+                placeholder="Admin Password"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             {passwordError && <p className="text-red-500 text-sm mt-2">{passwordError}</p>}
             <div className="flex space-x-3 mt-6">
               <button

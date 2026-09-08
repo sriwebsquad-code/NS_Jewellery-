@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   badgesRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 10,
   },

@@ -135,26 +135,15 @@ const PaymentScreen = () => {
         console.log(`[CASHFREE] order_id: ${data.orderId}`);
         console.log(`[CASHFREE] payment_session_id received`);
         
-        const session = new CFSession(
-          data.paymentSessionId,
-          data.orderId,
-          ENV.IS_DEV ? CFEnvironment.SANDBOX : CFEnvironment.PRODUCTION
-        );
-
-        const theme = new CFThemeBuilder()
-          .setNavigationBarBackgroundColor(COLORS.primary)
-          .setNavigationBarTextColor('#FFFFFF')
-          .setButtonBackgroundColor(COLORS.primary)
-          .setButtonTextColor('#FFFFFF')
-          .setPrimaryTextColor(COLORS.text)
-          .setSecondaryTextColor(COLORS.textLight)
-          .build();
-
+        setCurrentOrderId(data.orderId);
+        
         try {
-          CFPaymentGatewayService.doPayment({
-            session,
-            theme,
-          });
+          // Match environment with backend
+          const env = ENV.IS_DEV ? CFEnvironment.SANDBOX : CFEnvironment.PRODUCTION;
+          console.log(`[CASHFREE] Initializing SDK in ${ENV.IS_DEV ? 'SANDBOX' : 'PRODUCTION'} mode`);
+          
+          const session = new CFSession(data.paymentSessionId, data.orderId, env);
+          CFPaymentGatewayService.doWebPayment(session);
         } catch (e: any) {
           console.log('[CASHFREE] SDK Init Error:', e.message);
           Alert.alert('Payment Initialization Failed', e.message);
