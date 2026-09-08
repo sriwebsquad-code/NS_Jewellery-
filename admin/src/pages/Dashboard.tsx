@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
             key={stat.label} 
             className={`glass-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 ${stat.expandable ? 'cursor-pointer hover:border-primary/30' : ''} ${expandedCard === stat.id && stat.expandable ? 'ring-2 ring-primary border-transparent shadow-lg shadow-primary/10' : ''}`}
             style={{ animationDelay: `${index * 100}ms` }}
-            onClick={() => stat.expandable ? toggleCard(stat.id) : null}
+            onClick={() => stat.expandable ? toggleCard(stat.id!) : null}
           >
             <div className="absolute top-0 right-0 p-4 opacity-10">
               {React.cloneElement(stat.icon as React.ReactElement<any>, { size: 80, className: 'text-gray-900' })}
@@ -161,7 +161,5 @@ const Dashboard: React.FC = () => {
     </div>
   );
 };
-
-export default Dashboard;
 
 export default Dashboard;
