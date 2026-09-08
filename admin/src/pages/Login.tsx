@@ -44,8 +44,8 @@ const Login: React.FC = () => {
     // In production, this will hit POST /api/admin/login
     const savedPassword = localStorage.getItem('adminPassword') || 'RN_NS_Mahaveerj@2026';
     
-    // Check credentials
-    if (adminId === 'NS_Mahaveer_Jewellery_RN' && password === savedPassword) {
+    // Check credentials (using .trim() to prevent accidental copy-paste spaces)
+    if (adminId.trim() === 'NS_Mahaveer_Jewellery_RN' && password.trim() === savedPassword) {
       login({ id: '1', name: 'NS Admin', phone: '0000000000', role: 'ADMIN' }, 'fake-jwt-token');
       navigate('/');
     } else {
