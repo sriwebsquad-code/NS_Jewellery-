@@ -67,12 +67,12 @@ export const createTransaction = async (req: Request, res: Response) => {
     if (status === 'SUCCESS' && type === 'BUY') {
       const balanceRef = db.collection('digitalBalances').doc(userId);
       const balanceDoc = await balanceRef.get();
-      const currentBalance = balanceDoc.exists ? balanceDoc.data() : { goldBalance: 0, silverBalance: 0 };
+      const currentBalance: any = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
       
       if (metalType === 'GOLD') {
-        currentBalance.goldBalance += parseFloat(weight);
+        currentBalance.goldBalance = (currentBalance.goldBalance || 0) + parseFloat(weight);
       } else if (metalType === 'SILVER') {
-        currentBalance.silverBalance += parseFloat(weight);
+        currentBalance.silverBalance = (currentBalance.silverBalance || 0) + parseFloat(weight);
       }
       
       await balanceRef.set(currentBalance);
