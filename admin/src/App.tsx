@@ -57,8 +57,10 @@ const App: React.FC = () => {
           <Route path="users" element={<UsersManagement />} />
           <Route path="digital-customers" element={<DigitalCustomers />} />
           <Route path="jewellery" element={<JewelleryManagement />} />
-          <Route path="plans/value" element={<PlansManagement typeFilter="VALUE_BASED" />} />
-          <Route path="plans/weight" element={<PlansManagement typeFilter="WEIGHT_BASED" />} />
+          <Route path="plans/value/gold" element={<PlansManagement typeFilter="VALUE_BASED" metalFilter="GOLD" />} />
+          <Route path="plans/value/silver" element={<PlansManagement typeFilter="VALUE_BASED" metalFilter="SILVER" />} />
+          <Route path="plans/weight/gold" element={<PlansManagement typeFilter="WEIGHT_BASED" metalFilter="GOLD" />} />
+          <Route path="plans/weight/silver" element={<PlansManagement typeFilter="WEIGHT_BASED" metalFilter="SILVER" />} />
           <Route path="transactions" element={<TransactionsManagement />} />
           <Route path="rates" element={<RatesManagement />} />
           <Route path="settings" element={<Settings />} />

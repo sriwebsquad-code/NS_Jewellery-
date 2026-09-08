@@ -21,8 +21,10 @@ const AdminLayout: React.FC = () => {
     { name: 'Transactions', path: '/admin/transactions', icon: <CreditCard size={20} /> },
     { name: 'Users', path: '/admin/users', icon: <Users size={20} /> },
     { name: 'Digital Customers', path: '/admin/digital-customers', icon: <Users size={20} /> },
-    { name: 'Value Based Schemes', path: '/admin/plans/value', icon: <Landmark size={20} /> },
-    { name: 'Weight Based Schemes', path: '/admin/plans/weight', icon: <Landmark size={20} /> },
+    { name: 'Gold Value Schemes', path: '/admin/plans/value/gold', icon: <Landmark size={20} /> },
+    { name: 'Silver Value Schemes', path: '/admin/plans/value/silver', icon: <Landmark size={20} /> },
+    { name: 'Gold Weight Schemes', path: '/admin/plans/weight/gold', icon: <Landmark size={20} /> },
+    { name: 'Silver Weight Schemes', path: '/admin/plans/weight/silver', icon: <Landmark size={20} /> },
     { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 

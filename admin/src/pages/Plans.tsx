@@ -4,9 +4,10 @@ import { useAuthStore } from '../store/authStore';
 
 interface PlansManagementProps {
   typeFilter: 'VALUE_BASED' | 'WEIGHT_BASED';
+  metalFilter?: 'GOLD' | 'SILVER';
 }
 
-const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter }) => {
+const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilter }) => {
   const [plans, setPlans] = useState<any[]>([]);
   const [isAddingPlan, setIsAddingPlan] = useState(false);
   const token = useAuthStore(state => state.token);
@@ -30,7 +31,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter }) => {
     // When tab changes, close modal and form
     setIsAddingPlan(false);
     setIsModalOpen(false);
-  }, [typeFilter]);
+  }, [typeFilter, metalFilter]);
 
   const fetchPlans = async () => {
     try {
@@ -121,13 +122,16 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter }) => {
     <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12 relative">
       <div className="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-primary/10">
         <div>
-          <h2 className="text-3xl font-serif text-secondary">{typeFilter === 'VALUE_BASED' ? 'Value Based Schemes' : 'Weight Based Schemes'}</h2>
+          <h2 className="text-3xl font-serif text-secondary">
+            {metalFilter === 'GOLD' ? 'Gold ' : metalFilter === 'SILVER' ? 'Silver ' : ''}
+            {typeFilter === 'VALUE_BASED' ? 'Value Schemes' : 'Weight Schemes'}
+          </h2>
           <p className="text-sm font-medium text-gray-500 mt-1">Manage investment schemes and view enrollments.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {plans.filter(p => p.schemeType === typeFilter).map((plan, index) => (
+        {plans.filter(p => p.schemeType === typeFilter && (!metalFilter || p.metalType === metalFilter)).map((plan, index) => (
           <div key={plan.id} className="bg-white rounded-xl shadow-sm border border-primary/10 p-6 flex flex-col h-full relative group hover:border-primary/40 transition-all hover:-translate-y-1" style={{ animationDelay: `${index * 100}ms` }}>
             <div className="flex justify-between items-start mb-4">
               <div className="p-3 bg-primary/10 rounded-lg text-primary">
