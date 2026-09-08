@@ -49,25 +49,32 @@ export const getDashboardStats = async (req: Request, res: Response) => {
 
     const installmentsSnapshot = await db.collection('installments')
       .where('status', '==', 'PAID')
-      .where('paidAt', '>=', startOfMonth.toISOString())
       .get();
 
     let monthlyRevenue = 0;
     installmentsSnapshot.forEach(doc => {
-      monthlyRevenue += (doc.data().amount || 0);
+      const data = doc.data();
+      if (data.paidAt && data.paidAt >= startOfMonth.toISOString()) {
+        monthlyRevenue += (data.amount || 0);
+      }
     });
     
     // Recent Actions
-    const recentTxnsSnapshot = await db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(5).get();
-    const recentActions = recentTxnsSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        title: `${data.type} ${data.metalType}`,
-        time: data.createdAt,
-        user: data.userId?.substring(0, 4) || 'US'
-      };
-    });
+    let recentActions: any[] = [];
+    try {
+      const recentTxnsSnapshot = await db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(5).get();
+      recentActions = recentTxnsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          title: `${data.type} ${data.metalType}`,
+          time: data.createdAt,
+          user: data.userId?.substring(0, 4) || 'US'
+        };
+      });
+    } catch (e) {
+      console.log('Error fetching recent actions, maybe index missing:', e);
+    }
 
     res.status(200).json({
       success: true,
