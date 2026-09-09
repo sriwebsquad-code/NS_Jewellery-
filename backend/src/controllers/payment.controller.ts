@@ -85,7 +85,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
       if (itemType === 'GOLD' || itemType === 'SILVER') {
         const ratesSnapshot = await db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
         if (!ratesSnapshot.empty) {
-          liveRate = itemType === 'GOLD' ? ratesSnapshot.docs[0].data()?.goldRate : ratesSnapshot.docs[0].data()?.silverRate;
+          liveRate = itemType === 'GOLD' ? ratesSnapshot.docs[0]!.data()?.goldRate : ratesSnapshot.docs[0]!.data()?.silverRate;
         }
       }
 
@@ -136,6 +136,19 @@ export const verifyPayment = async (req: Request, res: Response) => {
               const userDoc = await db.collection('users').doc(userId).get();
               if (userDoc.data()?.phone) {
                 await smsService.sendSchemeJoined(userDoc.data()!.phone, userDoc.data()!.name || 'Customer', basePlan.name);
+              }
+
+              // In-App Notification for Scheme Joined
+              try {
+                await db.collection('notifications').add({
+                  userId,
+                  title: 'Scheme Enrollment Successful',
+                  message: `Welcome! You have successfully enrolled in the ${basePlan.name} scheme.`,
+                  isRead: false,
+                  createdAt: new Date().toISOString()
+                });
+              } catch(e) {
+                console.error('Failed to add scheme enrollment notification:', e);
               }
             }
           }
