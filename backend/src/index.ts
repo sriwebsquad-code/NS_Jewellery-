@@ -15,8 +15,8 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       
-      // Initialize cron jobs
-      initRatesCron();
+      // Initialize cron jobs (Note: Rate fluctuation cron is disabled for production)
+      // initRatesCron();
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
