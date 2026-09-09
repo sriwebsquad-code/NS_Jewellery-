@@ -67,16 +67,7 @@ const LoginMPINScreen = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.canGoBack() ? navigation.goBack() : logout()}
-        >
-          <ChevronLeft color="#D5A539" size={24} />
-        </TouchableOpacity>
-      </View>
-      
+      {/* Header Removed as requested */}      
       <View style={styles.contentContainer}>
         {/* Logo Section */}
         <View style={styles.logoSection}>
