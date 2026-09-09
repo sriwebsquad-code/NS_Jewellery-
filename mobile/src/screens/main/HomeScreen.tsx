@@ -48,14 +48,30 @@ const HomeScreen = () => {
   const fetchDashboardData = async () => {
     try {
       const API_URL = ENV.BASE_URL;
-      const res = await fetch(`${API_URL}/api/digital/locker`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success && data.data) {
-        setLockerData(data.data.locker);
-        setRates(data.data.currentRates || { goldRate: 7250, silverRate: 85, createdAt: new Date() });
-        setInstallments(data.data.installments || []);
+      
+      // Always fetch the public rates so guests can see live rates
+      fetch(`${API_URL}/api/rates`)
+        .then(res => res.json())
+        .then(rateData => {
+          if (rateData.success && rateData.data) {
+             setRates(rateData.data);
+          }
+        })
+        .catch(err => console.log('Error fetching public rates:', err));
+
+      // Fetch user-specific locker data if token exists
+      if (token) {
+        const res = await fetch(`${API_URL}/api/digital/locker`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setLockerData(data.data.locker);
+          setInstallments(data.data.installments || []);
+          if (data.data.currentRates && data.data.currentRates.goldRate) {
+             setRates(data.data.currentRates);
+          }
+        }
       }
     } catch (error) {
       console.log('Error fetching dashboard data:', error);
