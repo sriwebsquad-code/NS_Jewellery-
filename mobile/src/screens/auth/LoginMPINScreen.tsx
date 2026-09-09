@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
-import { Delete, ChevronLeft } from 'lucide-react-native';
+import { Delete, ChevronLeft, Lock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ENV } from '../../config/env';
 
@@ -95,7 +95,6 @@ const LoginMPINScreen = () => {
           })}
         </View>
 
-        {/* Unlock Button */}
         <TouchableOpacity 
           style={[styles.button, (mpin.length !== 4 || loading) && styles.buttonDisabled]}
           disabled={mpin.length !== 4 || loading}
@@ -106,10 +105,20 @@ const LoginMPINScreen = () => {
             end={{x: 1, y: 0}}
             style={styles.gradientButton}
           >
-            <Text style={styles.buttonText}>{loading ? 'Unlocking...' : 'Unlock'}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Lock color="#FFF" size={18} style={{ marginRight: 8 }} />
+              <Text style={styles.buttonText}>{loading ? 'Unlocking...' : 'Unlock'}</Text>
+            </View>
             {loading && <ActivityIndicator color="#fff" size="small" style={{ marginLeft: 8 }} />}
           </LinearGradient>
         </TouchableOpacity>
+
+        {/* Divider with Diamond */}
+        <View style={styles.dividerContainer}>
+           <View style={styles.dividerLine} />
+           <View style={styles.diamond} />
+           <View style={styles.dividerLine} />
+        </View>
 
         {/* Forgot MPIN */}
         <TouchableOpacity style={styles.forgotBtn} onPress={() => navigation.navigate('ForgotMpin')}>
@@ -181,16 +190,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
-    marginTop: -20,
-    width: width * 0.45,
-    height: width * 0.45,
-    overflow: 'hidden',
-    borderRadius: 30,
+    marginTop: -10,
+    width: width * 0.55,
+    height: width * 0.55,
   },
   logo: {
-    width: width * 0.52,
-    height: width * 0.52,
-    resizeMode: 'cover',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   textSection: {
     alignItems: 'center',
@@ -257,25 +264,43 @@ const styles = StyleSheet.create({
   forgotText: {
     color: '#A67A27',
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   logoutBtn: {
     alignItems: 'center',
     marginTop: 15,
   },
   logoutText: {
-    color: '#AAA',
+    color: '#999',
     fontSize: 12,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    marginBottom: 15,
+    paddingHorizontal: 40,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#D5A539',
+  },
+  diamond: {
+    width: 8,
+    height: 8,
+    backgroundColor: '#D5A539',
+    transform: [{ rotate: '45deg' }],
+    marginHorizontal: 15,
   },
   keypadContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     paddingHorizontal: 15,
-    backgroundColor: '#FAFAFA',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingTop: 25,
+    backgroundColor: 'transparent',
+    paddingTop: 10,
     paddingBottom: Platform.OS === 'ios' ? 40 : 25,
   },
   keypadButton: {
@@ -289,13 +314,15 @@ const styles = StyleSheet.create({
     height: 65,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FDFCF8',
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E8D4A2',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   keyNum: {
     fontSize: 26,
