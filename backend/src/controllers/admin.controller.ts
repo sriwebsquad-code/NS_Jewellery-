@@ -36,11 +36,19 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     const digitalBalancesSnapshot = await db.collection('digitalBalances').get();
     let totalGoldMembers = 0;
     let totalSilverMembers = 0;
+    let totalGoldWeight = 0;
+    let totalSilverWeight = 0;
     
     digitalBalancesSnapshot.forEach(doc => {
       const data = doc.data();
-      if (data.goldBalance > 0) totalGoldMembers++;
-      if (data.silverBalance > 0) totalSilverMembers++;
+      if (data.goldBalance > 0) {
+        totalGoldMembers++;
+        totalGoldWeight += data.goldBalance;
+      }
+      if (data.silverBalance > 0) {
+        totalSilverMembers++;
+        totalSilverWeight += data.silverBalance;
+      }
     });
 
     const startOfMonth = new Date();
@@ -63,15 +71,24 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     let recentActions: any[] = [];
     try {
       const recentTxnsSnapshot = await db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(5).get();
-      recentActions = recentTxnsSnapshot.docs.map(doc => {
+      
+      const actionsPromises = recentTxnsSnapshot.docs.map(async (doc) => {
         const data = doc.data();
+        let userName = 'Unknown';
+        if (data.userId) {
+          const userDoc = await db.collection('users').doc(data.userId).get();
+          if (userDoc.exists) userName = userDoc.data()?.name || data.userId.substring(0, 4);
+        }
+        
         return {
           id: doc.id,
           title: `${data.type} ${data.metalType}`,
           time: data.createdAt,
-          user: data.userId?.substring(0, 4) || 'US'
+          user: userName
         };
       });
+      
+      recentActions = await Promise.all(actionsPromises);
     } catch (e) {
       console.log('Error fetching recent actions, maybe index missing:', e);
     }
@@ -84,6 +101,8 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         plansBreakdown,
         totalGoldMembers,
         totalSilverMembers,
+        totalGoldWeight,
+        totalSilverWeight,
         monthlyRevenue,
         recentActions
       }

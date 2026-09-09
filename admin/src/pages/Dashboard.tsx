@@ -10,6 +10,8 @@ const Dashboard: React.FC = () => {
     plansBreakdown: { goldValue: 0, silverValue: 0, goldWeight: 0, silverWeight: 0 },
     totalGoldMembers: 0,
     totalSilverMembers: 0,
+    totalGoldWeight: 0,
+    totalSilverWeight: 0,
     monthlyRevenue: 0,
     recentActions: []
   });
@@ -115,12 +117,12 @@ const Dashboard: React.FC = () => {
             {expandedCard === 'jewellery' && stat.id === 'jewellery' && (
               <div className="mt-6 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-3">
                 <div className="bg-[#D4AF37]/10 p-3 rounded-lg flex justify-between items-center">
-                  <span className="text-sm font-bold text-gray-700">Digi Gold Members</span>
-                  <span className="text-lg font-serif font-bold text-[#D4AF37]">{statsData.totalGoldMembers || 0}</span>
+                  <span className="text-sm font-bold text-gray-700">Total Gold</span>
+                  <span className="text-lg font-serif font-bold text-[#D4AF37]">{(statsData.totalGoldWeight || 0).toFixed(4)}g</span>
                 </div>
                 <div className="bg-[#C0C0C0]/20 p-3 rounded-lg flex justify-between items-center">
-                  <span className="text-sm font-bold text-gray-700">Digi Silver Members</span>
-                  <span className="text-lg font-serif font-bold text-gray-600">{statsData.totalSilverMembers || 0}</span>
+                  <span className="text-sm font-bold text-gray-700">Total Silver</span>
+                  <span className="text-lg font-serif font-bold text-gray-600">{(statsData.totalSilverWeight || 0).toFixed(4)}g</span>
                 </div>
               </div>
             )}
@@ -144,12 +146,13 @@ const Dashboard: React.FC = () => {
              {statsData.recentActions && statsData.recentActions.length > 0 ? (
                statsData.recentActions.map((action: any, i: number) => (
                 <div key={i} className="flex items-center space-x-4 p-3 bg-white/40 rounded-xl hover:bg-white/60 transition-colors cursor-pointer border border-transparent hover:border-primary/10">
-                  <div className="w-10 h-10 rounded-full bg-background border border-primary/20 flex items-center justify-center text-primary text-xs font-bold font-serif shadow-sm">
-                    {action.user}
+                  <div className="w-10 h-10 rounded-full bg-background border border-primary/20 flex items-center justify-center text-primary text-sm font-bold font-serif shadow-sm uppercase">
+                    {action.user ? action.user.substring(0, 2) : 'US'}
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-bold text-gray-800">{action.title}</p>
-                    <p className="text-xs text-gray-500 flex items-center mt-0.5">
+                    <p className="text-xs text-gray-600 font-medium">{action.user}</p>
+                    <p className="text-[10px] text-gray-400 flex items-center mt-0.5">
                       <Clock size={10} className="mr-1" />
                       {action.time ? formatDistanceToNow(new Date(action.time), { addSuffix: true }) : 'Recently'}
                     </p>
