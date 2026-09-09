@@ -104,8 +104,8 @@ export const verifyPayment = async (req: Request, res: Response) => {
             // See if user already joined this exact plan
             const existingJoin = await db.collection('userPlans').where('userId', '==', userId).where('planId', '==', planId).get();
             if (!existingJoin.empty) {
-              actualUserPlanId = existingJoin.docs[0].id;
-              userPlanDoc = existingJoin.docs[0];
+              actualUserPlanId = existingJoin.docs[0]?.id;
+              userPlanDoc = existingJoin.docs[0] as any;
             } else {
               // Join now
               const startDate = new Date();
