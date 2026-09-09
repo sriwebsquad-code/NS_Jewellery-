@@ -180,6 +180,8 @@ export const getUserMetalTransactions = async (req: Request, res: Response) => {
   }
 };
 
+import { smsService } from '../services/sms.service';
+
 export const redeemUserMetal = async (req: Request, res: Response) => {
   try {
     const userId = String(req.params.userId);
@@ -197,9 +199,13 @@ export const redeemUserMetal = async (req: Request, res: Response) => {
     const balanceField = type === 'GOLD' ? 'goldBalance' : 'silverBalance';
     const currentBalance = data[balanceField] || 0;
 
-    if (currentBalance <= 0) {
-      return res.status(400).json({ success: false, message: 'Insufficient balance to redeem' });
+    const redeemWeight = req.body.redeemWeight ? parseFloat(req.body.redeemWeight) : currentBalance;
+
+    if (currentBalance <= 0 || redeemWeight <= 0 || redeemWeight > currentBalance) {
+      return res.status(400).json({ success: false, message: 'Invalid or insufficient balance to redeem' });
     }
+
+    const remainingBalance = currentBalance - redeemWeight;
 
     // Create redemption transaction
     const txnRef = db.collection('digitalTransactions').doc();
@@ -208,7 +214,7 @@ export const redeemUserMetal = async (req: Request, res: Response) => {
       userId,
       type: 'REDEEM',
       metalType: type,
-      weight: currentBalance, // record the weight redeemed
+      weight: redeemWeight, // record the weight redeemed
       amount: 0, // Admin redeemed, no amount tracked here
       status: 'SUCCESS',
       createdAt: new Date().toISOString()
@@ -216,10 +222,31 @@ export const redeemUserMetal = async (req: Request, res: Response) => {
     
     await txnRef.set(txn);
 
-    // Zero out balance
+    // Update balance
     await balanceRef.update({
-      [balanceField]: 0
+      [balanceField]: remainingBalance
     });
+
+    // Send Notifications
+    try {
+      const userDoc = await db.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data()!;
+        if (userData.phone) {
+          await smsService.sendMetalRedeemed(userData.phone, type, redeemWeight.toFixed(4), remainingBalance.toFixed(4));
+        }
+
+        await db.collection('notifications').add({
+          userId,
+          title: `Digital ${type === 'GOLD' ? 'Gold' : 'Silver'} Redeemed`,
+          message: `You have successfully redeemed ${redeemWeight.toFixed(4)}g of Digital ${type === 'GOLD' ? 'Gold' : 'Silver'}. Your remaining balance is ${remainingBalance.toFixed(4)}g.`,
+          isRead: false,
+          createdAt: new Date().toISOString()
+        });
+      }
+    } catch(e) {
+      console.error('Failed to send redemption notifications', e);
+    }
 
     res.status(200).json({ success: true, message: 'Redeemed successfully' });
   } catch (error: any) {

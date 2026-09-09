@@ -14,6 +14,10 @@ const DigitalCustomers: React.FC = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isFetchingTransactions, setIsFetchingTransactions] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
+  
+  // Redeem Modal state
+  const [redeemModalData, setRedeemModalData] = useState<{userId: string, currentBalance: number} | null>(null);
+  const [redeemInputWeight, setRedeemInputWeight] = useState<string>('');
 
   useEffect(() => {
     fetchCustomers();
@@ -61,23 +65,40 @@ const DigitalCustomers: React.FC = () => {
     }
   };
 
-  const handleRedeem = async (userId: string, currentBalance: number) => {
-    if (!window.confirm(`Are you sure you want to REDEEM ${currentBalance.toFixed(4)}g of ${activeTab === 'GOLD' ? 'Gold' : 'Silver'} for this customer? Their balance will become 0.`)) {
+  const handleRedeem = async () => {
+    if (!redeemModalData) return;
+    
+    const redeemWeight = parseFloat(redeemInputWeight);
+    if (isNaN(redeemWeight) || redeemWeight <= 0) {
+      alert("Please enter a valid weight to redeem.");
+      return;
+    }
+    
+    if (redeemWeight > redeemModalData.currentBalance) {
+      alert("Redeem weight cannot exceed current balance.");
       return;
     }
 
     setIsRedeeming(true);
     try {
-      const res = await fetch(`https://ns-jewellery.onrender.com/api/digital/admin/user/${userId}/redeem/${activeTab}`, {
+      const res = await fetch(`https://ns-jewellery.onrender.com/api/digital/admin/user/${redeemModalData.userId}/redeem/${activeTab}`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ redeemWeight })
       });
       const data = await res.json();
       if (data.success) {
         alert("Redeemed successfully!");
         // Refresh everything to reflect changes
         await fetchCustomers();
-        setExpandedUserId(null); // Close the row
+        if (expandedUserId === redeemModalData.userId) {
+          handleExpand(expandedUserId); // Refetch transactions
+          handleExpand(expandedUserId); // Toggle back open
+        }
+        setRedeemModalData(null);
       } else {
         alert(data.message || 'Failed to redeem');
       }
@@ -120,7 +141,7 @@ const DigitalCustomers: React.FC = () => {
         {/* Tabs */}
         <div className="flex border-b border-gray-200">
           <button 
-            onClick={() => { setActiveTab('GOLD'); setExpandedUserId(null); }}
+            onClick={() => { setActiveTab('GOLD'); setExpandedUserId(null); setRedeemModalData(null); }}
             className={`flex-1 py-4 text-center font-bold tracking-wider uppercase text-sm transition-colors ${activeTab === 'GOLD' ? 'bg-yellow-50 text-yellow-700 border-b-2 border-yellow-500' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             <div className="flex items-center justify-center space-x-2">
@@ -129,7 +150,7 @@ const DigitalCustomers: React.FC = () => {
             </div>
           </button>
           <button 
-            onClick={() => { setActiveTab('SILVER'); setExpandedUserId(null); }}
+            onClick={() => { setActiveTab('SILVER'); setExpandedUserId(null); setRedeemModalData(null); }}
             className={`flex-1 py-4 text-center font-bold tracking-wider uppercase text-sm transition-colors ${activeTab === 'SILVER' ? 'bg-gray-100 text-gray-700 border-b-2 border-gray-500' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             <div className="flex items-center justify-center space-x-2">
@@ -216,7 +237,10 @@ const DigitalCustomers: React.FC = () => {
                                 
                                 {currentBalance > 0 && (
                                   <button 
-                                    onClick={() => handleRedeem(customer.userId, currentBalance)}
+                                    onClick={() => {
+                                      setRedeemModalData({ userId: customer.userId, currentBalance });
+                                      setRedeemInputWeight('');
+                                    }}
                                     disabled={isRedeeming}
                                     className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wider flex items-center space-x-2 transition-colors shadow-sm"
                                   >
@@ -266,6 +290,61 @@ const DigitalCustomers: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Redeem Modal */}
+      {redeemModalData && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in relative flex flex-col">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h3 className="text-xl font-serif font-bold text-secondary">Redeem {activeTab === 'GOLD' ? 'Gold' : 'Silver'}</h3>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg flex justify-between items-center">
+                <span className="text-sm font-bold text-gray-700">Total Balance</span>
+                <span className="text-lg font-serif font-bold text-blue-800">{redeemModalData.currentBalance.toFixed(4)}g</span>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Physical Grams to Buy (Redeem)</label>
+                <div className="relative">
+                  <input 
+                    type="number" 
+                    placeholder="e.g. 20.0000"
+                    value={redeemInputWeight}
+                    onChange={(e) => setRedeemInputWeight(e.target.value)}
+                    className="w-full pl-4 pr-12 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all font-bold text-lg"
+                  />
+                  <span className="absolute right-4 top-3.5 text-gray-500 font-bold">g</span>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
+                <span className="text-sm font-bold text-gray-700">Remaining Balance</span>
+                <span className="text-lg font-serif font-bold text-gray-800">
+                  {Math.max(0, redeemModalData.currentBalance - (parseFloat(redeemInputWeight) || 0)).toFixed(4)}g
+                </span>
+              </div>
+            </div>
+            
+            <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end space-x-3">
+              <button 
+                onClick={() => setRedeemModalData(null)} 
+                className="px-6 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleRedeem}
+                disabled={isRedeeming || !redeemInputWeight || parseFloat(redeemInputWeight) <= 0 || parseFloat(redeemInputWeight) > redeemModalData.currentBalance}
+                className="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {isRedeeming ? 'Processing...' : 'Confirm Redeem'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

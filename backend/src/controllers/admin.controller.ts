@@ -167,7 +167,8 @@ export const getTransactions = async (req: Request, res: Response) => {
         amount: data.amount,
         status: data.status,
         date: data.createdAt,
-        model: 'installment'
+        model: 'installment',
+        raw: data
       });
     }
 
@@ -184,7 +185,8 @@ export const getTransactions = async (req: Request, res: Response) => {
         amount: data.amount,
         status: data.status,
         date: data.createdAt,
-        model: 'digitalTransaction'
+        model: 'digitalTransaction',
+        raw: data
       });
     }
 

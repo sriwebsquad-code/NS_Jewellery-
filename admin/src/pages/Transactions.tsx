@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, CheckCircle, XCircle, Search, Filter, RefreshCw, FileText } from 'lucide-react';
+import { CreditCard, CheckCircle, XCircle, Search, Filter, RefreshCw, FileText, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 const TransactionsManagement: React.FC = () => {
@@ -7,6 +7,7 @@ const TransactionsManagement: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTxn, setSelectedTxn] = useState<any>(null);
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
@@ -168,7 +169,7 @@ const TransactionsManagement: React.FC = () => {
                           </button>
                         </div>
                       ) : (
-                        <button className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="View Receipt" onClick={() => alert('Receipt generation coming soon!')}>
+                        <button className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="View Details" onClick={() => setSelectedTxn(txn)}>
                           <FileText size={18} />
                         </button>
                       )}
@@ -180,6 +181,51 @@ const TransactionsManagement: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {selectedTxn && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in relative max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h3 className="text-xl font-serif font-bold text-secondary">Transaction Details</h3>
+              <button onClick={() => setSelectedTxn(null)} className="text-gray-400 hover:text-gray-600 p-1">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500 mb-1">Customer</p>
+                <p className="font-semibold text-gray-800">{selectedTxn.user?.name || 'Unknown'}</p>
+                <p className="text-sm text-gray-600">{selectedTxn.user?.phone}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500 mb-1">Overview</p>
+                <p className="font-semibold text-gray-800">{selectedTxn.type.replace(/_/g, ' ')}</p>
+                <p className="text-sm text-gray-600">{selectedTxn.details}</p>
+                <p className="text-lg font-serif font-bold text-primary mt-2">₹{selectedTxn.amount.toLocaleString()}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500 mb-2">Raw Metadata (Gateway/System)</p>
+                <div className="space-y-2">
+                  {selectedTxn.raw && Object.entries(selectedTxn.raw).map(([key, value]) => {
+                    if (typeof value === 'object') return null;
+                    return (
+                      <div key={key} className="flex justify-between items-start border-b border-gray-100 pb-1 last:border-0">
+                        <span className="text-xs text-gray-500 font-mono">{key}:</span>
+                        <span className="text-xs font-semibold text-gray-800 text-right max-w-[60%] break-words">{String(value)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+              <button onClick={() => setSelectedTxn(null)} className="px-6 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-colors">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -29,6 +29,13 @@ const NotificationScreen = () => {
       if (data.success) {
         setNotifications(data.data);
       }
+      
+      // Mark all as read in the background
+      fetch(`${ENV.API_URL}/notifications/mark-all-read`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).catch(err => console.log('Error marking notifications read:', err));
+
     } catch (error) {
       console.error('Error fetching notifications:', error);
     } finally {

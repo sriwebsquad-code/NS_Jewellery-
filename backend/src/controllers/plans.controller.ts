@@ -250,6 +250,8 @@ export const getMyPlanTransactions = async (req: Request, res: Response) => {
   }
 };
 
+import { smsService } from '../services/sms.service';
+
 export const redeemUserPlan = async (req: Request, res: Response) => {
   try {
     const userPlanId = req.params.userPlanId as string;
@@ -261,10 +263,37 @@ export const redeemUserPlan = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'User plan not found' });
     }
 
+    const userPlanData = userPlanDoc.data()!;
+
     await userPlanRef.update({
       status: 'REDEEMED',
       redeemedAt: new Date().toISOString()
     });
+
+    // Send Notifications
+    try {
+      const userDoc = await db.collection('users').doc(userPlanData.userId).get();
+      const planDoc = await db.collection('plans').doc(userPlanData.planId).get();
+      
+      if (userDoc.exists && planDoc.exists) {
+        const userData = userDoc.data()!;
+        const planData = planDoc.data()!;
+        
+        if (userData.phone) {
+          await smsService.sendSchemeRedeemed(userData.phone, planData.name);
+        }
+
+        await db.collection('notifications').add({
+          userId: userPlanData.userId,
+          title: `Scheme Redeemed`,
+          message: `Your scheme '${planData.name}' has been successfully redeemed at our store! Thank you for saving with NS Mahaveer Jewellery.`,
+          isRead: false,
+          createdAt: new Date().toISOString()
+        });
+      }
+    } catch(e) {
+      console.error('Failed to send scheme redemption notifications', e);
+    }
 
     res.status(200).json({ success: true, message: 'Scheme redeemed successfully' });
   } catch (error: any) {

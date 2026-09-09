@@ -124,6 +124,18 @@ class SMSService {
     }
     await this.sendDLTMessage(phone, templateId, { otp });
   }
+
+  public async sendMetalRedeemed(phone: string, metalType: string, weight: string, balance: string) {
+    const templateId = process.env.TEMPLATE_ID_METAL_REDEEMED;
+    if (!templateId) return; // Silent skip if no template
+    await this.sendDLTMessage(phone, templateId, { metalType, weight, balance });
+  }
+
+  public async sendSchemeRedeemed(phone: string, schemeName: string) {
+    const templateId = process.env.TEMPLATE_ID_SCHEME_REDEEMED;
+    if (!templateId) return; // Silent skip if no template
+    await this.sendDLTMessage(phone, templateId, { schemeName });
+  }
 }
 
 export const smsService = new SMSService();
