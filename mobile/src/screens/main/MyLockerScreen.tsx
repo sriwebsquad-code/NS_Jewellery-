@@ -31,12 +31,13 @@ const MyLockerScreen = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
+      const timestamp = Date.now();
       const [lockerRes, plansRes] = await Promise.all([
-        fetch(`${ENV.API_URL}/digital/locker-dashboard`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        fetch(`${ENV.API_URL}/digital/locker-dashboard?t=${timestamp}`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
         }),
-        fetch(`${ENV.API_URL}/plans/my-plans`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        fetch(`${ENV.API_URL}/plans/my-plans?t=${timestamp}`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
         })
       ]);
 
