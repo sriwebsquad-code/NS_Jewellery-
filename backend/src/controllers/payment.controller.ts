@@ -85,7 +85,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
       if (itemType === 'GOLD' || itemType === 'SILVER') {
         const ratesSnapshot = await db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
         if (!ratesSnapshot.empty) {
-          liveRate = itemType === 'GOLD' ? ratesSnapshot.docs[0].data().goldRate : ratesSnapshot.docs[0].data().silverRate;
+          liveRate = itemType === 'GOLD' ? ratesSnapshot.docs[0].data()?.goldRate : ratesSnapshot.docs[0].data()?.silverRate;
         }
       }
 
@@ -195,6 +195,20 @@ export const verifyPayment = async (req: Request, res: Response) => {
             ...(isCompleted ? { status: 'COMPLETED' } : {}),
             ...(calculatedWeight ? { accumulatedWeight: currentAccumulatedWeight + calculatedWeight } : {})
           });
+
+          // In-App Notification for Scheme Payment
+          try {
+            const planDetails = planRef.exists ? planRef.data() : { name: 'Scheme' };
+            await db.collection('notifications').add({
+              userId,
+              title: 'Installment Paid Successfully',
+              message: `Your payment of ₹${amount} for ${planDetails!.name} (Month ${newCompletedMonths}) was successful.`,
+              isRead: false,
+              createdAt: new Date().toISOString()
+            });
+          } catch(e) {
+            console.error('Failed to add scheme payment notification:', e);
+          }
         }
       } else if ((itemType === 'GOLD' || itemType === 'SILVER') && liveRate) {
         // DIGITAL GOLD/SILVER PURCHASE
@@ -232,6 +246,19 @@ export const verifyPayment = async (req: Request, res: Response) => {
            } else {
                await smsService.sendDigitalSilver(phone, userName, metalWeight.toFixed(4), currentBalance.silverBalance.toFixed(4));
            }
+        }
+
+        // In-App Notification for Digital Purchase
+        try {
+          await db.collection('notifications').add({
+            userId,
+            title: `Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} Purchased`,
+            message: `Your purchase of ${metalWeight.toFixed(4)}g Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} was successful. It has been added to your Digi Locker.`,
+            isRead: false,
+            createdAt: new Date().toISOString()
+          });
+        } catch(e) {
+          console.error('Failed to add digital purchase notification:', e);
         }
       }
 
