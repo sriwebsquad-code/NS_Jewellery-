@@ -45,19 +45,16 @@ const JewelleryDetailScreen = () => {
       
       if (imageUrl) {
         try {
-          // Download the image and convert it to base64
-          const documentDirectory = FileSystem.documentDirectory || '';
-          const fileUri = documentDirectory + 'item_image.jpg';
+          // Download the image directly to a cache directory
+          const cacheDir = FileSystem.cacheDirectory || FileSystem.documentDirectory || '';
+          const fileUri = cacheDir + 'item_image.jpg';
           const { uri } = await FileSystem.downloadAsync(imageUrl, fileUri);
-          const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-          const base64Data = `data:image/jpeg;base64,${base64}`;
 
           await Share.shareSingle({
             social: Share.Social.WHATSAPP,
             message: message,
-            url: base64Data,
+            url: uri, // Use file URI instead of base64 to prevent intent size limit errors
             whatsAppNumber: `91${num}`,
-            filename: 'item_image'
           } as any);
         } catch (shareErr) {
           console.log('Share error', shareErr);
@@ -106,6 +103,13 @@ const JewelleryDetailScreen = () => {
         <View style={styles.infoSection}>
           <Text style={[styles.title, { color: colors.text }]}>{item.name}</Text>
           
+          {item.description ? (
+            <View style={[styles.descriptionContainer, { marginTop: 0, marginBottom: 20 }]}>
+              <Text style={[styles.label, { color: colors.textMuted }]}>Description</Text>
+              <Text style={[styles.description, { color: colors.text, marginTop: 4 }]}>{item.description}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.detailsRow}>
             <Text style={[styles.label, { color: colors.textMuted }]}>Purity</Text>
             <Text style={[styles.value, { color: colors.text }]}>{item.purity}</Text>
@@ -115,13 +119,6 @@ const JewelleryDetailScreen = () => {
             <Text style={[styles.label, { color: colors.textMuted }]}>Weight</Text>
             <Text style={[styles.value, { color: colors.text }]}>{item.weight} g</Text>
           </View>
-
-          {item.description ? (
-            <View style={styles.descriptionContainer}>
-              <Text style={[styles.label, { color: colors.textMuted }]}>Description</Text>
-              <Text style={[styles.description, { color: colors.text }]}>{item.description}</Text>
-            </View>
-          ) : null}
         </View>
 
       </ScrollView>
