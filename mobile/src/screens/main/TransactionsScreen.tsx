@@ -11,7 +11,7 @@ import { ENV } from '../../config/env';
 const TransactionsScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { type, planId, title } = route.params || {};
+  const { type, planId, title, accumulatedWeight, totalPaid, metalType } = route.params || {};
   const { token } = useAuthStore() as any;
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
@@ -80,6 +80,14 @@ const TransactionsScreen = () => {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          {type === 'PLAN' && accumulatedWeight !== undefined && (
+            <View style={{ backgroundColor: colors.cardBackground, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20, alignItems: 'center' }}>
+               <Text style={{ color: colors.textMuted, fontSize: 14, marginBottom: 5 }}>Total Accumulated Weight</Text>
+               <Text style={{ color: '#B8860B', fontSize: 24, fontWeight: 'bold' }}>{accumulatedWeight.toFixed(4)}g {metalType === 'GOLD' ? 'Gold' : (metalType === 'SILVER' ? 'Silver' : '')}</Text>
+               <Text style={{ color: colors.text, fontSize: 16, marginTop: 5, fontWeight: '600' }}>Total Paid: ₹{totalPaid}</Text>
+            </View>
+          )}
+
           {transactions.length === 0 ? (
             <View style={styles.emptyState}>
               <Clock color={colors.textMuted} size={48} style={{ marginBottom: 16 }} />
@@ -101,17 +109,30 @@ const TransactionsScreen = () => {
                     <View>
                       <Text style={[styles.txTitle, { color: colors.text }]}>
                         {t.type === 'REDEEM' ? 'Redemption' : (t.type === 'SELL' ? 'Sold' : (t.type === 'BUY' ? 'Purchased' : 'Installment Paid'))}
+                        {t.monthNumber ? ` (Month ${t.monthNumber})` : ''}
                       </Text>
                       <Text style={[styles.txDate, { color: colors.textMuted }]}>
                         {formatDate(t.createdAt)} • {t.status}
                       </Text>
+                      {t.metalType && t.applicableRate && (
+                        <Text style={[styles.txDate, { color: '#B8860B', marginTop: 2, fontSize: 11 }]}>
+                          Rate: ₹{t.applicableRate}/g
+                        </Text>
+                      )}
                     </View>
                   </View>
                   <View style={styles.txRight}>
                     {type === 'PLAN' ? (
-                      <Text style={[styles.txAmount, { color: isCredit ? '#48C9B0' : '#E74C3C' }]}>
-                        {isCredit ? '+' : '-'}₹{t.amount}
-                      </Text>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={[styles.txAmount, { color: isCredit ? '#48C9B0' : '#E74C3C' }]}>
+                          {isCredit ? '+' : '-'}₹{t.amount}
+                        </Text>
+                        {t.calculatedWeight && (
+                          <Text style={[styles.txDate, { color: '#B8860B', fontWeight: 'bold' }]}>
+                            +{t.calculatedWeight.toFixed(4)}g {t.metalType === 'GOLD' ? 'Gold' : 'Silver'}
+                          </Text>
+                        )}
+                      </View>
                     ) : (
                       <View style={{ alignItems: 'flex-end' }}>
                          <Text style={[styles.txAmount, { color: isCredit ? '#48C9B0' : '#E74C3C' }]}>

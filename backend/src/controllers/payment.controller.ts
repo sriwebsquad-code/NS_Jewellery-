@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import { cashfreeService } from '../services/cashfree.service';
 import { db } from '../config/firebase';
+import { smsService } from '../services/sms.service';
 
 export const createPaymentOrder = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
-    const { amount, itemType } = req.body;
+    const { amount, itemType, planId } = req.body;
 
     if (!amount || amount <= 0) {
       return res.status(400).json({ success: false, message: 'Invalid amount' });
@@ -33,7 +34,8 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         itemType,
         status: 'PENDING',
         paymentSessionId: result.paymentSessionId,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        planId: planId || null
       });
 
       return res.status(200).json({
@@ -75,8 +77,138 @@ export const verifyPayment = async (req: Request, res: Response) => {
         paidAt: new Date().toISOString()
       });
 
-      // Here you would typically fulfill the order (e.g. add gold balance)
-      // depending on orderData.itemType
+      const amount = orderData.amount;
+      const planId = orderData.planId;
+      const itemType = orderData.itemType; // 'GOLD', 'SILVER', 'AMOUNT'
+
+      let liveRate = null;
+      if (itemType === 'GOLD' || itemType === 'SILVER') {
+        const ratesDoc = await db.collection('settings').doc('rates').get();
+        if (ratesDoc.exists) {
+          liveRate = itemType === 'GOLD' ? ratesDoc.data()!.goldRate : ratesDoc.data()!.silverRate;
+        }
+      }
+
+      if (planId) {
+        // SCHEME LOGIC (Auto-join if needed, then credit installment)
+        let actualUserPlanId = planId;
+        let userPlanDoc = await db.collection('userPlans').doc(planId).get();
+        
+        let isWeightBased = itemType === 'GOLD' || itemType === 'SILVER';
+
+        if (!userPlanDoc.exists) {
+          // It's a new join, planId belongs to the global 'plans' collection
+          const basePlanDoc = await db.collection('plans').doc(planId).get();
+          if (basePlanDoc.exists) {
+            const basePlan = basePlanDoc.data()!;
+            // See if user already joined this exact plan
+            const existingJoin = await db.collection('userPlans').where('userId', '==', userId).where('planId', '==', planId).get();
+            if (!existingJoin.empty) {
+              actualUserPlanId = existingJoin.docs[0].id;
+              userPlanDoc = existingJoin.docs[0];
+            } else {
+              // Join now
+              const startDate = new Date();
+              const endDate = new Date(startDate.getTime() + basePlan.durationMonths * 30 * 24 * 60 * 60 * 1000);
+              const nextPaymentDate = new Date(startDate);
+              nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+              
+              const newUserPlanRef = db.collection('userPlans').doc();
+              const userPlan = {
+                id: newUserPlanRef.id,
+                userId,
+                planId: planId,
+                status: 'ACTIVE',
+                totalPaid: 0,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                nextPaymentDate: nextPaymentDate.toISOString(),
+                monthlyAmount: basePlan.schemeType === 'WEIGHT_BASED' ? 0 : parseFloat(amount),
+                metalType: basePlan.schemeType === 'WEIGHT_BASED' ? itemType : null,
+                accumulatedWeight: basePlan.schemeType === 'WEIGHT_BASED' ? 0 : null,
+                completedMonths: 0
+              };
+              
+              await newUserPlanRef.set(userPlan);
+              actualUserPlanId = newUserPlanRef.id;
+              userPlanDoc = await newUserPlanRef.get();
+              
+              const userDoc = await db.collection('users').doc(userId).get();
+              if (userDoc.data()?.phone) {
+                await smsService.sendSchemeJoined(userDoc.data()!.phone, userDoc.data()!.name || 'Customer', basePlan.name);
+              }
+            }
+          }
+        } else {
+          // Re-evaluate if it's weight based in case they passed userPlanId
+          if (userPlanDoc.data()!.metalType === 'GOLD' || userPlanDoc.data()!.metalType === 'SILVER') {
+             isWeightBased = true;
+          }
+        }
+
+        if (userPlanDoc.exists) {
+          const userPlanData = userPlanDoc.data()!;
+          const currentTotalPaid = userPlanData.totalPaid || 0;
+          const currentAccumulatedWeight = userPlanData.accumulatedWeight || 0;
+          const currentCompletedMonths = userPlanData.completedMonths || 0;
+          
+          let calculatedWeight = null;
+          
+          if (isWeightBased && liveRate) {
+            calculatedWeight = amount / liveRate;
+          }
+
+          // Create the Installment directly as PAID
+          const installmentRef = db.collection('installments').doc();
+          await installmentRef.set({
+            id: installmentRef.id,
+            userId,
+            userPlanId: actualUserPlanId,
+            amount: parseFloat(amount),
+            status: 'PAID',
+            paidAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            metalType: isWeightBased ? itemType : null,
+            applicableRate: isWeightBased ? liveRate : null,
+            calculatedWeight: calculatedWeight,
+            eligibleAmount: parseFloat(amount),
+            monthNumber: currentCompletedMonths + 1
+          });
+
+          // Update userPlans ledger
+          let nextPaymentDate = new Date(userPlanData.nextPaymentDate || userPlanData.startDate);
+          nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+          
+          let durationMonths = 11;
+          const planRef = await db.collection('plans').doc(userPlanData.planId).get();
+          if (planRef.exists) {
+             durationMonths = planRef.data()!.durationMonths || 11;
+          }
+
+          const newCompletedMonths = currentCompletedMonths + 1;
+          const isCompleted = newCompletedMonths >= durationMonths;
+
+          await db.collection('userPlans').doc(actualUserPlanId).update({
+            totalPaid: currentTotalPaid + parseFloat(amount),
+            nextPaymentDate: nextPaymentDate.toISOString(),
+            completedMonths: newCompletedMonths,
+            ...(isCompleted ? { status: 'COMPLETED' } : {}),
+            ...(calculatedWeight ? { accumulatedWeight: currentAccumulatedWeight + calculatedWeight } : {})
+          });
+        }
+      } else if ((itemType === 'GOLD' || itemType === 'SILVER') && liveRate) {
+        // DIGITAL GOLD/SILVER PURCHASE
+        const metalWeight = amount / liveRate;
+        await db.collection('digitalTransactions').add({
+          userId,
+          type: 'BUY',
+          metalType: itemType,
+          weight: metalWeight.toFixed(4),
+          amount: parseFloat(amount),
+          status: 'SUCCESS',
+          createdAt: new Date().toISOString()
+        });
+      }
 
       return res.status(200).json({ success: true, message: 'Payment verified successfully' });
     }

@@ -153,7 +153,7 @@ const MyLockerScreen = () => {
                       <TouchableOpacity 
                         key={up.id} 
                         style={[styles.assetCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
-                        onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme' })}
+                        onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER') })}
                       >
                         <View style={styles.assetLeft}>
                           <View style={styles.assetIconWrapper}>
@@ -168,7 +168,7 @@ const MyLockerScreen = () => {
                           {isValueBased ? (
                             <Text style={[styles.assetValue, { color: '#8D6E63' }]}>Rs.{up.totalPaid}</Text>
                           ) : (
-                            <Text style={[styles.assetValue, { color: '#8D6E63' }]}>{((up.totalWeight || 0).toFixed(3))}g</Text>
+                            <Text style={[styles.assetValue, { color: '#8D6E63' }]}>{((up.accumulatedWeight || up.totalWeight || 0).toFixed(4))}g</Text>
                           )}
                           <ArrowRight size={16} color={colors.textMuted} />
                         </View>

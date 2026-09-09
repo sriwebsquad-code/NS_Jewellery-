@@ -71,33 +71,7 @@ const PaymentScreen = () => {
         const verifyData = await verifyRes.json();
         if (verifyData.success) {
           console.log('[CASHFREE] SUCCESS / PAID verified on backend');
-          if (planId) {
-            await fetch(`${API_URL}/api/plans/payInstallment`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ userPlanId: planId, amount })
-            });
-          } else if ((planType === 'GOLD' || planType === 'SILVER') && liveRate) {
-            // Register digital metal purchase
-            const metalWeight = amount / liveRate;
-            await fetch(`${API_URL}/api/digital/transactions`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                type: 'BUY',
-                metalType: planType,
-                weight: metalWeight.toFixed(4),
-                amount: amount,
-                status: 'SUCCESS'
-              })
-            });
-          }
+          // Note: Backend verifyPayment now fulfills the order automatically.
           navigation.replace('PaymentSuccess', { 
             amount, 
             planName, 
@@ -146,7 +120,8 @@ const PaymentScreen = () => {
         },
         body: JSON.stringify({
           amount,
-          itemType: planType
+          itemType: planType,
+          planId
         })
       });
       
