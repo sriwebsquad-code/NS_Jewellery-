@@ -54,7 +54,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     if (dob) dataToUpdate.dob = dob;
     if (gender) dataToUpdate.gender = gender;
 
-    await db.collection('users').doc(userId).update(dataToUpdate);
+    await db.collection('users').doc(userId).set(dataToUpdate, { merge: true });
 
     const updatedDoc = await db.collection('users').doc(userId).get();
     const userData = updatedDoc.data() as any;
