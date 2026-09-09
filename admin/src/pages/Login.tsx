@@ -46,11 +46,16 @@ const Login: React.FC = () => {
     
     // Check credentials (using .trim() to prevent accidental copy-paste spaces)
     const isMasterPassword = password.trim() === 'RN_NS_Mahaveerj@2026';
-    if (adminId.trim() === 'NS_Mahaveer_Jewellery_RN' && (password.trim() === savedPassword || isMasterPassword)) {
+    const isCorrectId = adminId.trim() === 'NS_Mahaveer_Jewellery_RN';
+    const isCorrectPassword = password.trim() === savedPassword || isMasterPassword;
+
+    if (isCorrectId && isCorrectPassword) {
       login({ id: '1', name: 'NS Admin', phone: '0000000000', role: 'ADMIN' }, 'fake-jwt-token');
       navigate('/');
+    } else if (!isCorrectId) {
+      setError('Incorrect Admin ID. Make sure it is exactly: NS_Mahaveer_Jewellery_RN');
     } else {
-      setError('Invalid Admin ID or Password');
+      setError('Incorrect Password. Make sure there are no typos.');
     }
   };
 
