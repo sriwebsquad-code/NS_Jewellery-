@@ -133,7 +133,7 @@ const TransactionsManagement: React.FC = () => {
                   <tr key={txn.id} className="hover:bg-primary/5 transition-colors">
                     <td className="px-6 py-4">
                       <p className="text-sm font-medium text-secondary">
-                        {new Date(txn.date).toLocaleDateString()}
+                        {new Date(txn.date).toLocaleString()}
                       </p>
                       <p className="text-[10px] text-gray-400 uppercase font-mono mt-1" title={txn.id}>
                         ...{txn.id.substring(txn.id.length - 8)}

@@ -161,7 +161,7 @@ export const getTransactions = async (req: Request, res: Response) => {
         id: doc.id,
         user,
         type: `DIGITAL_${data.metalType}_${data.type}`,
-        details: `${(data.weight || 0).toFixed(2)}g`,
+        details: `${(data.weight || 0).toFixed(4)}g`,
         amount: data.amount,
         status: data.status,
         date: data.createdAt,
