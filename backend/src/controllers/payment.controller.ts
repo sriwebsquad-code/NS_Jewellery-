@@ -198,16 +198,28 @@ export const verifyPayment = async (req: Request, res: Response) => {
         }
       } else if ((itemType === 'GOLD' || itemType === 'SILVER') && liveRate) {
         // DIGITAL GOLD/SILVER PURCHASE
-        const metalWeight = amount / liveRate;
+        const metalWeight = Number((amount / liveRate).toFixed(4));
         await db.collection('digitalTransactions').add({
           userId,
           type: 'BUY',
           metalType: itemType,
-          weight: metalWeight.toFixed(4),
+          weight: metalWeight,
           amount: parseFloat(amount),
           status: 'SUCCESS',
           createdAt: new Date().toISOString()
         });
+
+        const balanceRef = db.collection('digitalBalances').doc(userId);
+        const balanceDoc = await balanceRef.get();
+        const currentBalance: any = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
+        
+        if (itemType === 'GOLD') {
+          currentBalance.goldBalance = (currentBalance.goldBalance || 0) + metalWeight;
+        } else if (itemType === 'SILVER') {
+          currentBalance.silverBalance = (currentBalance.silverBalance || 0) + metalWeight;
+        }
+        
+        await balanceRef.set(currentBalance);
       }
 
       return res.status(200).json({ success: true, message: 'Payment verified successfully' });
