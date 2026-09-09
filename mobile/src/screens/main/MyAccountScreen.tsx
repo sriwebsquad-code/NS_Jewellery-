@@ -234,8 +234,8 @@ const MyAccountScreen = () => {
               </TouchableOpacity>
             </View>
             <KeyboardAvoidingView 
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-              style={{ flex: 1 }}
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
+              style={{ width: '100%' }}
             >
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Full Name *</Text>
