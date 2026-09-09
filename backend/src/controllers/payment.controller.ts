@@ -83,9 +83,9 @@ export const verifyPayment = async (req: Request, res: Response) => {
 
       let liveRate = null;
       if (itemType === 'GOLD' || itemType === 'SILVER') {
-        const ratesDoc = await db.collection('settings').doc('rates').get();
-        if (ratesDoc.exists) {
-          liveRate = itemType === 'GOLD' ? ratesDoc.data()!.goldRate : ratesDoc.data()!.silverRate;
+        const ratesSnapshot = await db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
+        if (!ratesSnapshot.empty) {
+          liveRate = itemType === 'GOLD' ? ratesSnapshot.docs[0].data().goldRate : ratesSnapshot.docs[0].data().silverRate;
         }
       }
 
@@ -220,6 +220,19 @@ export const verifyPayment = async (req: Request, res: Response) => {
         }
         
         await balanceRef.set(currentBalance);
+
+        // Send SMS Notification
+        const userDoc2 = await db.collection('users').doc(userId).get();
+        if (userDoc2.exists && userDoc2.data()?.phone) {
+           const userName = userDoc2.data()!.name || 'Customer';
+           const phone = userDoc2.data()!.phone;
+           
+           if (itemType === 'GOLD') {
+               await smsService.sendDigitalGold(phone, userName, metalWeight.toFixed(4), currentBalance.goldBalance.toFixed(4));
+           } else {
+               await smsService.sendDigitalSilver(phone, userName, metalWeight.toFixed(4), currentBalance.silverBalance.toFixed(4));
+           }
+        }
       }
 
       return res.status(200).json({ success: true, message: 'Payment verified successfully' });
