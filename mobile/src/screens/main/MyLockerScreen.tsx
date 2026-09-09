@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image, Modal, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { Menu, ArrowRight, TrendingUp, ChevronDown, CheckCircle2, Circle } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
@@ -22,9 +22,11 @@ const MyLockerScreen = () => {
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   const fetchData = async () => {
     setLoading(true);
