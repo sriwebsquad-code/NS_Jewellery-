@@ -250,8 +250,6 @@ export const getMyPlanTransactions = async (req: Request, res: Response) => {
   }
 };
 
-import { smsService } from '../services/sms.service';
-
 export const redeemUserPlan = async (req: Request, res: Response) => {
   try {
     const userPlanId = req.params.userPlanId as string;

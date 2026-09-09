@@ -43,7 +43,7 @@ const createTransaction = async (req, res) => {
         const userId = req.user?.userId;
         if (!userId)
             return res.status(401).json({ success: false, message: 'Unauthorized' });
-        const { type, metalType, weight, amount } = req.body;
+        const { type, metalType, weight, amount, status = 'PENDING' } = req.body;
         if (!type || !metalType || !weight || !amount) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
@@ -55,10 +55,22 @@ const createTransaction = async (req, res) => {
             metalType,
             weight: parseFloat(weight),
             amount: parseFloat(amount),
-            status: 'PENDING',
+            status,
             createdAt: new Date().toISOString()
         };
         await docRef.set(txn);
+        if (status === 'SUCCESS' && type === 'BUY') {
+            const balanceRef = firebase_1.db.collection('digitalBalances').doc(userId);
+            const balanceDoc = await balanceRef.get();
+            const currentBalance = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
+            if (metalType === 'GOLD') {
+                currentBalance.goldBalance = (currentBalance.goldBalance || 0) + parseFloat(weight);
+            }
+            else if (metalType === 'SILVER') {
+                currentBalance.silverBalance = (currentBalance.silverBalance || 0) + parseFloat(weight);
+            }
+            await balanceRef.set(currentBalance);
+        }
         res.status(201).json({ success: true, message: 'Transaction initiated', data: txn });
     }
     catch (error) {
@@ -75,7 +87,12 @@ const getLockerDashboard = async (req, res) => {
         const locker = lockerDoc.exists ? lockerDoc.data() : { goldBalance: 0, silverBalance: 0 };
         const rateSnapshot = await firebase_1.db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
         const currentRates = rateSnapshot.empty ? { goldRate: 0, silverRate: 0, updatedAt: new Date() } : rateSnapshot.docs[0].data();
-        res.status(200).json({ success: true, data: { locker, currentRates, installments: [] } });
+        const txnsSnapshot = await firebase_1.db.collection('digitalTransactions')
+            .where('userId', '==', userId)
+            .orderBy('createdAt', 'desc')
+            .get();
+        const transactions = txnsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.status(200).json({ success: true, data: { locker, currentRates, installments: [], transactions } });
     }
     catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch locker dashboard', error: error.message });

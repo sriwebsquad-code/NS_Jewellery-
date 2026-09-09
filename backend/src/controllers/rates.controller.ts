@@ -110,6 +110,19 @@ export const updateRates = async (req: Request, res: Response) => {
       console.error('[RATES ERROR] Failed to adjust midnight purchases:', e);
     }
 
+    // Global Notification
+    try {
+      await db.collection('notifications').add({
+        userId: 'GLOBAL',
+        title: 'Live Rates Updated',
+        message: `Today's rates have been updated. Gold: ₹${goldRate}/g, Silver: ₹${silverRate}/g`,
+        isRead: false,
+        createdAt: new Date().toISOString()
+      });
+    } catch(e) {
+      console.error('Failed to add global rate notification:', e);
+    }
+
     res.status(200).json({ success: true, message: 'Rates updated successfully', data: rate });
   } catch (error: any) {
     res.status(500).json({ success: false, message: 'Failed to update rates', error: error.message });

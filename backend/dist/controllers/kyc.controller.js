@@ -4,6 +4,15 @@ exports.verifyPAN = exports.verifyAadhaarOTP = exports.sendAadhaarOTP = void 0;
 const firebase_1 = require("../config/firebase");
 const cashfree_service_1 = require("../services/cashfree.service");
 const sms_service_1 = require("../services/sms.service");
+// Helper to match names securely
+const isNameMatch = (name1, name2) => {
+    if (!name1 || !name2)
+        return false;
+    const n1 = name1.toLowerCase().trim().split(/[\s,.-]+/).filter(Boolean);
+    const n2 = name2.toLowerCase().trim().split(/[\s,.-]+/).filter(Boolean);
+    // At least one significant name token (>2 chars) must match exactly to prevent false positives
+    return n1.some(word => word.length > 2 && n2.includes(word));
+};
 const sendAadhaarOTP = async (req, res) => {
     try {
         const userId = req.user?.userId;
@@ -37,16 +46,24 @@ const verifyAadhaarOTP = async (req, res) => {
         }
         const result = await cashfree_service_1.cashfreeService.verifyAadhaarOTP(referenceId, otp);
         if (result.success) {
-            // Mark user as KYC Verified
+            // Name Matching check
+            const userDoc = await firebase_1.db.collection('users').doc(userId).get();
+            const userData = userDoc.data();
+            const aadhaarName = result.data?.name || '';
+            if (userData?.name && !isNameMatch(userData.name, aadhaarName)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Identity mismatch. Aadhaar name (${aadhaarName}) does not match registered profile name.`
+                });
+            }
+            // Mark user as KYC Verified (Aadhar)
             await firebase_1.db.collection('users').doc(userId).update({
                 kycStatus: 'VERIFIED',
                 kycDocumentType: 'AADHAAR',
-                kycDocumentNumber: aadharNumber,
+                aadharNumber: aadharNumber,
                 kycVerifiedAt: new Date().toISOString()
             });
             // Send SMS
-            const userDoc = await firebase_1.db.collection('users').doc(userId).get();
-            const userData = userDoc.data();
             if (userData?.phone) {
                 await sms_service_1.smsService.sendKycApproved(userData.phone, userData.name || 'Customer');
             }
@@ -81,15 +98,23 @@ const verifyPAN = async (req, res) => {
         if (!verificationResult.success) {
             return res.status(400).json({
                 success: false,
-                message: 'PAN Verification Failed',
+                message: verificationResult.message || 'PAN Verification Failed',
                 error: verificationResult.message
             });
         }
+        // Name Matching Check (Cashfree PAN service returns name match boolean or actual name)
+        const panName = verificationResult.name || verificationResult.data?.registered_name || '';
+        if (userName !== 'Customer' && panName && !isNameMatch(userName, panName)) {
+            return res.status(400).json({
+                success: false,
+                message: `Identity mismatch. PAN name (${panName}) does not match registered profile name.`
+            });
+        }
+        // Mark user as PAN Verified
         await firebase_1.db.collection('users').doc(userId).update({
-            kycStatus: 'VERIFIED',
-            kycDocumentType: 'PAN',
-            kycDocumentNumber: panNumber,
-            kycVerifiedAt: new Date().toISOString()
+            panStatus: 'VERIFIED',
+            panNumber: panNumber,
+            panVerifiedAt: new Date().toISOString()
         });
         // Send SMS
         const userData = userDoc.data();

@@ -8,9 +8,9 @@ const axios_1 = __importDefault(require("axios"));
 class SMSService {
     async sendDLTMessage(phone, templateId, variables) {
         const apiKey = process.env.FAST2SMS_API_KEY;
-        const senderId = process.env.FAST2SMS_SENDER_ID || 'NSMAHA';
+        const senderId = process.env.FAST2SMS_SENDER_ID || 'NSMJCU';
         if (!apiKey) {
-            console.log(`[SMS MOCK] (No API Key) To: ${phone}, Template: ${templateId}, Vars:`, variables);
+            console.error(`[SMS ERROR] Missing FAST2SMS_API_KEY in environment variables. OTP/Message was not sent to ${phone}!`);
             return;
         }
         // Clean phone number
@@ -86,23 +86,28 @@ class SMSService {
         if (!templateId) {
             // Fallback to generic route
             const apiKey = process.env.FAST2SMS_API_KEY;
-            if (!apiKey)
+            if (!apiKey) {
+                console.error(`[SMS ERROR] Missing FAST2SMS_API_KEY in environment variables. OTP was not sent to ${phone}!`);
                 return;
+            }
             const cleanPhone = phone.replace('+91', '');
             if (cleanPhone === '9876543210')
                 return;
             try {
-                await axios_1.default.get('https://www.fast2sms.com/dev/bulkV2', {
-                    params: {
-                        authorization: apiKey,
-                        variables_values: otp,
-                        route: 'otp',
-                        numbers: cleanPhone,
+                console.log(`[SMS DEBUG] Sending Fast2SMS OTP to ${cleanPhone} via POST /dev/otp/send`);
+                const response = await axios_1.default.post('https://www.fast2sms.com/dev/otp/send', {
+                    mobile: cleanPhone,
+                    otp: otp
+                }, {
+                    headers: {
+                        'authorization': apiKey,
+                        'Content-Type': 'application/json'
                     }
                 });
+                console.log(`[SMS SUCCESS] Fast2SMS OTP API Response (Request ID: ${response.data?.request_id || 'N/A'}):`, JSON.stringify(response.data));
             }
             catch (e) {
-                console.error('[SMS ERROR]', e?.response?.data || e.message);
+                console.error('[SMS ERROR] Fast2SMS OTP API Failed:', e?.response?.data || e.message);
             }
             return;
         }

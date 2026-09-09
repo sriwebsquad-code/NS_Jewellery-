@@ -6,6 +6,7 @@ const payment_controller_1 = require("../controllers/payment.controller");
 const router = (0, express_1.Router)();
 // Unprotected route for the WebView HTML
 router.get('/checkout/:sessionId', payment_controller_1.renderCheckoutPage);
+router.get('/return', payment_controller_1.handlePaymentReturn);
 // All other payment routes require authentication
 router.use(auth_middleware_1.authenticate);
 router.post('/create-order', payment_controller_1.createPaymentOrder);

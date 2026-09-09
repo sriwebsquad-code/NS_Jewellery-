@@ -5,30 +5,86 @@ const firebase_1 = require("../config/firebase");
 const sms_service_1 = require("../services/sms.service");
 const getDashboardStats = async (req, res) => {
     try {
-        const usersSnapshot = await firebase_1.db.collection('users').where('role', '==', 'CUSTOMER').get();
-        const totalUsers = usersSnapshot.size;
+        const usersSnapshot = await firebase_1.db.collection('users').get();
+        let totalUsers = 0;
+        usersSnapshot.forEach(doc => {
+            if (doc.data().role !== 'ADMIN') {
+                totalUsers++;
+            }
+        });
         const plansSnapshot = await firebase_1.db.collection('userPlans').where('status', '==', 'ACTIVE').get();
         const activePlans = plansSnapshot.size;
-        const jewellerySnapshot = await firebase_1.db.collection('jewelleryItems').get();
-        const totalJewellery = jewellerySnapshot.size;
+        let plansBreakdown = {
+            goldValue: 0,
+            silverValue: 0,
+            goldWeight: 0,
+            silverWeight: 0
+        };
+        plansSnapshot.forEach(doc => {
+            const p = doc.data();
+            if (p.planId?.toLowerCase().includes('gold') || p.metalType === 'GOLD') {
+                if (p.schemeType === 'VALUE_BASED')
+                    plansBreakdown.goldValue++;
+                else
+                    plansBreakdown.goldWeight++;
+            }
+            else {
+                if (p.schemeType === 'VALUE_BASED')
+                    plansBreakdown.silverValue++;
+                else
+                    plansBreakdown.silverWeight++;
+            }
+        });
+        const digitalBalancesSnapshot = await firebase_1.db.collection('digitalBalances').get();
+        let totalGoldMembers = 0;
+        let totalSilverMembers = 0;
+        digitalBalancesSnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.goldBalance > 0)
+                totalGoldMembers++;
+            if (data.silverBalance > 0)
+                totalSilverMembers++;
+        });
         const startOfMonth = new Date();
         startOfMonth.setDate(1);
         startOfMonth.setHours(0, 0, 0, 0);
         const installmentsSnapshot = await firebase_1.db.collection('installments')
             .where('status', '==', 'PAID')
-            .where('paidAt', '>=', startOfMonth.toISOString())
             .get();
         let monthlyRevenue = 0;
         installmentsSnapshot.forEach(doc => {
-            monthlyRevenue += (doc.data().amount || 0);
+            const data = doc.data();
+            if (data.paidAt && data.paidAt >= startOfMonth.toISOString()) {
+                monthlyRevenue += (data.amount || 0);
+            }
         });
+        // Recent Actions
+        let recentActions = [];
+        try {
+            const recentTxnsSnapshot = await firebase_1.db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(5).get();
+            recentActions = recentTxnsSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    title: `${data.type} ${data.metalType}`,
+                    time: data.createdAt,
+                    user: data.userId?.substring(0, 4) || 'US'
+                };
+            });
+        }
+        catch (e) {
+            console.log('Error fetching recent actions, maybe index missing:', e);
+        }
         res.status(200).json({
             success: true,
             data: {
                 totalUsers,
                 activePlans,
-                totalJewellery,
-                monthlyRevenue
+                plansBreakdown,
+                totalGoldMembers,
+                totalSilverMembers,
+                monthlyRevenue,
+                recentActions
             }
         });
     }

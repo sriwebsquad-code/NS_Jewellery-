@@ -6,6 +6,7 @@ declare class CashfreeService {
     private pgBaseUrl;
     private verifyBaseUrl;
     constructor();
+    getEnvironment(): "PRODUCTION" | "SANDBOX";
     private get pgHeaders();
     private get verifyHeaders();
     verifyPAN(panNumber: string, name: string): Promise<{
@@ -47,9 +48,11 @@ declare class CashfreeService {
         success: boolean;
         paymentSessionId: any;
         orderId: any;
+        environment: string;
     } | {
         paymentSessionId?: never;
         orderId?: never;
+        environment?: never;
         success: boolean;
         message: any;
     }>;

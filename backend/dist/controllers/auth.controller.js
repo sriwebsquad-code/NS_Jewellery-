@@ -34,7 +34,9 @@ const sendOTP = async (req, res) => {
         // Store in memory
         otpStore.set(cleanPhone, { otp, expiresAt });
         // Use SMS Service (handles DLT and generic fallback)
-        await sms_service_1.smsService.sendLoginOtp(phone, otp);
+        // Fire and forget to make the API response instantaneous
+        console.log(`[AUTH DEBUG] Triggering SMS service to send OTP to ${cleanPhone}`);
+        sms_service_1.smsService.sendLoginOtp(phone, otp).catch(err => console.error('SMS Send Error:', err));
         res.status(200).json({ success: true, message: 'OTP sent successfully' });
     }
     catch (error) {
@@ -173,16 +175,18 @@ const requestMpinReset = async (req, res) => {
         const { phone } = req.body;
         if (!phone)
             return res.status(400).json({ success: false, message: 'Phone number is required' });
-        const snapshot = await firebase_1.db.collection('users').where('phone', '==', phone).limit(1).get();
+        const cleanPhone = phone.replace('+91', '');
+        const phoneNumber = `+91${cleanPhone}`;
+        const snapshot = await firebase_1.db.collection('users').where('phone', '==', phoneNumber).limit(1).get();
         if (snapshot.empty) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
         // Generate a 4-digit OTP
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-        otpStore.set(phone, { otp, expiresAt });
+        otpStore.set(cleanPhone, { otp, expiresAt });
         // Send SMS via SMS Service
-        await sms_service_1.smsService.sendMpinResetOtp(phone, otp);
+        await sms_service_1.smsService.sendMpinResetOtp(cleanPhone, otp);
         // Simulate sending OTP to email
         console.log(`\n\n--- OTP NOTIFICATION ---`);
         console.log(`To: ${phone}`);
@@ -200,20 +204,21 @@ const verifyMpinResetOtp = async (req, res) => {
         const { phone, otp } = req.body;
         if (!phone || !otp)
             return res.status(400).json({ success: false, message: 'Phone and OTP required' });
-        const storedData = otpStore.get(phone);
+        const cleanPhone = phone.replace('+91', '');
+        const storedData = otpStore.get(cleanPhone);
         if (!storedData) {
             return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
         }
         if (new Date() > storedData.expiresAt) {
-            otpStore.delete(phone);
+            otpStore.delete(cleanPhone);
             return res.status(400).json({ success: false, message: 'OTP expired' });
         }
         if (storedData.otp !== otp) {
             return res.status(400).json({ success: false, message: 'Incorrect OTP' });
         }
         // Generate a temporary reset token
-        const resetToken = (0, jwt_1.generateToken)({ userId: phone, role: 'reset' });
-        otpStore.delete(phone); // Clear OTP
+        const resetToken = (0, jwt_1.generateToken)({ userId: cleanPhone, role: 'reset' });
+        otpStore.delete(cleanPhone); // Clear OTP
         res.status(200).json({ success: true, message: 'OTP verified', data: { resetToken } });
     }
     catch (error) {
@@ -223,15 +228,34 @@ const verifyMpinResetOtp = async (req, res) => {
 exports.verifyMpinResetOtp = verifyMpinResetOtp;
 const resetMpin = async (req, res) => {
     try {
-        const { phone, resetToken, newMpin } = req.body;
-        if (!phone || !resetToken || !newMpin) {
+        const { phone, resetToken, otp, newMpin } = req.body;
+        if (!phone || !newMpin || (!resetToken && !otp)) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
-        // Verify reset token (in a real app, you'd decode and verify the JWT)
-        if (!resetToken) {
-            return res.status(401).json({ success: false, message: 'Invalid reset token' });
+        const cleanPhone = phone.replace('+91', '');
+        const phoneNumber = `+91${cleanPhone}`;
+        if (otp) {
+            // Verify OTP inline
+            const storedData = otpStore.get(cleanPhone);
+            if (!storedData) {
+                return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+            }
+            if (new Date() > storedData.expiresAt) {
+                otpStore.delete(cleanPhone);
+                return res.status(400).json({ success: false, message: 'OTP expired' });
+            }
+            if (storedData.otp !== otp) {
+                return res.status(400).json({ success: false, message: 'Incorrect OTP' });
+            }
+            otpStore.delete(cleanPhone); // Clear OTP
         }
-        const snapshot = await firebase_1.db.collection('users').where('phone', '==', phone).limit(1).get();
+        else if (resetToken) {
+            // Verify reset token (in a real app, you'd decode and verify the JWT)
+            if (!resetToken) {
+                return res.status(401).json({ success: false, message: 'Invalid reset token' });
+            }
+        }
+        const snapshot = await firebase_1.db.collection('users').where('phone', '==', phoneNumber).limit(1).get();
         if (snapshot.empty) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }

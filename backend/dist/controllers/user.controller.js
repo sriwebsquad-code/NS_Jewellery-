@@ -57,7 +57,7 @@ const updateProfile = async (req, res) => {
             dataToUpdate.dob = dob;
         if (gender)
             dataToUpdate.gender = gender;
-        await firebase_1.db.collection('users').doc(userId).update(dataToUpdate);
+        await firebase_1.db.collection('users').doc(userId).set(dataToUpdate, { merge: true });
         const updatedDoc = await firebase_1.db.collection('users').doc(userId).get();
         const userData = updatedDoc.data();
         delete userData.mpin;

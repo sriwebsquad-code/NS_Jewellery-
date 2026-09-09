@@ -22,7 +22,7 @@ if ((0, app_1.getApps)().length === 0) {
     }
     (0, app_1.initializeApp)({
         credential: (0, app_1.cert)(serviceAccount),
-        storageBucket: `${serviceAccount.project_id}.appspot.com`
+        storageBucket: 'nsmj2023-6b271.firebasestorage.app'
     });
 }
 const app = (0, app_1.getApp)();
