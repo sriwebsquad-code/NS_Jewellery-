@@ -233,7 +233,7 @@ export const redeemUserMetal = async (req: Request, res: Response) => {
       if (userDoc.exists) {
         const userData = userDoc.data()!;
         if (userData.phone) {
-          await smsService.sendMetalRedeemed(userData.phone, type, redeemWeight.toFixed(4), remainingBalance.toFixed(4));
+          await smsService.sendMetalRedeemed(userData.phone, userData.name || 'Customer', type, redeemWeight.toFixed(4), remainingBalance.toFixed(4));
         }
 
         await db.collection('notifications').add({

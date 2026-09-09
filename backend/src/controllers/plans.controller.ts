@@ -2,6 +2,16 @@ import { Request, Response } from 'express';
 import { db } from '../config/firebase';
 import { smsService } from '../services/sms.service';
 
+const formatPlanName = (name: string) => {
+  if (!name) return name;
+  const n = name.toLowerCase().trim();
+  if (n === 'gold 11 scheme') return '11 Month Weight based Gold Scheme';
+  if (n === '11 month gold scheme') return '11 Month Value based Gold Scheme';
+  if (n === 'silver 11 scheme') return '11 Month Weight based Silver Scheme';
+  if (n === '11 month silver scheme') return '11 Month Value based Silver Scheme';
+  return name;
+};
+
 export const getPlans = async (req: Request, res: Response) => {
   try {
     const snapshot = await db.collection('plans').where('isActive', '==', true).get();
@@ -278,13 +288,13 @@ export const redeemUserPlan = async (req: Request, res: Response) => {
         const planData = planDoc.data()!;
         
         if (userData.phone) {
-          await smsService.sendSchemeRedeemed(userData.phone, planData.name);
+          await smsService.sendSchemeRedeemed(userData.phone, userData.name || 'Customer', formatPlanName(planData.name));
         }
 
         await db.collection('notifications').add({
           userId: userPlanData.userId,
           title: `Scheme Redeemed`,
-          message: `Your scheme '${planData.name}' has been successfully redeemed at our store! Thank you for saving with NS Mahaveer Jewellery.`,
+          message: `Your scheme '${formatPlanName(planData.name)}' has been successfully redeemed at our store! Thank you for saving with NS Mahaveer Jewellery.`,
           isRead: false,
           createdAt: new Date().toISOString()
         });
