@@ -21,24 +21,24 @@ export const getReports = async (req: Request, res: Response) => {
       if (category === 'digigold' || category === 'digisilver') {
         const metalType = category === 'digigold' ? 'GOLD' : 'SILVER';
         const snapshot = await db.collection('digitalTransactions')
-          .where('metalType', '==', metalType)
-          .where('status', '==', 'SUCCESS')
           .where('createdAt', '>=', startIso)
           .where('createdAt', '<=', endIso)
           .get();
         
         snapshot.forEach(doc => {
           const data = doc.data();
-          results.push({
-            id: doc.id,
-            date: data.createdAt,
-            type: data.type,
-            user: data.userId || 'Unknown',
-            amount: data.amount,
-            weight: data.weight || 0,
-            metal: metalType,
-            receiptId: data.receiptId || '-'
-          });
+          if (data.metalType === metalType && data.status === 'SUCCESS') {
+            results.push({
+              id: doc.id,
+              date: data.createdAt,
+              type: data.type,
+              user: data.userId || 'Unknown',
+              amount: data.amount,
+              weight: data.weight || 0,
+              metal: metalType,
+              receiptId: data.receiptId || '-'
+            });
+          }
         });
       } else {
         // Schemes
@@ -83,14 +83,13 @@ export const getReports = async (req: Request, res: Response) => {
             // Fetch installments
             // Cannot use 'in' if userPlanIds > 10, so fetch by date range and filter
             const instSnap = await db.collection('installments')
-              .where('status', '==', 'PAID')
               .where('createdAt', '>=', startIso)
               .where('createdAt', '<=', endIso)
               .get();
 
             instSnap.forEach(doc => {
               const data = doc.data();
-              if (userPlanIds.includes(data.userPlanId)) {
+              if (data.status === 'PAID' && userPlanIds.includes(data.userPlanId)) {
                 results.push({
                   id: doc.id,
                   date: data.paidAt || data.createdAt,
@@ -114,8 +113,6 @@ export const getReports = async (req: Request, res: Response) => {
         // Easiest is to fetch all success transactions in range, group by user,
         // and fetch user details. (This is an approximation for new customers)
         const snapshot = await db.collection('digitalTransactions')
-          .where('metalType', '==', metalType)
-          .where('status', '==', 'SUCCESS')
           .where('createdAt', '>=', startIso)
           .where('createdAt', '<=', endIso)
           .get();
@@ -125,7 +122,7 @@ export const getReports = async (req: Request, res: Response) => {
 
         snapshot.forEach(doc => {
           const data = doc.data();
-          if (data.userId && data.type === 'BUY') {
+          if (data.metalType === metalType && data.status === 'SUCCESS' && data.userId && data.type === 'BUY') {
             userSet.add(data.userId);
             if (!userTotals[data.userId]) userTotals[data.userId] = { amount: 0, weight: 0 };
             userTotals[data.userId]!.amount += data.amount || 0;
@@ -160,19 +157,10 @@ export const getReports = async (req: Request, res: Response) => {
          const planNames = plansSnap.docs.reduce((acc, doc) => ({...acc, [doc.id]: doc.data().name}), {} as any);
  
          if (planIds.length > 0) {
-           let userPlansSnap;
-           if (planIds.length <= 10) {
-             userPlansSnap = await db.collection('userPlans')
-               .where('planId', 'in', planIds)
-               .where('createdAt', '>=', startIso)
-               .where('createdAt', '<=', endIso)
-               .get();
-           } else {
-             userPlansSnap = await db.collection('userPlans')
-               .where('createdAt', '>=', startIso)
-               .where('createdAt', '<=', endIso)
-               .get();
-           }
+           let userPlansSnap = await db.collection('userPlans')
+             .where('createdAt', '>=', startIso)
+             .where('createdAt', '<=', endIso)
+             .get();
  
            userPlansSnap.forEach(doc => {
              const data = doc.data();
