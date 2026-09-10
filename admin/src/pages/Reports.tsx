@@ -183,7 +183,7 @@ const Reports: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Report Type</label>
             <select 
@@ -212,7 +212,7 @@ const Reports: React.FC = () => {
             </select>
           </div>
 
-          <div>
+          <div className="lg:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date Range</label>
             <div className="flex items-center space-x-2">
               <input 
