@@ -6,16 +6,37 @@ const fix = async () => {
   for (const doc of snapshot.docs) {
     const data = doc.data();
     let newName = '';
-    
-    if (data.metalType === 'GOLD' && data.schemeType === 'VALUE_BASED') newName = 'Gold Value Schemes';
-    if (data.metalType === 'GOLD' && data.schemeType === 'WEIGHT_BASED') newName = 'Gold Weight Schemes';
-    if (data.metalType === 'SILVER' && data.schemeType === 'VALUE_BASED') newName = 'Silver Value Schemes';
-    if (data.metalType === 'SILVER' && data.schemeType === 'WEIGHT_BASED') newName = 'Silver Weight Schemes';
+    let mType = '';
+    let sType = '';
 
-    if (newName && data.name !== newName) {
-      await doc.ref.update({ name: newName });
+    const n = data.name.toLowerCase();
+    
+    if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme')) {
+      newName = 'Gold Weight Schemes';
+      mType = 'GOLD';
+      sType = 'WEIGHT_BASED';
+    } else if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme')) {
+      newName = 'Gold Value Schemes';
+      mType = 'GOLD';
+      sType = 'VALUE_BASED';
+    } else if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme')) {
+      newName = 'Silver Weight Schemes';
+      mType = 'SILVER';
+      sType = 'WEIGHT_BASED';
+    } else if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme')) {
+      newName = 'Silver Value Schemes';
+      mType = 'SILVER';
+      sType = 'VALUE_BASED';
+    }
+
+    if (newName) {
+      await doc.ref.update({ 
+        name: newName,
+        metalType: mType,
+        schemeType: sType
+      });
       count++;
-      console.log('Updated ' + data.name + ' to ' + newName);
+      console.log(`Updated ${data.name} to ${newName} (${mType}/${sType})`);
     }
   }
   console.log('Updated ' + count + ' plans.');

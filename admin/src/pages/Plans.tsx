@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Calendar, X, Layers, Coins, Users as UsersIcon, ChevronDown, ChevronUp, CheckCircle, Clock, ArrowRight, Search } from 'lucide-react';
+import { Layers, Users as UsersIcon, ChevronDown, ChevronUp, CheckCircle, Clock, ArrowRight, Search } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 interface PlansManagementProps {
@@ -8,8 +8,6 @@ interface PlansManagementProps {
 }
 
 const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilter }) => {
-  const [plans, setPlans] = useState<any[]>([]);
-  const [isAddingPlan, setIsAddingPlan] = useState(false);
   const token = useAuthStore(state => state.token);
 
 
@@ -28,7 +26,6 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
 
   useEffect(() => {
     fetchPlans();
-    setIsAddingPlan(false);
     setSearchQuery('');
   }, [typeFilter, metalFilter]);
 
