@@ -71,6 +71,13 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const usersSnapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
     const userPlansSnapshot = await db.collection('userPlans').get();
     const plansSnapshot = await db.collection('plans').get();
+    const digitalBalancesSnapshot = await db.collection('digitalBalances').get();
+
+    // Map digital balances by userId
+    const digitalBalancesMap: Record<string, any> = {};
+    digitalBalancesSnapshot.docs.forEach(doc => {
+      digitalBalancesMap[doc.id] = doc.data();
+    });
 
     // Map plans by ID
     const plansMap: Record<string, any> = {};
@@ -97,10 +104,15 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const users = usersSnapshot.docs.map(doc => {
       const data = doc.data();
       delete data.mpin; // Don't send passwords
+      
+      const digitalBalance = digitalBalancesMap[doc.id] || { goldBalance: 0, silverBalance: 0 };
+      
       return {
         id: doc.id,
         ...data,
-        activeSchemes: activeSchemesMap[doc.id] || []
+        activeSchemes: activeSchemesMap[doc.id] || [],
+        digitalGoldBalance: digitalBalance.goldBalance || 0,
+        digitalSilverBalance: digitalBalance.silverBalance || 0
       };
     });
 
