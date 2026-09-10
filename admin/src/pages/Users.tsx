@@ -494,6 +494,33 @@ const UsersManagement: React.FC = () => {
                             </div>
                           </div>
 
+                          <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Digital Balances</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 border border-yellow-200/50 rounded-xl p-5 shadow-sm flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-yellow-100 text-yellow-600 rounded-full">
+                                  <Coins size={20} />
+                                </div>
+                                <div>
+                                  <p className="text-xs font-bold text-yellow-800 uppercase tracking-wider">Digital Gold</p>
+                                  <p className="text-2xl font-bold text-gray-900 mt-1">{(user.digitalGoldBalance || 0).toFixed(4)} <span className="text-sm text-gray-500 font-medium">g</span></p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 border border-gray-200/50 rounded-xl p-5 shadow-sm flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-gray-200 text-gray-600 rounded-full">
+                                  <Coins size={20} />
+                                </div>
+                                <div>
+                                  <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">Digital Silver</p>
+                                  <p className="text-2xl font-bold text-gray-900 mt-1">{(user.digitalSilverBalance || 0).toFixed(4)} <span className="text-sm text-gray-500 font-medium">g</span></p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
                           <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Active Schemes & Plans</h4>
                           {(!user.activeSchemes || user.activeSchemes.length === 0) ? (
                             <p className="text-gray-500 text-sm italic bg-white p-4 rounded-lg border border-gray-100">This customer is not enrolled in any active schemes.</p>
