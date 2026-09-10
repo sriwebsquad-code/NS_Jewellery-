@@ -205,7 +205,7 @@ const Dashboard: React.FC = () => {
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
                   <YAxis tickFormatter={(val) => `₹${val/1000}k`} axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
                   <Tooltip 
-                    formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Revenue']}
+                    formatter={(value: any) => [`₹${Number(value || 0).toLocaleString()}`, 'Revenue']}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
                   />
                   <Area type="monotone" dataKey="value" stroke="#D4AF37" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
