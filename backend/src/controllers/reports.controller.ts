@@ -128,8 +128,8 @@ export const getReports = async (req: Request, res: Response) => {
           if (data.userId && data.type === 'BUY') {
             userSet.add(data.userId);
             if (!userTotals[data.userId]) userTotals[data.userId] = { amount: 0, weight: 0 };
-            userTotals[data.userId].amount += data.amount || 0;
-            userTotals[data.userId].weight += data.weight || 0;
+            userTotals[data.userId]!.amount += data.amount || 0;
+            userTotals[data.userId]!.weight += data.weight || 0;
           }
         });
 
@@ -138,8 +138,8 @@ export const getReports = async (req: Request, res: Response) => {
             userId,
             joinedDate: startIso.slice(0, 10), // approximate for report range
             metal: metalType,
-            totalAmount: userTotals[userId].amount,
-            totalWeight: userTotals[userId].weight
+            totalAmount: userTotals[userId]?.amount || 0,
+            totalWeight: userTotals[userId]?.weight || 0
           });
         }
       } else {

@@ -119,30 +119,97 @@ const getDashboardStats = async (req, res) => {
                     revenueBreakdown.digiSilver += amt;
             }
         });
-        // Recent Actions
+        // Recent Actions - fetch from all 3 collections
         let recentActions = [];
         try {
-            const recentTxnsSnapshot = await firebase_1.db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(5).get();
-            const actionsPromises = recentTxnsSnapshot.docs.map(async (doc) => {
-                const data = doc.data();
+            const [recentDigi, recentInst, recentRedemptions] = await Promise.all([
+                firebase_1.db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(20).get(),
+                firebase_1.db.collection('installments').orderBy('createdAt', 'desc').limit(20).get(),
+                firebase_1.db.collection('userPlans').where('status', '==', 'REDEEMED').orderBy('updatedAt', 'desc').limit(20).get()
+            ]);
+            const allRecent = [
+                ...recentDigi.docs.map(d => ({ id: d.id, collection: 'digital', createdAt: d.data().createdAt, ...d.data() })),
+                ...recentInst.docs.map(d => ({ id: d.id, collection: 'installment', createdAt: d.data().createdAt, ...d.data() })),
+                ...recentRedemptions.docs.map(d => ({ id: d.id, collection: 'redemption', createdAt: d.data().updatedAt || d.data().createdAt, ...d.data() }))
+            ]
+                .filter((a) => a.createdAt)
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .slice(0, 15);
+            const actionsPromises = allRecent.map(async (data) => {
                 let userName = 'Unknown';
                 if (data.userId) {
                     const userDoc = await firebase_1.db.collection('users').doc(data.userId).get();
                     if (userDoc.exists)
                         userName = userDoc.data()?.name || data.userId.substring(0, 4);
                 }
+                let title = '';
+                if (data.collection === 'digital') {
+                    title = `${data.type} ${data.metalType}`;
+                }
+                else if (data.collection === 'installment') {
+                    title = `SCHEME INSTALLMENT`;
+                    if (data.userPlanId && userPlansMap[data.userPlanId]) {
+                        const planInfo = plansMap[userPlansMap[data.userPlanId].planId];
+                        if (planInfo)
+                            title = `INSTALLMENT - ${planInfo.name || 'Scheme'}`;
+                    }
+                }
+                else if (data.collection === 'redemption') {
+                    title = `REDEEM SCHEME`;
+                    if (data.planId) {
+                        const planInfo = plansMap[data.planId];
+                        if (planInfo)
+                            title = `REDEEM - ${planInfo.name || 'Scheme'}`;
+                    }
+                }
                 return {
-                    id: doc.id,
-                    title: `${data.type} ${data.metalType}`,
+                    id: data.id,
+                    title,
                     time: data.createdAt,
-                    user: userName
+                    user: userName,
+                    route: '/admin/transactions'
                 };
             });
             recentActions = await Promise.all(actionsPromises);
         }
         catch (e) {
-            console.log('Error fetching recent actions, maybe index missing:', e);
+            console.log('Error fetching recent actions:', e);
         }
+        // Build date-wise daily chart data for Digi Gold & Digi Silver (last 30 days)
+        const today = new Date();
+        const start30 = new Date();
+        start30.setDate(today.getDate() - 29);
+        start30.setHours(0, 0, 0, 0);
+        const dailyMap = {};
+        for (let i = 0; i < 30; i++) {
+            const d = new Date(start30);
+            d.setDate(start30.getDate() + i);
+            const key = d.toISOString().slice(0, 10);
+            dailyMap[key] = { date: key, gold: 0, silver: 0 };
+        }
+        const allDigiTxns = await firebase_1.db.collection('digitalTransactions')
+            .where('type', '==', 'BUY')
+            .where('status', '==', 'SUCCESS')
+            .get();
+        allDigiTxns.forEach(doc => {
+            const data = doc.data();
+            if (!data.createdAt)
+                return;
+            const key = data.createdAt.slice(0, 10);
+            if (dailyMap[key]) {
+                if (data.metalType === 'GOLD')
+                    dailyMap[key].gold += data.amount || 0;
+                else if (data.metalType === 'SILVER')
+                    dailyMap[key].silver += data.amount || 0;
+            }
+        });
+        const dailyChartData = Object.values(dailyMap)
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(d => ({
+            date: d.date.slice(5), // Format as MM-DD
+            gold: d.gold,
+            silver: d.silver
+        }));
         res.status(200).json({
             success: true,
             data: {
@@ -155,6 +222,7 @@ const getDashboardStats = async (req, res) => {
                 totalSilverWeight,
                 monthlyRevenue,
                 revenueBreakdown,
+                dailyChartData,
                 recentActions
             }
         });
