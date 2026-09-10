@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layers, Users as UsersIcon, ChevronDown, ChevronUp, CheckCircle, Clock, ArrowRight, Search } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import ReceiptModal, { ReceiptData } from '../components/ReceiptModal';
 
 interface PlansManagementProps {
   typeFilter: 'VALUE_BASED' | 'WEIGHT_BASED';
@@ -24,6 +25,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isFetchingTransactions, setIsFetchingTransactions] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
 
   useEffect(() => {
     fetchPlans();
@@ -114,6 +116,19 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
         alert("Scheme redeemed successfully!");
         // Update local state to reflect redemption
         setPlanUsers(prev => prev.map(up => up.id === userPlanId ? { ...up, status: 'REDEEMED' } : up));
+        
+        // Find the user details to show in the bill
+        const enrollment = planUsers.find(up => up.id === userPlanId);
+        
+        setReceiptData({
+          id: userPlanId,
+          date: new Date().toISOString(),
+          type: 'SCHEME_REDEEM',
+          details: selectedPlan?.name || 'Scheme Redemption',
+          amount: `₹${enrollment?.totalPaid || 0}`,
+          customerName: enrollment?.user?.name || 'Customer',
+          customerPhone: enrollment?.user?.phone
+        });
       } else {
         alert(data.message || 'Failed to redeem scheme');
       }
@@ -308,6 +323,12 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
           No scheme found for this category.
         </div>
       )}
+
+      <ReceiptModal 
+        isOpen={!!receiptData} 
+        onClose={() => setReceiptData(null)} 
+        data={receiptData} 
+      />
     </div>
   );
 };

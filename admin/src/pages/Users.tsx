@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Users as UsersIcon, Search, ShieldCheck, Clock, Phone, MapPin, ChevronDown, ChevronUp, Layers, Coins, Filter, X, User as UserIcon, Mail, Calendar, UserCheck, Map, Hash, FileText } from 'lucide-react';
+import { Users as UsersIcon, Search, ShieldCheck, Clock, Phone, MapPin, ChevronDown, ChevronUp, Layers, Coins, Filter, X, User as UserIcon, Mail, Calendar, UserCheck, Map, Hash, FileText, FileText as Receipt } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import ReceiptModal, { ReceiptData } from '../components/ReceiptModal';
 
 interface User {
   id: string;
@@ -25,9 +26,10 @@ interface User {
   digitalSilverBalance?: number;
 }
 
-const UserTransactions: React.FC<{ userId: string, token: string | null }> = ({ userId, token }) => {
+const UserTransactions: React.FC<{ userId: string, token: string | null, userName?: string | null, userPhone?: string }> = ({ userId, token, userName, userPhone }) => {
   const [txns, setTxns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
 
   useEffect(() => {
     const fetchTxns = async () => {
@@ -51,38 +53,102 @@ const UserTransactions: React.FC<{ userId: string, token: string | null }> = ({ 
   if (loading) return <p className="text-gray-500 text-sm mt-4">Loading transactions...</p>;
   if (txns.length === 0) return <p className="text-gray-500 text-sm italic mt-4">No transactions found for this customer.</p>;
 
+  const payments = txns.filter(t => !t.type.includes('REDEEM'));
+  const redemptions = txns.filter(t => t.type.includes('REDEEM'));
+
+  const handleViewBill = (t: any) => {
+    setReceiptData({
+      id: t.id,
+      date: t.date,
+      type: t.type,
+      details: t.details,
+      amount: `₹${t.amount.toLocaleString()}`,
+      customerName: userName || 'Customer',
+      customerPhone: userPhone
+    });
+  };
+
   return (
-    <div className="mt-6">
-      <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Payment History</h4>
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-gray-500 font-semibold">Date</th>
-              <th className="px-4 py-3 text-gray-500 font-semibold">Type</th>
-              <th className="px-4 py-3 text-gray-500 font-semibold text-right">Amount</th>
-              <th className="px-4 py-3 text-gray-500 font-semibold text-center">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {txns.map(t => (
-              <tr key={t.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-700">{new Date(t.date).toLocaleDateString()}</td>
-                <td className="px-4 py-3">
-                  <span className="text-xs font-bold text-primary">{t.type.replace(/_/g, ' ')}</span>
-                  <div className="text-xs text-gray-500 mt-1">{t.details}</div>
-                </td>
-                <td className="px-4 py-3 text-right font-bold text-gray-800">₹{t.amount.toLocaleString()}</td>
-                <td className="px-4 py-3 text-center">
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${t.status === 'SUCCESS' || t.status === 'PAID' ? 'bg-green-100 text-green-700' : t.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                    {t.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="mt-6 space-y-8">
+      {payments.length > 0 && (
+        <div>
+          <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Payment History</h4>
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-gray-500 font-semibold">Date</th>
+                  <th className="px-4 py-3 text-gray-500 font-semibold">Type</th>
+                  <th className="px-4 py-3 text-gray-500 font-semibold text-right">Amount</th>
+                  <th className="px-4 py-3 text-gray-500 font-semibold text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {payments.map(t => (
+                  <tr key={t.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-gray-700">{new Date(t.date).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      <span className="text-xs font-bold text-primary">{t.type.replace(/_/g, ' ')}</span>
+                      <div className="text-xs text-gray-500 mt-1">{t.details}</div>
+                    </td>
+                    <td className="px-4 py-3 text-right font-bold text-gray-800">₹{t.amount.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${t.status === 'SUCCESS' || t.status === 'PAID' ? 'bg-green-100 text-green-700' : t.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                        {t.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {redemptions.length > 0 && (
+        <div>
+          <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Redeem History</h4>
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-gray-500 font-semibold">Date</th>
+                  <th className="px-4 py-3 text-gray-500 font-semibold">Type</th>
+                  <th className="px-4 py-3 text-gray-500 font-semibold text-right">Amount</th>
+                  <th className="px-4 py-3 text-gray-500 font-semibold text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {redemptions.map(t => (
+                  <tr key={t.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-gray-700">{new Date(t.date).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      <span className="text-xs font-bold text-primary">{t.type.replace(/_/g, ' ')}</span>
+                      <div className="text-xs text-gray-500 mt-1">{t.details}</div>
+                    </td>
+                    <td className="px-4 py-3 text-right font-bold text-gray-800">₹{t.amount.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-center">
+                      <button 
+                        onClick={() => handleViewBill(t)}
+                        className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-3 py-1.5 rounded transition-colors inline-flex items-center space-x-1"
+                      >
+                        <Receipt size={14} />
+                        <span>Bill</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+      
+      <ReceiptModal 
+        isOpen={!!receiptData} 
+        onClose={() => setReceiptData(null)} 
+        data={receiptData} 
+      />
     </div>
   );
 };
@@ -576,7 +642,7 @@ const UsersManagement: React.FC = () => {
                           
                           {/* Transaction History Section */}
                           <div className="mt-4">
-                            <UserTransactions userId={user.id} token={token} />
+                            <UserTransactions userId={user.id} token={token} userName={user.name} userPhone={user.phone} />
                           </div>
                         </td>
                       </tr>

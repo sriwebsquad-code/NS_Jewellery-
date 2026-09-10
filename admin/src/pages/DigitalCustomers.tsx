@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layers, Phone, Search, ArrowRight, ChevronDown, ChevronUp, CheckCircle, Clock, Coins } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import ReceiptModal, { ReceiptData } from '../components/ReceiptModal';
 
 const DigitalCustomers: React.FC = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -18,6 +19,9 @@ const DigitalCustomers: React.FC = () => {
   // Redeem Modal state
   const [redeemModalData, setRedeemModalData] = useState<{userId: string, currentBalance: number} | null>(null);
   const [redeemInputWeight, setRedeemInputWeight] = useState<string>('');
+  
+  // Bill state
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -92,6 +96,20 @@ const DigitalCustomers: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         alert("Redeemed successfully!");
+        
+        // Find the customer details to show in the bill
+        const customer = customers.find(c => c.user.id === redeemModalData.userId);
+        
+        setReceiptData({
+          id: `DIGI_${Date.now()}`, // Temporary ID for immediate printing, backend response doesn't return tx id
+          date: new Date().toISOString(),
+          type: activeTab === 'GOLD' ? 'DIGITAL_GOLD_REDEEM' : 'DIGITAL_SILVER_REDEEM',
+          details: `${redeemWeight.toFixed(4)}g`,
+          amount: '₹0 (Physical Delivery)',
+          customerName: customer?.user?.name || 'Customer',
+          customerPhone: customer?.user?.phone
+        });
+
         // Refresh everything to reflect changes
         await fetchCustomers();
         if (expandedUserId === redeemModalData.userId) {
@@ -342,9 +360,13 @@ const DigitalCustomers: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
       )}
 
+      <ReceiptModal 
+        isOpen={!!receiptData} 
+        onClose={() => setReceiptData(null)} 
+        data={receiptData} 
+      />
     </div>
   );
 };

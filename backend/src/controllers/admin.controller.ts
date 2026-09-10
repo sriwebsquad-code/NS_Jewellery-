@@ -183,9 +183,10 @@ export const getTransactions = async (req: Request, res: Response) => {
     if (type) digitalRef = digitalRef.where('type', '==', type);
     if (userId) digitalRef = digitalRef.where('userId', '==', userId);
 
-    const [installmentsSnap, digitalSnap] = await Promise.all([
+    const [installmentsSnap, digitalSnap, redemptionsSnap] = await Promise.all([
       installmentsRef.limit(100).get(),
-      digitalRef.limit(100).get()
+      digitalRef.limit(100).get(),
+      db.collection('userPlans').where('status', '==', 'REDEEMED').limit(100).get()
     ]);
 
     // Manual population of user details since it's NoSQL
@@ -258,7 +259,48 @@ export const getTransactions = async (req: Request, res: Response) => {
       });
     }
 
-    const unified = [...formattedInstallments, ...formattedDigital]
+    }
+
+    const formattedRedemptions = [];
+    if (redemptionsSnap && !redemptionsSnap.empty) {
+      for (const doc of redemptionsSnap.docs) {
+        const data = doc.data();
+        if (userId && data.userId !== userId) continue;
+        
+        const user = await getUser(data.userId);
+        
+        let details = 'Scheme Redemption';
+        if (data.planId) {
+          const planDoc = await db.collection('plans').doc(data.planId).get();
+          if (planDoc.exists) {
+            const pData = planDoc.data()!;
+            let n = pData.name?.toLowerCase().trim() || '';
+            if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') details = 'Gold Value Schemes';
+            else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') details = 'Gold Weight Schemes';
+            else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') details = 'Silver Value Schemes';
+            else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') details = 'Silver Weight Schemes';
+            else details = pData.name;
+          }
+        }
+
+        // We use updated at or created at as redemption date, but usually there's a field for redemption. Let's use `updatedAt` if it exists, else `startDate`.
+        const redDate = data.updatedAt || data.createdAt || data.startDate;
+
+        formattedRedemptions.push({
+          id: doc.id,
+          user,
+          type: 'SCHEME_REDEEM',
+          details,
+          amount: data.totalPaid || 0,
+          status: 'SUCCESS',
+          date: redDate,
+          model: 'userPlan',
+          raw: data
+        });
+      }
+    }
+
+    const unified = [...formattedInstallments, ...formattedDigital, ...formattedRedemptions]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     res.status(200).json({ success: true, data: unified });
