@@ -193,7 +193,11 @@ const getTransactions = async (req, res) => {
                 return userCache[userId];
             const userDoc = await firebase_1.db.collection('users').doc(userId).get();
             if (userDoc.exists) {
-                userCache[userId] = { name: userDoc.data()?.name, phone: userDoc.data()?.phone };
+                userCache[userId] = {
+                    name: userDoc.data()?.name,
+                    phone: userDoc.data()?.phone,
+                    customId: userDoc.data()?.customId
+                };
             }
             else {
                 userCache[userId] = { name: 'Unknown', phone: 'Unknown' };

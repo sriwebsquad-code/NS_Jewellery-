@@ -214,6 +214,8 @@ const TransactionsManagement: React.FC = () => {
                       displayValue = selectedTxn.user.customId;
                     } else if (key === 'id' && selectedTxn.raw.receiptId) {
                       displayValue = selectedTxn.raw.receiptId;
+                    } else if (key === 'weight' && typeof value === 'number') {
+                      displayValue = value.toFixed(4);
                     }
                     
                     if (key === 'receiptId' && selectedTxn.raw.id) return null; // Hide duplicate since id shows it
