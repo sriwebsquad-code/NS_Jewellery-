@@ -132,7 +132,7 @@ const AdminLayout: React.FC = () => {
                   }}
                   className="inline-block px-3 py-1 bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer text-xs font-bold rounded-full uppercase tracking-wider"
                 >
-                  Established: Since 1962
+                  ESTABLISHED: 1962
                 </button>
                 <p className="text-gray-600 text-sm leading-relaxed italic">
                   "A legacy of purity and trust. NS Mahaveer Jewellery has been a well-known and trusted establishment in Cuddalore for over six decades, offering premium gold, silver, and traditional jewellery."
