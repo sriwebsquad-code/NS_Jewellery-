@@ -10,16 +10,25 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('jspdf') || id.includes('jspdf-autotable')) {
-              return 'vendor-pdf';
-            }
-            if (id.includes('lucide-react')) {
-              return 'vendor-icons';
-            }
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            const directories = id.split('node_modules/');
+            const packageName = directories[directories.length - 1].split('/')[0];
+            
+            // Group smaller packages together to avoid too many tiny chunks
+            if (packageName === 'react' || packageName === 'react-dom' || packageName === 'react-router-dom') {
               return 'vendor-react';
             }
-            return 'vendor'; // all other node_modules
+            if (packageName === 'lucide-react') {
+              return 'vendor-icons';
+            }
+            if (packageName === 'recharts') {
+              return 'vendor-charts';
+            }
+            if (packageName === 'jspdf' || packageName === 'jspdf-autotable') {
+              return 'vendor-pdf';
+            }
+            
+            // Put everything else in small individual chunks
+            return `vendor-${packageName}`;
           }
         }
       }
