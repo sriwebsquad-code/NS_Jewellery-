@@ -255,6 +255,7 @@ const getMyPlanTransactions = async (req, res) => {
     }
 };
 exports.getMyPlanTransactions = getMyPlanTransactions;
+const counter_1 = require("../utils/counter");
 const redeemUserPlan = async (req, res) => {
     try {
         const userPlanId = req.params.userPlanId;
@@ -264,8 +265,32 @@ const redeemUserPlan = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User plan not found' });
         }
         const userPlanData = userPlanDoc.data();
+        let prefix = 'Scheme';
+        try {
+            const planDoc = await firebase_1.db.collection('plans').doc(userPlanData.planId).get();
+            if (planDoc.exists) {
+                const pData = planDoc.data();
+                if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED')
+                    prefix = 'Gold Value Schemes';
+                else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED')
+                    prefix = 'Gold Weight Schemes';
+                else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED')
+                    prefix = 'Silver Value Schemes';
+                else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED')
+                    prefix = 'Silver Weight Schemes';
+                else
+                    prefix = pData.name || 'Scheme';
+            }
+        }
+        catch (e) {
+            console.error('Error fetching plan for prefix:', e);
+        }
+        // Create a safe counterId from prefix (lowercase, no spaces)
+        const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const receiptId = await (0, counter_1.getNextSequence)(counterId, prefix);
         await userPlanRef.update({
             status: 'REDEEMED',
+            receiptId,
             redeemedAt: new Date().toISOString()
         });
         // Send Notifications
@@ -290,7 +315,7 @@ const redeemUserPlan = async (req, res) => {
         catch (e) {
             console.error('Failed to send scheme redemption notifications', e);
         }
-        res.status(200).json({ success: true, message: 'Scheme redeemed successfully' });
+        res.status(200).json({ success: true, message: 'Plan redeemed successfully', receiptId });
     }
     catch (error) {
         res.status(500).json({ success: false, message: 'Failed to redeem scheme', error: error.message });

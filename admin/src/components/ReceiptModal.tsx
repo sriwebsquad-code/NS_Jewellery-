@@ -3,6 +3,7 @@ import { X, Printer, Share2 } from 'lucide-react';
 
 export interface ReceiptData {
   id: string;
+  receiptId?: string;
   date: string;
   type: string;
   details: string;
@@ -53,7 +54,8 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) =>
       alert("Customer phone number is missing.");
       return;
     }
-    const text = `Dear ${data.customerName || 'Customer'},\n\nYour redemption for ${data.details} was successful.\nTransaction ID: ${data.id.slice(-8).toUpperCase()}\nAmount: ${data.amount}\nDate: ${new Date(data.date).toLocaleDateString()}\n\nThank you for choosing NS Mahaveer Jewellery!`;
+    const displayId = data.receiptId || data.id.slice(-8).toUpperCase();
+    const text = `Dear ${data.customerName || 'Customer'},\n\nYour redemption for ${data.details} was successful.\nTransaction ID: ${displayId}\nAmount: ${data.amount}\nDate: ${new Date(data.date).toLocaleDateString()}\n\nThank you for choosing NS Mahaveer Jewellery!`;
     const url = `https://wa.me/${data.customerPhone.replace('+', '')}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
@@ -81,7 +83,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) =>
           <div className="space-y-4 mb-6">
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-500">Transaction ID</span>
-              <span className="font-bold text-gray-800">{data.id.slice(-8).toUpperCase()}</span>
+              <span className="font-bold text-gray-800">{data.receiptId || data.id.slice(-8).toUpperCase()}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-500">Date</span>

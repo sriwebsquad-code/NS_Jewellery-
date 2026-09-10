@@ -181,6 +181,7 @@ export const getUserMetalTransactions = async (req: Request, res: Response) => {
 };
 
 import { smsService } from '../services/sms.service';
+import { getNextSequence } from '../utils/counter';
 
 export const redeemUserMetal = async (req: Request, res: Response) => {
   try {
@@ -207,6 +208,11 @@ export const redeemUserMetal = async (req: Request, res: Response) => {
 
     const remainingBalance = currentBalance - redeemWeight;
 
+    // Generate receipt ID
+    const counterId = type === 'GOLD' ? 'digigold' : 'digisilver';
+    const prefix = type === 'GOLD' ? 'digigold' : 'digisilver';
+    const receiptId = await getNextSequence(counterId, prefix);
+
     // Create redemption transaction
     const txnRef = db.collection('digitalTransactions').doc();
     const txn = {
@@ -217,6 +223,7 @@ export const redeemUserMetal = async (req: Request, res: Response) => {
       weight: redeemWeight, // record the weight redeemed
       amount: 0, // Admin redeemed, no amount tracked here
       status: 'SUCCESS',
+      receiptId, // Custom formatted sequential ID for bills
       createdAt: new Date().toISOString()
     };
     
@@ -248,7 +255,7 @@ export const redeemUserMetal = async (req: Request, res: Response) => {
       console.error('Failed to send redemption notifications', e);
     }
 
-    res.status(200).json({ success: true, message: 'Redeemed successfully' });
+    res.status(200).json({ success: true, message: 'Redeemed successfully', receiptId });
   } catch (error: any) {
     res.status(500).json({ success: false, message: 'Failed to redeem', error: error.message });
   }

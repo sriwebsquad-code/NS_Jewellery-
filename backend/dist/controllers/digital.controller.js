@@ -162,6 +162,7 @@ const getUserMetalTransactions = async (req, res) => {
 };
 exports.getUserMetalTransactions = getUserMetalTransactions;
 const sms_service_1 = require("../services/sms.service");
+const counter_1 = require("../utils/counter");
 const redeemUserMetal = async (req, res) => {
     try {
         const userId = String(req.params.userId);
@@ -180,6 +181,10 @@ const redeemUserMetal = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid or insufficient balance to redeem' });
         }
         const remainingBalance = currentBalance - redeemWeight;
+        // Generate receipt ID
+        const counterId = type === 'GOLD' ? 'digigold' : 'digisilver';
+        const prefix = type === 'GOLD' ? 'digigold' : 'digisilver';
+        const receiptId = await (0, counter_1.getNextSequence)(counterId, prefix);
         // Create redemption transaction
         const txnRef = firebase_1.db.collection('digitalTransactions').doc();
         const txn = {
@@ -190,6 +195,7 @@ const redeemUserMetal = async (req, res) => {
             weight: redeemWeight, // record the weight redeemed
             amount: 0, // Admin redeemed, no amount tracked here
             status: 'SUCCESS',
+            receiptId, // Custom formatted sequential ID for bills
             createdAt: new Date().toISOString()
         };
         await txnRef.set(txn);
@@ -217,7 +223,7 @@ const redeemUserMetal = async (req, res) => {
         catch (e) {
             console.error('Failed to send redemption notifications', e);
         }
-        res.status(200).json({ success: true, message: 'Redeemed successfully' });
+        res.status(200).json({ success: true, message: 'Redeemed successfully', receiptId });
     }
     catch (error) {
         res.status(500).json({ success: false, message: 'Failed to redeem', error: error.message });

@@ -101,7 +101,8 @@ const DigitalCustomers: React.FC = () => {
         const customer = customers.find(c => c.user.id === redeemModalData.userId);
         
         setReceiptData({
-          id: `DIGI_${Date.now()}`, // Temporary ID for immediate printing, backend response doesn't return tx id
+          id: data.receiptId || `DIGI_${Date.now()}`,
+          receiptId: data.receiptId,
           date: new Date().toISOString(),
           type: activeTab === 'GOLD' ? 'DIGITAL_GOLD_REDEEM' : 'DIGITAL_SILVER_REDEEM',
           details: `${redeemWeight.toFixed(4)}g`,

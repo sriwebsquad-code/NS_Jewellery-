@@ -56,13 +56,14 @@ const UserTransactions: React.FC<{ userId: string, token: string | null, userNam
   const payments = txns.filter(t => !t.type.includes('REDEEM'));
   const redemptions = txns.filter(t => t.type.includes('REDEEM'));
 
-  const handleViewBill = (t: any) => {
+  const handleViewBill = (transaction: any) => {
     setReceiptData({
-      id: t.id,
-      date: t.date,
-      type: t.type,
-      details: t.details,
-      amount: `₹${t.amount.toLocaleString()}`,
+      id: transaction.id,
+      receiptId: transaction.receiptId,
+      date: transaction.date,
+      type: transaction.type,
+      details: transaction.details,
+      amount: `₹${transaction.amount.toLocaleString()}`,
       customerName: userName || 'Customer',
       customerPhone: userPhone
     });

@@ -248,6 +248,7 @@ export const getTransactions = async (req: Request, res: Response) => {
       
       formattedDigital.push({
         id: doc.id,
+        receiptId: data.receiptId || doc.id,
         user,
         type: `DIGITAL_${data.metalType}_${data.type}`,
         details: `${(data.weight || 0).toFixed(4)}g`,
@@ -281,11 +282,12 @@ export const getTransactions = async (req: Request, res: Response) => {
           }
         }
 
-        // We use updated at or created at as redemption date, but usually there's a field for redemption. Let's use `updatedAt` if it exists, else `startDate`.
-        const redDate = data.updatedAt || data.createdAt || data.startDate;
+        // Use redeemedAt for scheme redemption date
+        const redDate = data.redeemedAt || data.updatedAt || data.createdAt || data.startDate;
 
         formattedRedemptions.push({
           id: doc.id,
+          receiptId: data.receiptId || doc.id,
           user,
           type: 'SCHEME_REDEEM',
           details,

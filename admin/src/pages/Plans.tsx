@@ -121,7 +121,8 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
         const enrollment = planUsers.find(up => up.id === userPlanId);
         
         setReceiptData({
-          id: userPlanId,
+          id: data.receiptId || userPlanId,
+          receiptId: data.receiptId,
           date: new Date().toISOString(),
           type: 'SCHEME_REDEEM',
           details: selectedPlan?.name || 'Scheme Redemption',
