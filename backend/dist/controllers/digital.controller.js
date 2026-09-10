@@ -49,8 +49,15 @@ const createTransaction = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
         const docRef = firebase_1.db.collection('digitalTransactions').doc();
-        const prefix = metalType === 'GOLD' ? 'digigold' : 'digisilver';
-        const receiptId = await (0, counter_1.getNextSequence)(prefix, prefix);
+        const basePrefix = metalType === 'GOLD' ? 'Digigold' : 'Digisilver';
+        let typeStr = 'Buy';
+        if (type === 'SELL')
+            typeStr = 'Sell';
+        else if (type === 'REDEEM')
+            typeStr = 'Redeem';
+        const prefix = `${typeStr} ${basePrefix}`;
+        const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const receiptId = await (0, counter_1.getNextSequence)(counterId, prefix);
         const txn = {
             id: docRef.id,
             receiptId,

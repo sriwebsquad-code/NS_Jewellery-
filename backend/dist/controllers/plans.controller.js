@@ -159,24 +159,25 @@ const payInstallment = async (req, res) => {
         if (parseFloat(amount) !== userPlanData.monthlyAmount) {
             return res.status(400).json({ success: false, message: `Installment amount must be exactly ₹${userPlanData.monthlyAmount}` });
         }
-        let prefix = 'Scheme Installment';
+        let basePrefix = 'Scheme';
         try {
             const planDoc = await firebase_1.db.collection('plans').doc(userPlanData.planId).get();
             if (planDoc.exists) {
                 const pData = planDoc.data();
                 if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED')
-                    prefix = 'Gold Value Schemes';
+                    basePrefix = 'Gold Value Schemes';
                 else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED')
-                    prefix = 'Gold Weight Schemes';
+                    basePrefix = 'Gold Weight Schemes';
                 else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED')
-                    prefix = 'Silver Value Schemes';
+                    basePrefix = 'Silver Value Schemes';
                 else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED')
-                    prefix = 'Silver Weight Schemes';
+                    basePrefix = 'Silver Weight Schemes';
                 else
-                    prefix = pData.name || 'Scheme Installment';
+                    basePrefix = pData.name || 'Scheme';
             }
         }
         catch (e) { }
+        const prefix = `Installment ${basePrefix}`;
         const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
         const receiptId = await (0, counter_1.getNextSequence)(counterId, prefix);
         const docRef = firebase_1.db.collection('installments').doc();
@@ -286,27 +287,28 @@ const redeemUserPlan = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User plan not found' });
         }
         const userPlanData = userPlanDoc.data();
-        let prefix = 'Scheme';
+        let basePrefix = 'Scheme';
         try {
             const planDoc = await firebase_1.db.collection('plans').doc(userPlanData.planId).get();
             if (planDoc.exists) {
                 const pData = planDoc.data();
                 if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED')
-                    prefix = 'Gold Value Schemes';
+                    basePrefix = 'Gold Value Schemes';
                 else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED')
-                    prefix = 'Gold Weight Schemes';
+                    basePrefix = 'Gold Weight Schemes';
                 else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED')
-                    prefix = 'Silver Value Schemes';
+                    basePrefix = 'Silver Value Schemes';
                 else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED')
-                    prefix = 'Silver Weight Schemes';
+                    basePrefix = 'Silver Weight Schemes';
                 else
-                    prefix = pData.name || 'Scheme';
+                    basePrefix = pData.name || 'Scheme';
             }
         }
         catch (e) {
             console.error('Error fetching plan for prefix:', e);
         }
         // Create a safe counterId from prefix (lowercase, no spaces)
+        const prefix = `Redeem ${basePrefix}`;
         const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
         const receiptId = await (0, counter_1.getNextSequence)(counterId, prefix);
         await userPlanRef.update({

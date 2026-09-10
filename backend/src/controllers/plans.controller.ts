@@ -164,19 +164,20 @@ export const payInstallment = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: `Installment amount must be exactly ₹${userPlanData.monthlyAmount}` });
     }
 
-    let prefix = 'Scheme Installment';
+    let basePrefix = 'Scheme';
     try {
       const planDoc = await db.collection('plans').doc(userPlanData.planId).get();
       if (planDoc.exists) {
         const pData = planDoc.data()!;
-        if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') prefix = 'Gold Value Schemes';
-        else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Gold Weight Schemes';
-        else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') prefix = 'Silver Value Schemes';
-        else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Silver Weight Schemes';
-        else prefix = pData.name || 'Scheme Installment';
+        if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') basePrefix = 'Gold Value Schemes';
+        else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') basePrefix = 'Gold Weight Schemes';
+        else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') basePrefix = 'Silver Value Schemes';
+        else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') basePrefix = 'Silver Weight Schemes';
+        else basePrefix = pData.name || 'Scheme';
       }
     } catch (e) {}
 
+    const prefix = `Installment ${basePrefix}`;
     const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
     const receiptId = await getNextSequence(counterId, prefix);
 
@@ -305,22 +306,23 @@ export const redeemUserPlan = async (req: Request, res: Response) => {
 
     const userPlanData = userPlanDoc.data()!;
 
-    let prefix = 'Scheme';
+    let basePrefix = 'Scheme';
     try {
       const planDoc = await db.collection('plans').doc(userPlanData.planId).get();
       if (planDoc.exists) {
         const pData = planDoc.data()!;
-        if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') prefix = 'Gold Value Schemes';
-        else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Gold Weight Schemes';
-        else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') prefix = 'Silver Value Schemes';
-        else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Silver Weight Schemes';
-        else prefix = pData.name || 'Scheme';
+        if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') basePrefix = 'Gold Value Schemes';
+        else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') basePrefix = 'Gold Weight Schemes';
+        else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') basePrefix = 'Silver Value Schemes';
+        else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') basePrefix = 'Silver Weight Schemes';
+        else basePrefix = pData.name || 'Scheme';
       }
     } catch (e) {
       console.error('Error fetching plan for prefix:', e);
     }
     
     // Create a safe counterId from prefix (lowercase, no spaces)
+    const prefix = `Redeem ${basePrefix}`;
     const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
     const receiptId = await getNextSequence(counterId, prefix);
 

@@ -52,8 +52,14 @@ export const createTransaction = async (req: Request, res: Response) => {
     }
 
     const docRef = db.collection('digitalTransactions').doc();
-    const prefix = metalType === 'GOLD' ? 'digigold' : 'digisilver';
-    const receiptId = await getNextSequence(prefix, prefix);
+    const basePrefix = metalType === 'GOLD' ? 'Digigold' : 'Digisilver';
+    let typeStr = 'Buy';
+    if (type === 'SELL') typeStr = 'Sell';
+    else if (type === 'REDEEM') typeStr = 'Redeem';
+    
+    const prefix = `${typeStr} ${basePrefix}`;
+    const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const receiptId = await getNextSequence(counterId, prefix);
     const txn = {
       id: docRef.id,
       receiptId,
