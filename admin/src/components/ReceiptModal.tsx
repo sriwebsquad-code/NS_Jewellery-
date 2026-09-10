@@ -73,6 +73,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) =>
         {/* Printable Area */}
         <div className="p-8 print:p-4 bg-white" id="receipt-print-area">
           <div className="text-center mb-6 pb-6 border-b border-gray-200 border-dashed">
+            <img src="/rn_logo.png" alt="RN Logo" className="h-16 mx-auto mb-4 object-contain print:h-20" />
             <h1 className="text-2xl font-serif font-bold text-primary mb-1">NS Mahaveer Jewellery</h1>
             <p className="text-sm text-gray-500">Official Redemption Receipt</p>
           </div>
