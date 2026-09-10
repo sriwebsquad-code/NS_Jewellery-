@@ -16,7 +16,7 @@ const Dashboard: React.FC = () => {
     recentActions: []
   });
 
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const token = useAuthStore(state => state.token);
 
   useEffect(() => {
@@ -39,8 +39,13 @@ const Dashboard: React.FC = () => {
     return `₹${value?.toLocaleString() || 0}`;
   };
 
-  const toggleCard = (card: string) => {
-    setExpandedCard(expandedCard === card ? null : card);
+  const toggleCard = (id: string) => {
+    setExpandedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const stats = [
@@ -74,7 +79,7 @@ const Dashboard: React.FC = () => {
         {stats.map((stat, index) => (
           <div 
             key={stat.label} 
-            className={`glass-card p-6 flex flex-col rounded-2xl relative overflow-hidden transition-all duration-300 ${stat.expandable ? 'cursor-pointer hover:border-primary/30' : ''} ${expandedCard === stat.id && stat.expandable ? 'ring-2 ring-primary border-transparent shadow-lg shadow-primary/10' : ''}`}
+            className={`glass-card p-6 flex flex-col rounded-2xl relative overflow-hidden transition-all duration-300 ${stat.expandable ? 'cursor-pointer hover:border-primary/30' : ''} ${expandedCards.has(stat.id!) && stat.expandable ? 'ring-2 ring-primary border-transparent shadow-lg shadow-primary/10' : ''}`}
             style={{ animationDelay: `${index * 100}ms` }}
             onClick={() => stat.expandable ? toggleCard(stat.id!) : null}
           >
@@ -89,7 +94,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 {stat.expandable && (
                   <div className="p-1 bg-gray-50 rounded-full text-gray-400 group-hover:text-primary transition-colors">
-                    {expandedCard === stat.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    {expandedCards.has(stat.id!) ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </div>
                 )}
               </div>
@@ -100,7 +105,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Expanded Content for Plans */}
-            {expandedCard === 'plans' && stat.id === 'plans' && (
+            {expandedCards.has('plans') && stat.id === 'plans' && (
               <div className="mt-4 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-2">
                 <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <span className="text-gray-600 font-medium">Gold Value Schemes :</span>
@@ -122,7 +127,7 @@ const Dashboard: React.FC = () => {
             )}
 
             {/* Expanded Content for Jewellery */}
-            {expandedCard === 'jewellery' && stat.id === 'jewellery' && (
+            {expandedCards.has('jewellery') && stat.id === 'jewellery' && (
               <div className="mt-4 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-2">
                 <div className="flex justify-between items-center text-sm p-2 rounded-lg bg-[#D4AF37]/10 transition-colors">
                   <span className="text-gray-700 font-medium">Gold Customer : {statsData.totalGoldMembers || 0}</span>
@@ -136,7 +141,7 @@ const Dashboard: React.FC = () => {
             )}
 
             {/* Expanded Content for Revenue */}
-            {expandedCard === 'revenue' && stat.id === 'revenue' && (
+            {expandedCards.has('revenue') && stat.id === 'revenue' && (
               <div className="mt-4 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-2">
                 <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <span className="text-gray-600 font-medium">digisilver:</span>
