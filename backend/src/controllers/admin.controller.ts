@@ -248,7 +248,7 @@ export const getTransactions = async (req: Request, res: Response) => {
       
       formattedDigital.push({
         id: doc.id,
-        receiptId: data.receiptId || doc.id,
+        receiptId: data.receiptId,
         user,
         type: `DIGITAL_${data.metalType}_${data.type}`,
         details: `${(data.weight || 0).toFixed(4)}g`,
@@ -287,7 +287,7 @@ export const getTransactions = async (req: Request, res: Response) => {
 
         formattedRedemptions.push({
           id: doc.id,
-          receiptId: data.receiptId || doc.id,
+          receiptId: data.receiptId,
           user,
           type: 'SCHEME_REDEEM',
           details,
