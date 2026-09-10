@@ -1,21 +1,20 @@
 import app, { db } from '../config/firebase';
 import { getNextSequence } from '../utils/counter';
 
-async function backfillUsers() {
-  console.log('Starting backfill for users...');
-  
-  const usersSnap = await db.collection('users').get();
+async function fixCustomerIds() {
+  console.log('Resetting customer_id counter...');
+  await db.collection('counters').doc('customer_id').set({ seq: 0 });
+
+  console.log('Fetching users ordered by createdAt asc...');
+  const usersSnap = await db.collection('users').orderBy('createdAt', 'asc').get();
   
   for (const doc of usersSnap.docs) {
-    const data = doc.data();
-    if (!data.customId) {
-      const customId = await getNextSequence('customer_id', 'NSMJCUD');
-      await doc.ref.update({ customId });
-      console.log('Updated user:', doc.id, '->', customId);
-    }
+    const customId = await getNextSequence('customer_id', 'NSMJCUD');
+    await doc.ref.update({ customId });
+    console.log('Re-assigned user:', doc.id, '->', customId, 'created at:', doc.data().createdAt);
   }
   
-  console.log('Done with users');
+  console.log('Done fixing customer IDs');
 }
 
-backfillUsers().then(() => process.exit(0)).catch(console.error);
+fixCustomerIds().then(() => process.exit(0)).catch(console.error);

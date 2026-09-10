@@ -208,10 +208,20 @@ const TransactionsManagement: React.FC = () => {
                 <div className="space-y-2">
                   {selectedTxn.raw && Object.entries(selectedTxn.raw).map(([key, value]) => {
                     if (typeof value === 'object') return null;
+                    
+                    let displayValue = String(value);
+                    if (key === 'userId' && selectedTxn.user?.customId) {
+                      displayValue = selectedTxn.user.customId;
+                    } else if (key === 'id' && selectedTxn.raw.receiptId) {
+                      displayValue = selectedTxn.raw.receiptId;
+                    }
+                    
+                    if (key === 'receiptId' && selectedTxn.raw.id) return null; // Hide duplicate since id shows it
+
                     return (
                       <div key={key} className="flex justify-between items-start border-b border-gray-100 pb-1 last:border-0">
                         <span className="text-xs text-gray-500 font-mono">{key}:</span>
-                        <span className="text-xs font-semibold text-gray-800 text-right max-w-[60%] break-words">{String(value)}</span>
+                        <span className="text-xs font-semibold text-gray-800 text-right max-w-[60%] break-words">{displayValue}</span>
                       </div>
                     )
                   })}
