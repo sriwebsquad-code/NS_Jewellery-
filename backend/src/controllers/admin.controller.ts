@@ -165,6 +165,43 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       console.log('Error fetching recent actions, maybe index missing:', e);
     }
 
+    // Build date-wise daily chart data for Digi Gold & Digi Silver (last 30 days)
+    const today = new Date();
+    const start30 = new Date();
+    start30.setDate(today.getDate() - 29);
+    start30.setHours(0, 0, 0, 0);
+
+    const dailyMap: Record<string, { date: string; gold: number; silver: number }> = {};
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(start30);
+      d.setDate(start30.getDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      dailyMap[key] = { date: key, gold: 0, silver: 0 };
+    }
+
+    const allDigiTxns = await db.collection('digitalTransactions')
+      .where('type', '==', 'BUY')
+      .where('status', '==', 'SUCCESS')
+      .get();
+
+    allDigiTxns.forEach(doc => {
+      const data = doc.data();
+      if (!data.createdAt) return;
+      const key = data.createdAt.slice(0, 10);
+      if (dailyMap[key]) {
+        if (data.metalType === 'GOLD') dailyMap[key].gold += data.amount || 0;
+        else if (data.metalType === 'SILVER') dailyMap[key].silver += data.amount || 0;
+      }
+    });
+
+    const dailyChartData = Object.values(dailyMap)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map(d => ({
+        date: d.date.slice(5), // Format as MM-DD
+        gold: d.gold,
+        silver: d.silver
+      }));
+
     res.status(200).json({
       success: true,
       data: {
@@ -177,6 +214,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         totalSilverWeight,
         monthlyRevenue,
         revenueBreakdown,
+        dailyChartData,
         recentActions
       }
     });

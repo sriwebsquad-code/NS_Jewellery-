@@ -3,7 +3,7 @@ import { Users, Gem, TrendingUp, Landmark, ChevronDown, ChevronUp, Clock } from 
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Dashboard: React.FC = () => {
   const [statsData, setStatsData] = useState<any>({
@@ -184,37 +184,68 @@ const Dashboard: React.FC = () => {
             Revenue Analytics
           </h3>
           <div className="flex-1 relative z-10 min-h-[300px]">
-            {statsData.revenueBreakdown ? (
+            {statsData.dailyChartData && statsData.dailyChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={[
-                    { name: 'Digi Gold', value: statsData.revenueBreakdown.digiGold || 0 },
-                    { name: 'Digi Silver', value: statsData.revenueBreakdown.digiSilver || 0 },
-                    { name: 'Gold Schemes', value: (statsData.revenueBreakdown.goldValue || 0) + (statsData.revenueBreakdown.goldWeight || 0) },
-                    { name: 'Silver Schemes', value: (statsData.revenueBreakdown.silverValue || 0) + (statsData.revenueBreakdown.silverWeight || 0) }
-                  ].filter(d => d.value > 0)}
+                <LineChart
+                  data={statsData.dailyChartData}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
-                  <defs>
-                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#D4AF37" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
-                  <YAxis tickFormatter={(val) => `₹${val/1000}k`} axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                  <Tooltip 
-                    formatter={(value: any) => [`₹${Number(value || 0).toLocaleString()}`, 'Revenue']}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#9ca3af', fontSize: 10 }} 
+                    interval={4}
+                    dy={8}
                   />
-                  <Area type="monotone" dataKey="value" stroke="#D4AF37" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-                </AreaChart>
+                  <YAxis 
+                    tickFormatter={(val) => val === 0 ? '₹0' : `₹${(val/1000).toFixed(1)}k`} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#9ca3af', fontSize: 11 }} 
+                  />
+                  <Tooltip 
+                    formatter={(value: any, name: any) => [
+                      `₹${Number(value || 0).toLocaleString()}`, 
+                      name === 'gold' ? 'Digi Gold' : 'Digi Silver'
+                    ]}
+                    contentStyle={{ 
+                      borderRadius: '12px', 
+                      border: '1px solid #f3f0e8', 
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.08)',
+                      fontSize: '13px'
+                    }}
+                    labelStyle={{ fontWeight: 600, color: '#374151' }}
+                  />
+                  <Legend 
+                    formatter={(value) => value === 'gold' ? 'Digi Gold' : 'Digi Silver'}
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="gold" 
+                    stroke="#D4AF37" 
+                    strokeWidth={2.5} 
+                    dot={false}
+                    activeDot={{ r: 5, fill: '#D4AF37' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="silver" 
+                    stroke="#9ca3af" 
+                    strokeWidth={2.5} 
+                    dot={false}
+                    activeDot={{ r: 5, fill: '#9ca3af' }}
+                  />
+                </LineChart>
               </ResponsiveContainer>
             ) : (
               <div className="text-gray-400 text-sm flex flex-col h-full items-center justify-center pb-8">
                 <TrendingUp size={48} className="text-primary/20 mb-4" />
-                <span>No revenue data available for this month</span>
+                <span>No digital transactions in the last 30 days</span>
               </div>
             )}
           </div>
