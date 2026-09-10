@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.markAsRead = exports.getNotifications = void 0;
+exports.markAllAsRead = exports.markAsRead = exports.getNotifications = void 0;
 const firebase_1 = require("../config/firebase");
 const getNotifications = async (req, res) => {
     try {
@@ -41,4 +41,28 @@ const markAsRead = async (req, res) => {
     }
 };
 exports.markAsRead = markAsRead;
+const markAllAsRead = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId)
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        const unreadSnapshot = await firebase_1.db.collection('notifications')
+            .where('userId', '==', userId)
+            .where('isRead', '==', false)
+            .get();
+        if (unreadSnapshot.empty) {
+            return res.status(200).json({ success: true, message: 'All notifications are already read' });
+        }
+        const batch = firebase_1.db.batch();
+        unreadSnapshot.docs.forEach(doc => {
+            batch.update(doc.ref, { isRead: true });
+        });
+        await batch.commit();
+        res.status(200).json({ success: true, message: 'All notifications marked as read' });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to mark all as read', error: error.message });
+    }
+};
+exports.markAllAsRead = markAllAsRead;
 //# sourceMappingURL=notifications.controller.js.map

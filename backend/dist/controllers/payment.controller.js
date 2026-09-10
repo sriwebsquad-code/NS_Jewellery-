@@ -4,6 +4,30 @@ exports.handlePaymentReturn = exports.renderCheckoutPage = exports.verifyPayment
 const cashfree_service_1 = require("../services/cashfree.service");
 const firebase_1 = require("../config/firebase");
 const sms_service_1 = require("../services/sms.service");
+const formatPlanName = (name, schemeType, metalType) => {
+    if (schemeType && metalType) {
+        if (metalType === 'GOLD' && schemeType === 'VALUE_BASED')
+            return 'Gold Value Schemes';
+        if (metalType === 'GOLD' && schemeType === 'WEIGHT_BASED')
+            return 'Gold Weight Schemes';
+        if (metalType === 'SILVER' && schemeType === 'VALUE_BASED')
+            return 'Silver Value Schemes';
+        if (metalType === 'SILVER' && schemeType === 'WEIGHT_BASED')
+            return 'Silver Weight Schemes';
+    }
+    if (!name)
+        return name;
+    const n = name.toLowerCase().trim();
+    if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme'))
+        return 'Gold Weight Schemes';
+    if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme'))
+        return 'Gold Value Schemes';
+    if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme'))
+        return 'Silver Weight Schemes';
+    if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme'))
+        return 'Silver Value Schemes';
+    return name;
+};
 const createPaymentOrder = async (req, res) => {
     try {
         const userId = req.user?.userId;
@@ -120,14 +144,14 @@ const verifyPayment = async (req, res) => {
                             userPlanDoc = await newUserPlanRef.get();
                             const userDoc = await firebase_1.db.collection('users').doc(userId).get();
                             if (userDoc.data()?.phone) {
-                                await sms_service_1.smsService.sendSchemeJoined(userDoc.data().phone, userDoc.data().name || 'Customer', basePlan.name);
+                                await sms_service_1.smsService.sendSchemeJoined(userDoc.data().phone, userDoc.data().name || 'Customer', formatPlanName(basePlan.name, basePlan.schemeType, basePlan.metalType));
                             }
                             // In-App Notification for Scheme Joined
                             try {
                                 await firebase_1.db.collection('notifications').add({
                                     userId,
                                     title: 'Scheme Enrollment Successful',
-                                    message: `Welcome! You have successfully enrolled in the ${basePlan.name} scheme.`,
+                                    message: `Welcome! You have successfully enrolled in the ${formatPlanName(basePlan.name, basePlan.schemeType, basePlan.metalType)} scheme.`,
                                     isRead: false,
                                     createdAt: new Date().toISOString()
                                 });
@@ -192,7 +216,7 @@ const verifyPayment = async (req, res) => {
                         await firebase_1.db.collection('notifications').add({
                             userId,
                             title: 'Installment Paid Successfully',
-                            message: `Your payment of ₹${amount} for ${planDetails.name} (Month ${newCompletedMonths}) was successful.`,
+                            message: `Your payment of ₹${amount} for ${formatPlanName(planDetails.name, planDetails.schemeType, planDetails.metalType)} (Month ${newCompletedMonths}) was successful.`,
                             isRead: false,
                             createdAt: new Date().toISOString()
                         });

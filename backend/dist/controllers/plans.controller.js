@@ -3,10 +3,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.redeemUserPlan = exports.getMyPlanTransactions = exports.getUserPlanTransactions = exports.getPlanUsers = exports.payInstallment = exports.getUserPlans = exports.joinPlan = exports.createPlan = exports.getPlans = void 0;
 const firebase_1 = require("../config/firebase");
 const sms_service_1 = require("../services/sms.service");
+const formatPlanName = (name, schemeType, metalType) => {
+    if (schemeType && metalType) {
+        if (metalType === 'GOLD' && schemeType === 'VALUE_BASED')
+            return 'Gold Value Schemes';
+        if (metalType === 'GOLD' && schemeType === 'WEIGHT_BASED')
+            return 'Gold Weight Schemes';
+        if (metalType === 'SILVER' && schemeType === 'VALUE_BASED')
+            return 'Silver Value Schemes';
+        if (metalType === 'SILVER' && schemeType === 'WEIGHT_BASED')
+            return 'Silver Weight Schemes';
+    }
+    if (!name)
+        return name;
+    const n = name.toLowerCase().trim();
+    if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme'))
+        return 'Gold Weight Schemes';
+    if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme'))
+        return 'Gold Value Schemes';
+    if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme'))
+        return 'Silver Weight Schemes';
+    if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme'))
+        return 'Silver Value Schemes';
+    return name;
+};
 const getPlans = async (req, res) => {
     try {
         const snapshot = await firebase_1.db.collection('plans').where('isActive', '==', true).get();
-        const plans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const plans = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                name: formatPlanName(data.name, data.schemeType, data.metalType)
+            };
+        });
         res.status(200).json({ success: true, data: plans });
     }
     catch (error) {
@@ -232,10 +263,33 @@ const redeemUserPlan = async (req, res) => {
         if (!userPlanDoc.exists) {
             return res.status(404).json({ success: false, message: 'User plan not found' });
         }
+        const userPlanData = userPlanDoc.data();
         await userPlanRef.update({
             status: 'REDEEMED',
             redeemedAt: new Date().toISOString()
         });
+        // Send Notifications
+        try {
+            const userDoc = await firebase_1.db.collection('users').doc(userPlanData.userId).get();
+            const planDoc = await firebase_1.db.collection('plans').doc(userPlanData.planId).get();
+            if (userDoc.exists && planDoc.exists) {
+                const userData = userDoc.data();
+                const planData = planDoc.data();
+                if (userData.phone) {
+                    await sms_service_1.smsService.sendSchemeRedeemed(userData.phone, userData.name || 'Customer', formatPlanName(planData.name));
+                }
+                await firebase_1.db.collection('notifications').add({
+                    userId: userPlanData.userId,
+                    title: `Scheme Redeemed`,
+                    message: `Your scheme '${formatPlanName(planData.name)}' has been successfully redeemed at our store! Thank you for saving with NS Mahaveer Jewellery.`,
+                    isRead: false,
+                    createdAt: new Date().toISOString()
+                });
+            }
+        }
+        catch (e) {
+            console.error('Failed to send scheme redemption notifications', e);
+        }
         res.status(200).json({ success: true, message: 'Scheme redeemed successfully' });
     }
     catch (error) {

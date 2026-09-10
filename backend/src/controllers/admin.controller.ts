@@ -259,8 +259,6 @@ export const getTransactions = async (req: Request, res: Response) => {
       });
     }
 
-    }
-
     const formattedRedemptions = [];
     if (redemptionsSnap && !redemptionsSnap.empty) {
       for (const doc of redemptionsSnap.docs) {

@@ -9,6 +9,7 @@ const auth_middleware_1 = require("../middlewares/auth.middleware");
 const router = express_1.default.Router();
 router.use(auth_middleware_1.authenticate);
 router.get('/', notifications_controller_1.getNotifications);
+router.post('/mark-all-read', notifications_controller_1.markAllAsRead);
 router.patch('/:notificationId/read', notifications_controller_1.markAsRead);
 exports.default = router;
 //# sourceMappingURL=notifications.routes.js.map

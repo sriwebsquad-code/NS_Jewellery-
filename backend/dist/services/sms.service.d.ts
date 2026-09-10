@@ -9,6 +9,8 @@ declare class SMSService {
     sendDigitalSilver(phone: string, name: string, grams: string, balance: string): Promise<void>;
     sendLoginOtp(phone: string, otp: string): Promise<void>;
     sendMpinResetOtp(phone: string, otp: string): Promise<void>;
+    sendMetalRedeemed(phone: string, name: string, metalType: string, weight: string, balance: string): Promise<void>;
+    sendSchemeRedeemed(phone: string, name: string, schemeName: string): Promise<void>;
 }
 export declare const smsService: SMSService;
 export {};

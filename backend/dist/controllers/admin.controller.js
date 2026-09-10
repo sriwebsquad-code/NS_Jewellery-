@@ -20,57 +20,125 @@ const getDashboardStats = async (req, res) => {
             goldWeight: 0,
             silverWeight: 0
         };
+        const allPlansSnapshot = await firebase_1.db.collection('plans').get();
+        const plansMap = {};
+        allPlansSnapshot.forEach(doc => {
+            plansMap[doc.id] = doc.data();
+        });
         plansSnapshot.forEach(doc => {
             const p = doc.data();
-            if (p.planId?.toLowerCase().includes('gold') || p.metalType === 'GOLD') {
-                if (p.schemeType === 'VALUE_BASED')
-                    plansBreakdown.goldValue++;
-                else
-                    plansBreakdown.goldWeight++;
-            }
-            else {
-                if (p.schemeType === 'VALUE_BASED')
-                    plansBreakdown.silverValue++;
-                else
-                    plansBreakdown.silverWeight++;
+            const planInfo = plansMap[p.planId];
+            if (planInfo) {
+                if (planInfo.metalType === 'GOLD') {
+                    if (planInfo.schemeType === 'VALUE_BASED')
+                        plansBreakdown.goldValue++;
+                    else
+                        plansBreakdown.goldWeight++;
+                }
+                else if (planInfo.metalType === 'SILVER') {
+                    if (planInfo.schemeType === 'VALUE_BASED')
+                        plansBreakdown.silverValue++;
+                    else
+                        plansBreakdown.silverWeight++;
+                }
             }
         });
         const digitalBalancesSnapshot = await firebase_1.db.collection('digitalBalances').get();
         let totalGoldMembers = 0;
         let totalSilverMembers = 0;
+        let totalGoldWeight = 0;
+        let totalSilverWeight = 0;
         digitalBalancesSnapshot.forEach(doc => {
             const data = doc.data();
-            if (data.goldBalance > 0)
+            if (data.goldBalance > 0) {
                 totalGoldMembers++;
-            if (data.silverBalance > 0)
+                totalGoldWeight += data.goldBalance;
+            }
+            if (data.silverBalance > 0) {
                 totalSilverMembers++;
+                totalSilverWeight += data.silverBalance;
+            }
         });
         const startOfMonth = new Date();
         startOfMonth.setDate(1);
         startOfMonth.setHours(0, 0, 0, 0);
+        let monthlyRevenue = 0;
+        let revenueBreakdown = {
+            digiSilver: 0,
+            digiGold: 0,
+            goldValue: 0,
+            silverValue: 0,
+            goldWeight: 0,
+            silverWeight: 0
+        };
+        const allUserPlansSnapshot = await firebase_1.db.collection('userPlans').get();
+        const userPlansMap = {};
+        allUserPlansSnapshot.forEach(doc => {
+            userPlansMap[doc.id] = doc.data();
+        });
         const installmentsSnapshot = await firebase_1.db.collection('installments')
             .where('status', '==', 'PAID')
             .get();
-        let monthlyRevenue = 0;
         installmentsSnapshot.forEach(doc => {
             const data = doc.data();
             if (data.paidAt && data.paidAt >= startOfMonth.toISOString()) {
-                monthlyRevenue += (data.amount || 0);
+                const amt = data.amount || 0;
+                monthlyRevenue += amt;
+                const uPlan = userPlansMap[data.userPlanId];
+                if (uPlan) {
+                    const planInfo = plansMap[uPlan.planId];
+                    if (planInfo) {
+                        if (planInfo.metalType === 'GOLD') {
+                            if (planInfo.schemeType === 'VALUE_BASED')
+                                revenueBreakdown.goldValue += amt;
+                            else
+                                revenueBreakdown.goldWeight += amt;
+                        }
+                        else if (planInfo.metalType === 'SILVER') {
+                            if (planInfo.schemeType === 'VALUE_BASED')
+                                revenueBreakdown.silverValue += amt;
+                            else
+                                revenueBreakdown.silverWeight += amt;
+                        }
+                    }
+                }
+            }
+        });
+        const digitalTxnsSnapshot = await firebase_1.db.collection('digitalTransactions')
+            .where('status', '==', 'SUCCESS')
+            .where('type', '==', 'BUY')
+            .get();
+        digitalTxnsSnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.createdAt && data.createdAt >= startOfMonth.toISOString()) {
+                const amt = data.amount || 0;
+                monthlyRevenue += amt;
+                if (data.metalType === 'GOLD')
+                    revenueBreakdown.digiGold += amt;
+                else if (data.metalType === 'SILVER')
+                    revenueBreakdown.digiSilver += amt;
             }
         });
         // Recent Actions
         let recentActions = [];
         try {
             const recentTxnsSnapshot = await firebase_1.db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(5).get();
-            recentActions = recentTxnsSnapshot.docs.map(doc => {
+            const actionsPromises = recentTxnsSnapshot.docs.map(async (doc) => {
                 const data = doc.data();
+                let userName = 'Unknown';
+                if (data.userId) {
+                    const userDoc = await firebase_1.db.collection('users').doc(data.userId).get();
+                    if (userDoc.exists)
+                        userName = userDoc.data()?.name || data.userId.substring(0, 4);
+                }
                 return {
                     id: doc.id,
                     title: `${data.type} ${data.metalType}`,
                     time: data.createdAt,
-                    user: data.userId?.substring(0, 4) || 'US'
+                    user: userName
                 };
             });
+            recentActions = await Promise.all(actionsPromises);
         }
         catch (e) {
             console.log('Error fetching recent actions, maybe index missing:', e);
@@ -83,7 +151,10 @@ const getDashboardStats = async (req, res) => {
                 plansBreakdown,
                 totalGoldMembers,
                 totalSilverMembers,
+                totalGoldWeight,
+                totalSilverWeight,
                 monthlyRevenue,
+                revenueBreakdown,
                 recentActions
             }
         });
@@ -110,9 +181,10 @@ const getTransactions = async (req, res) => {
             digitalRef = digitalRef.where('type', '==', type);
         if (userId)
             digitalRef = digitalRef.where('userId', '==', userId);
-        const [installmentsSnap, digitalSnap] = await Promise.all([
+        const [installmentsSnap, digitalSnap, redemptionsSnap] = await Promise.all([
             installmentsRef.limit(100).get(),
-            digitalRef.limit(100).get()
+            digitalRef.limit(100).get(),
+            firebase_1.db.collection('userPlans').where('status', '==', 'REDEEMED').limit(100).get()
         ]);
         // Manual population of user details since it's NoSQL
         const userCache = {};
@@ -137,7 +209,28 @@ const getTransactions = async (req, res) => {
                 const userPlanDoc = await firebase_1.db.collection('userPlans').doc(data.userPlanId).get();
                 if (userPlanDoc.exists && userPlanDoc.data()?.planId) {
                     const planDoc = await firebase_1.db.collection('plans').doc(userPlanDoc.data()?.planId).get();
-                    details = planDoc.exists ? planDoc.data()?.name : details;
+                    if (planDoc.exists) {
+                        const pData = planDoc.data();
+                        let n = pData.name?.toLowerCase().trim() || '';
+                        if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED')
+                            details = 'Gold Value Schemes';
+                        else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED')
+                            details = 'Gold Weight Schemes';
+                        else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED')
+                            details = 'Silver Value Schemes';
+                        else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED')
+                            details = 'Silver Weight Schemes';
+                        else if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme'))
+                            details = 'Gold Weight Schemes';
+                        else if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme'))
+                            details = 'Gold Value Schemes';
+                        else if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme'))
+                            details = 'Silver Weight Schemes';
+                        else if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme'))
+                            details = 'Silver Value Schemes';
+                        else
+                            details = pData.name;
+                    }
                 }
             }
             formattedInstallments.push({
@@ -148,7 +241,8 @@ const getTransactions = async (req, res) => {
                 amount: data.amount,
                 status: data.status,
                 date: data.createdAt,
-                model: 'installment'
+                model: 'installment',
+                raw: data
             });
         }
         const formattedDigital = [];
@@ -159,14 +253,55 @@ const getTransactions = async (req, res) => {
                 id: doc.id,
                 user,
                 type: `DIGITAL_${data.metalType}_${data.type}`,
-                details: `${(data.weight || 0).toFixed(2)}g`,
+                details: `${(data.weight || 0).toFixed(4)}g`,
                 amount: data.amount,
                 status: data.status,
                 date: data.createdAt,
-                model: 'digitalTransaction'
+                model: 'digitalTransaction',
+                raw: data
             });
         }
-        const unified = [...formattedInstallments, ...formattedDigital]
+        const formattedRedemptions = [];
+        if (redemptionsSnap && !redemptionsSnap.empty) {
+            for (const doc of redemptionsSnap.docs) {
+                const data = doc.data();
+                if (userId && data.userId !== userId)
+                    continue;
+                const user = await getUser(data.userId);
+                let details = 'Scheme Redemption';
+                if (data.planId) {
+                    const planDoc = await firebase_1.db.collection('plans').doc(data.planId).get();
+                    if (planDoc.exists) {
+                        const pData = planDoc.data();
+                        let n = pData.name?.toLowerCase().trim() || '';
+                        if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED')
+                            details = 'Gold Value Schemes';
+                        else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED')
+                            details = 'Gold Weight Schemes';
+                        else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED')
+                            details = 'Silver Value Schemes';
+                        else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED')
+                            details = 'Silver Weight Schemes';
+                        else
+                            details = pData.name;
+                    }
+                }
+                // We use updated at or created at as redemption date, but usually there's a field for redemption. Let's use `updatedAt` if it exists, else `startDate`.
+                const redDate = data.updatedAt || data.createdAt || data.startDate;
+                formattedRedemptions.push({
+                    id: doc.id,
+                    user,
+                    type: 'SCHEME_REDEEM',
+                    details,
+                    amount: data.totalPaid || 0,
+                    status: 'SUCCESS',
+                    date: redDate,
+                    model: 'userPlan',
+                    raw: data
+                });
+            }
+        }
+        const unified = [...formattedInstallments, ...formattedDigital, ...formattedRedemptions]
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         res.status(200).json({ success: true, data: unified });
     }

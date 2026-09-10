@@ -73,6 +73,12 @@ const getAllUsers = async (req, res) => {
         const usersSnapshot = await firebase_1.db.collection('users').orderBy('createdAt', 'desc').get();
         const userPlansSnapshot = await firebase_1.db.collection('userPlans').get();
         const plansSnapshot = await firebase_1.db.collection('plans').get();
+        const digitalBalancesSnapshot = await firebase_1.db.collection('digitalBalances').get();
+        // Map digital balances by userId
+        const digitalBalancesMap = {};
+        digitalBalancesSnapshot.docs.forEach(doc => {
+            digitalBalancesMap[doc.id] = doc.data();
+        });
         // Map plans by ID
         const plansMap = {};
         plansSnapshot.docs.forEach(doc => {
@@ -96,10 +102,13 @@ const getAllUsers = async (req, res) => {
         const users = usersSnapshot.docs.map(doc => {
             const data = doc.data();
             delete data.mpin; // Don't send passwords
+            const digitalBalance = digitalBalancesMap[doc.id] || { goldBalance: 0, silverBalance: 0 };
             return {
                 id: doc.id,
                 ...data,
-                activeSchemes: activeSchemesMap[doc.id] || []
+                activeSchemes: activeSchemesMap[doc.id] || [],
+                digitalGoldBalance: digitalBalance.goldBalance || 0,
+                digitalSilverBalance: digitalBalance.silverBalance || 0
             };
         });
         res.status(200).json({ success: true, data: users });
