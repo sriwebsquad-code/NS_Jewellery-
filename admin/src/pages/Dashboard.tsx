@@ -53,7 +53,7 @@ const Dashboard: React.FC = () => {
       id: 'plans'
     },
     { 
-      label: 'Total Jewellery', 
+      label: 'Digital Customers', 
       value: (statsData.totalGoldMembers + statsData.totalSilverMembers).toString(), 
       icon: <Gem size={24} className="text-secondary" />, 
       expandable: true,
@@ -123,14 +123,14 @@ const Dashboard: React.FC = () => {
 
             {/* Expanded Content for Jewellery */}
             {expandedCard === 'jewellery' && stat.id === 'jewellery' && (
-              <div className="mt-6 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-3">
-                <div className="bg-[#D4AF37]/10 p-3 rounded-lg flex justify-between items-center">
-                  <span className="text-sm font-bold text-gray-700">Total Gold</span>
-                  <span className="text-lg font-serif font-bold text-[#D4AF37]">{(statsData.totalGoldWeight || 0).toFixed(4)}g</span>
+              <div className="mt-4 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-2">
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg bg-[#D4AF37]/10 transition-colors">
+                  <span className="text-gray-700 font-medium">Gold Customer : {statsData.totalGoldMembers || 0}</span>
+                  <span className="font-bold text-[#D4AF37] text-base">{(statsData.totalGoldWeight || 0).toFixed(4)}g</span>
                 </div>
-                <div className="bg-[#C0C0C0]/20 p-3 rounded-lg flex justify-between items-center">
-                  <span className="text-sm font-bold text-gray-700">Total Silver</span>
-                  <span className="text-lg font-serif font-bold text-gray-600">{(statsData.totalSilverWeight || 0).toFixed(4)}g</span>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg bg-[#C0C0C0]/20 transition-colors">
+                  <span className="text-gray-700 font-medium">Silver Customer : {statsData.totalSilverMembers || 0}</span>
+                  <span className="font-bold text-gray-600 text-base">{(statsData.totalSilverWeight || 0).toFixed(4)}g</span>
                 </div>
               </div>
             )}
