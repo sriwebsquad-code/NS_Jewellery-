@@ -26,7 +26,6 @@ const AdminLayout: React.FC = () => {
     { name: 'Gold Weight Schemes', path: '/admin/plans/weight/gold', icon: <Landmark size={20} /> },
     { name: 'Silver Weight Schemes', path: '/admin/plans/weight/silver', icon: <Landmark size={20} /> },
     { name: 'Reports', path: '/admin/reports', icon: <FileBarChart size={20} /> },
-    { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 
   return (
@@ -132,7 +131,7 @@ const AdminLayout: React.FC = () => {
                   }}
                   className="inline-block px-3 py-1 bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer text-xs font-bold rounded-full uppercase tracking-wider"
                 >
-                  ESTABLISHED: 1962
+                  Established: Since 1962
                 </button>
                 <p className="text-gray-600 text-sm leading-relaxed italic">
                   "A legacy of purity and trust. NS Mahaveer Jewellery has been a well-known and trusted establishment in Cuddalore for over six decades, offering premium gold, silver, and traditional jewellery."
