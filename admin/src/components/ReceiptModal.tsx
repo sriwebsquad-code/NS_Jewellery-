@@ -119,7 +119,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) =>
           </div>
 
           <div className="mt-8 text-center text-xs text-gray-400 font-medium">
-            <p>Thank you for your business!</p>
+            <p>Thank you and revisit in NS Mahaveer Jewellery</p>
             <p>This is a computer generated receipt.</p>
           </div>
         </div>
