@@ -9,6 +9,7 @@ import RatesManagement from './pages/Rates';
 import UsersManagement from './pages/Users';
 import TransactionsManagement from './pages/Transactions';
 import DigitalCustomers from './pages/DigitalCustomers';
+import Reports from './pages/Reports';
 import { useAuthStore } from './store/authStore';
 
 import Settings from './pages/Settings';
@@ -63,6 +64,7 @@ const App: React.FC = () => {
           <Route path="plans/weight/silver" element={<PlansManagement typeFilter="WEIGHT_BASED" metalFilter="SILVER" />} />
           <Route path="transactions" element={<TransactionsManagement />} />
           <Route path="rates" element={<RatesManagement />} />
+          <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>

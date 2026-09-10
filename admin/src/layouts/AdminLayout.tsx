@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LayoutDashboard, Users, Gem, Landmark, LogOut, TrendingUp, CreditCard, X, MapPin, Phone, Clock, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Gem, Landmark, LogOut, TrendingUp, CreditCard, X, MapPin, Phone, Clock, Settings, FileBarChart } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
   const logout = useAuthStore((state) => state.logout);
@@ -25,6 +25,7 @@ const AdminLayout: React.FC = () => {
     { name: 'Silver Value Schemes', path: '/admin/plans/value/silver', icon: <Landmark size={20} /> },
     { name: 'Gold Weight Schemes', path: '/admin/plans/weight/gold', icon: <Landmark size={20} /> },
     { name: 'Silver Weight Schemes', path: '/admin/plans/weight/silver', icon: <Landmark size={20} /> },
+    { name: 'Reports', path: '/admin/reports', icon: <FileBarChart size={20} /> },
     { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 
