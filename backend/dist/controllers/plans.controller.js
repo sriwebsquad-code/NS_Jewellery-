@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.redeemUserPlan = exports.getMyPlanTransactions = exports.getUserPlanTransactions = exports.getPlanUsers = exports.payInstallment = exports.getUserPlans = exports.joinPlan = exports.createPlan = exports.getPlans = void 0;
+const counter_1 = require("../utils/counter");
 const firebase_1 = require("../config/firebase");
 const sms_service_1 = require("../services/sms.service");
 const formatPlanName = (name, schemeType, metalType) => {
@@ -158,9 +159,30 @@ const payInstallment = async (req, res) => {
         if (parseFloat(amount) !== userPlanData.monthlyAmount) {
             return res.status(400).json({ success: false, message: `Installment amount must be exactly ₹${userPlanData.monthlyAmount}` });
         }
+        let prefix = 'Scheme Installment';
+        try {
+            const planDoc = await firebase_1.db.collection('plans').doc(userPlanData.planId).get();
+            if (planDoc.exists) {
+                const pData = planDoc.data();
+                if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED')
+                    prefix = 'Gold Value Schemes';
+                else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED')
+                    prefix = 'Gold Weight Schemes';
+                else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED')
+                    prefix = 'Silver Value Schemes';
+                else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED')
+                    prefix = 'Silver Weight Schemes';
+                else
+                    prefix = pData.name || 'Scheme Installment';
+            }
+        }
+        catch (e) { }
+        const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const receiptId = await (0, counter_1.getNextSequence)(counterId, prefix);
         const docRef = firebase_1.db.collection('installments').doc();
         const installment = {
             id: docRef.id,
+            receiptId,
             userId,
             userPlanId,
             amount: parseFloat(amount),
@@ -255,7 +277,6 @@ const getMyPlanTransactions = async (req, res) => {
     }
 };
 exports.getMyPlanTransactions = getMyPlanTransactions;
-const counter_1 = require("../utils/counter");
 const redeemUserPlan = async (req, res) => {
     try {
         const userPlanId = req.params.userPlanId;

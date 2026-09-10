@@ -1,3 +1,4 @@
+import { getNextSequence } from '../utils/counter';
 import { Request, Response } from 'express';
 import { db } from '../config/firebase';
 
@@ -51,8 +52,11 @@ export const createTransaction = async (req: Request, res: Response) => {
     }
 
     const docRef = db.collection('digitalTransactions').doc();
+    const prefix = metalType === 'GOLD' ? 'digigold' : 'digisilver';
+    const receiptId = await getNextSequence(prefix, prefix);
     const txn = {
       id: docRef.id,
+      receiptId,
       userId,
       type,
       metalType,
@@ -181,7 +185,6 @@ export const getUserMetalTransactions = async (req: Request, res: Response) => {
 };
 
 import { smsService } from '../services/sms.service';
-import { getNextSequence } from '../utils/counter';
 
 export const redeemUserMetal = async (req: Request, res: Response) => {
   try {

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.redeemUserMetal = exports.getUserMetalTransactions = exports.getDigitalUsers = exports.getLockerDashboard = exports.createTransaction = exports.getTransactions = exports.getBalance = void 0;
+const counter_1 = require("../utils/counter");
 const firebase_1 = require("../config/firebase");
 const getBalance = async (req, res) => {
     try {
@@ -48,8 +49,11 @@ const createTransaction = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
         const docRef = firebase_1.db.collection('digitalTransactions').doc();
+        const prefix = metalType === 'GOLD' ? 'digigold' : 'digisilver';
+        const receiptId = await (0, counter_1.getNextSequence)(prefix, prefix);
         const txn = {
             id: docRef.id,
+            receiptId,
             userId,
             type,
             metalType,
@@ -162,7 +166,6 @@ const getUserMetalTransactions = async (req, res) => {
 };
 exports.getUserMetalTransactions = getUserMetalTransactions;
 const sms_service_1 = require("../services/sms.service");
-const counter_1 = require("../utils/counter");
 const redeemUserMetal = async (req, res) => {
     try {
         const userId = String(req.params.userId);

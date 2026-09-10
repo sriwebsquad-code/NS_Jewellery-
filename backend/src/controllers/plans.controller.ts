@@ -1,3 +1,4 @@
+import { getNextSequence } from '../utils/counter';
 import { Request, Response } from 'express';
 import { db } from '../config/firebase';
 import { smsService } from '../services/sms.service';
@@ -163,9 +164,26 @@ export const payInstallment = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: `Installment amount must be exactly ₹${userPlanData.monthlyAmount}` });
     }
 
+    let prefix = 'Scheme Installment';
+    try {
+      const planDoc = await db.collection('plans').doc(userPlanData.planId).get();
+      if (planDoc.exists) {
+        const pData = planDoc.data()!;
+        if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') prefix = 'Gold Value Schemes';
+        else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Gold Weight Schemes';
+        else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') prefix = 'Silver Value Schemes';
+        else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Silver Weight Schemes';
+        else prefix = pData.name || 'Scheme Installment';
+      }
+    } catch (e) {}
+
+    const counterId = prefix.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const receiptId = await getNextSequence(counterId, prefix);
+
     const docRef = db.collection('installments').doc();
     const installment = {
       id: docRef.id,
+      receiptId,
       userId,
       userPlanId,
       amount: parseFloat(amount),
@@ -273,7 +291,6 @@ export const getMyPlanTransactions = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Failed to fetch transactions', error: error.message });
   }
 };
-import { getNextSequence } from '../utils/counter';
 
 export const redeemUserPlan = async (req: Request, res: Response) => {
   try {
