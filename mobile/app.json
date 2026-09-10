@@ -18,7 +18,12 @@
       "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "LSApplicationQueriesSchemes": ["phonepe", "tez", "paytm", "bhim"]
+        "LSApplicationQueriesSchemes": [
+          "phonepe",
+          "tez",
+          "paytm",
+          "bhim"
+        ]
       }
     },
     "android": {
@@ -53,8 +58,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "22b85272-4fad-4988-a123-641a4ab22cb0"
+        "projectId": "246bb4d2-78a9-4bf3-8377-58bf356e3bd4"
       }
-    }
+    },
+    "owner": "partho015s-team"
   }
 }

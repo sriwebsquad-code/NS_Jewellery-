@@ -3,13 +3,20 @@ import { cashfreeService } from '../services/cashfree.service';
 import { db } from '../config/firebase';
 import { smsService } from '../services/sms.service';
 
-const formatPlanName = (name: string) => {
+const formatPlanName = (name: string, schemeType?: string, metalType?: string) => {
+  if (schemeType && metalType) {
+    if (metalType === 'GOLD' && schemeType === 'VALUE_BASED') return 'Gold Value Schemes';
+    if (metalType === 'GOLD' && schemeType === 'WEIGHT_BASED') return 'Gold Weight Schemes';
+    if (metalType === 'SILVER' && schemeType === 'VALUE_BASED') return 'Silver Value Schemes';
+    if (metalType === 'SILVER' && schemeType === 'WEIGHT_BASED') return 'Silver Weight Schemes';
+  }
+
   if (!name) return name;
   const n = name.toLowerCase().trim();
-  if (n === 'gold 11 scheme') return '11 Month Weight based Gold Scheme';
-  if (n === '11 month gold scheme') return '11 Month Value based Gold Scheme';
-  if (n === 'silver 11 scheme') return '11 Month Weight based Silver Scheme';
-  if (n === '11 month silver scheme') return '11 Month Value based Silver Scheme';
+  if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme')) return 'Gold Weight Schemes';
+  if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme')) return 'Gold Value Schemes';
+  if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme')) return 'Silver Weight Schemes';
+  if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme')) return 'Silver Value Schemes';
   return name;
 };
 
@@ -145,7 +152,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
               
               const userDoc = await db.collection('users').doc(userId).get();
               if (userDoc.data()?.phone) {
-                await smsService.sendSchemeJoined(userDoc.data()!.phone, userDoc.data()!.name || 'Customer', formatPlanName(basePlan.name));
+                await smsService.sendSchemeJoined(userDoc.data()!.phone, userDoc.data()!.name || 'Customer', formatPlanName(basePlan.name, basePlan.schemeType, basePlan.metalType));
               }
 
               // In-App Notification for Scheme Joined
@@ -153,7 +160,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
                 await db.collection('notifications').add({
                   userId,
                   title: 'Scheme Enrollment Successful',
-                  message: `Welcome! You have successfully enrolled in the ${formatPlanName(basePlan.name)} scheme.`,
+                  message: `Welcome! You have successfully enrolled in the ${formatPlanName(basePlan.name, basePlan.schemeType, basePlan.metalType)} scheme.`,
                   isRead: false,
                   createdAt: new Date().toISOString()
                 });
@@ -225,7 +232,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
             await db.collection('notifications').add({
               userId,
               title: 'Installment Paid Successfully',
-              message: `Your payment of ₹${amount} for ${formatPlanName(planDetails!.name)} (Month ${newCompletedMonths}) was successful.`,
+              message: `Your payment of ₹${amount} for ${formatPlanName(planDetails!.name, planDetails!.schemeType, planDetails!.metalType)} (Month ${newCompletedMonths}) was successful.`,
               isRead: false,
               createdAt: new Date().toISOString()
             });

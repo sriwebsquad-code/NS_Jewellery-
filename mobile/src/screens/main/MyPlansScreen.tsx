@@ -8,13 +8,20 @@ import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { ENV } from '../../config/env';
 
-const formatPlanName = (name: string) => {
+const formatPlanName = (name: string, schemeType?: string, metalType?: string) => {
+  if (schemeType && metalType) {
+    if (metalType === 'GOLD' && schemeType === 'VALUE_BASED') return 'Gold Value Schemes';
+    if (metalType === 'GOLD' && schemeType === 'WEIGHT_BASED') return 'Gold Weight Schemes';
+    if (metalType === 'SILVER' && schemeType === 'VALUE_BASED') return 'Silver Value Schemes';
+    if (metalType === 'SILVER' && schemeType === 'WEIGHT_BASED') return 'Silver Weight Schemes';
+  }
+
   if (!name) return name;
   const n = name.toLowerCase().trim();
-  if (n === 'gold 11 scheme') return '11 Month Weight based Gold Scheme';
-  if (n === '11 month gold scheme') return '11 Month Value based Gold Scheme';
-  if (n === 'silver 11 scheme') return '11 Month Weight based Silver Scheme';
-  if (n === '11 month silver scheme') return '11 Month Value based Silver Scheme';
+  if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme')) return 'Gold Weight Schemes';
+  if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme')) return 'Gold Value Schemes';
+  if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme')) return 'Silver Weight Schemes';
+  if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme')) return 'Silver Value Schemes';
   return name;
 };
 
@@ -234,7 +241,7 @@ const MyPlansScreen = () => {
             activeOpacity={0.8}
             onPress={() => setShowPlanDropdown(!showPlanDropdown)}
           >
-            <Text style={[styles.dropdownText, { color: colors.text }]}>{selectedPlan ? formatPlanName(selectedPlan.name) : 'No Plans Found'}</Text>
+            <Text style={[styles.dropdownText, { color: colors.text }]}>{selectedPlan ? formatPlanName(selectedPlan.name, selectedPlan.schemeType, selectedPlan.metalType) : 'No Plans Found'}</Text>
             <ChevronDown color={colors.icon} size={24} />
           </TouchableOpacity>
 
@@ -249,7 +256,7 @@ const MyPlansScreen = () => {
                     setShowPlanDropdown(false);
                   }}
                 >
-                  <Text style={[styles.dropdownItemText, { color: colors.text }]}>{formatPlanName(plan.name)}</Text>
+                  <Text style={[styles.dropdownItemText, { color: colors.text }]}>{formatPlanName(plan.name, plan.schemeType, plan.metalType)}</Text>
                 </TouchableOpacity>
               )) : (
                 <View style={styles.dropdownItem}>

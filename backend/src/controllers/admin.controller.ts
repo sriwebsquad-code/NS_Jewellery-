@@ -211,7 +211,19 @@ export const getTransactions = async (req: Request, res: Response) => {
         const userPlanDoc = await db.collection('userPlans').doc(data.userPlanId).get();
         if (userPlanDoc.exists && userPlanDoc.data()?.planId) {
           const planDoc = await db.collection('plans').doc(userPlanDoc.data()?.planId).get();
-          details = planDoc.exists ? planDoc.data()?.name : details;
+          if (planDoc.exists) {
+            const pData = planDoc.data()!;
+            let n = pData.name?.toLowerCase().trim() || '';
+            if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') details = 'Gold Value Schemes';
+            else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') details = 'Gold Weight Schemes';
+            else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') details = 'Silver Value Schemes';
+            else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') details = 'Silver Weight Schemes';
+            else if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme')) details = 'Gold Weight Schemes';
+            else if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme')) details = 'Gold Value Schemes';
+            else if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme')) details = 'Silver Weight Schemes';
+            else if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme')) details = 'Silver Value Schemes';
+            else details = pData.name;
+          }
         }
       }
 

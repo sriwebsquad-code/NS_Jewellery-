@@ -2,20 +2,34 @@ import { Request, Response } from 'express';
 import { db } from '../config/firebase';
 import { smsService } from '../services/sms.service';
 
-const formatPlanName = (name: string) => {
+const formatPlanName = (name: string, schemeType?: string, metalType?: string) => {
+  if (schemeType && metalType) {
+    if (metalType === 'GOLD' && schemeType === 'VALUE_BASED') return 'Gold Value Schemes';
+    if (metalType === 'GOLD' && schemeType === 'WEIGHT_BASED') return 'Gold Weight Schemes';
+    if (metalType === 'SILVER' && schemeType === 'VALUE_BASED') return 'Silver Value Schemes';
+    if (metalType === 'SILVER' && schemeType === 'WEIGHT_BASED') return 'Silver Weight Schemes';
+  }
+
   if (!name) return name;
   const n = name.toLowerCase().trim();
-  if (n === 'gold 11 scheme') return '11 Month Weight based Gold Scheme';
-  if (n === '11 month gold scheme') return '11 Month Value based Gold Scheme';
-  if (n === 'silver 11 scheme') return '11 Month Weight based Silver Scheme';
-  if (n === '11 month silver scheme') return '11 Month Value based Silver Scheme';
+  if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme')) return 'Gold Weight Schemes';
+  if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme')) return 'Gold Value Schemes';
+  if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme')) return 'Silver Weight Schemes';
+  if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme')) return 'Silver Value Schemes';
   return name;
 };
 
 export const getPlans = async (req: Request, res: Response) => {
   try {
     const snapshot = await db.collection('plans').where('isActive', '==', true).get();
-    const plans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const plans = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return { 
+        id: doc.id, 
+        ...data,
+        name: formatPlanName(data.name, data.schemeType, data.metalType)
+      };
+    });
     res.status(200).json({ success: true, data: plans });
   } catch (error: any) {
     res.status(500).json({ success: false, message: 'Failed to fetch plans', error: error.message });
