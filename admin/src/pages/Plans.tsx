@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layers, Users as UsersIcon, ChevronDown, ChevronUp, CheckCircle, Clock, ArrowRight, Search } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
-import ReceiptModal, { ReceiptData } from '../components/ReceiptModal';
+import ReceiptModal, { type ReceiptData } from '../components/ReceiptModal';
 
 interface PlansManagementProps {
   typeFilter: 'VALUE_BASED' | 'WEIGHT_BASED';

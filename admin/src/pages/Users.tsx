@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users as UsersIcon, Search, ShieldCheck, Clock, Phone, MapPin, ChevronDown, ChevronUp, Layers, Coins, Filter, X, User as UserIcon, Mail, Calendar, UserCheck, Map, Hash, FileText, FileText as Receipt } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
-import ReceiptModal, { ReceiptData } from '../components/ReceiptModal';
+import ReceiptModal, { type ReceiptData } from '../components/ReceiptModal';
 
 interface User {
   id: string;

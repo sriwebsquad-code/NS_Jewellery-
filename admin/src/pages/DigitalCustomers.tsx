@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layers, Phone, Search, ArrowRight, ChevronDown, ChevronUp, CheckCircle, Clock, Coins } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
-import ReceiptModal, { ReceiptData } from '../components/ReceiptModal';
+import ReceiptModal, { type ReceiptData } from '../components/ReceiptModal';
 
 const DigitalCustomers: React.FC = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -360,6 +360,7 @@ const DigitalCustomers: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
       )}
 
       <ReceiptModal 
