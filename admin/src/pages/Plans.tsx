@@ -8,6 +8,7 @@ interface PlansManagementProps {
 }
 
 const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilter }) => {
+  const [plans, setPlans] = useState<any[]>([]);
   const token = useAuthStore(state => state.token);
 
 
@@ -30,7 +31,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
   }, [typeFilter, metalFilter]);
 
   useEffect(() => {
-    const matchingPlan = plans.find(p => p.schemeType === typeFilter && (!metalFilter || p.metalType === metalFilter));
+    const matchingPlan = plans.find((p: any) => p.schemeType === typeFilter && (!metalFilter || p.metalType === metalFilter));
     if (matchingPlan) {
       handleViewCustomers(matchingPlan);
     } else {
