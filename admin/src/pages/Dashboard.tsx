@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
         {stats.map((stat, index) => (
           <div 
             key={stat.label} 
-            className={`glass-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 ${stat.expandable ? 'cursor-pointer hover:border-primary/30' : ''} ${expandedCard === stat.id && stat.expandable ? 'ring-2 ring-primary border-transparent shadow-lg shadow-primary/10' : ''}`}
+            className={`glass-card p-6 flex flex-col rounded-2xl relative overflow-hidden transition-all duration-300 ${stat.expandable ? 'cursor-pointer hover:border-primary/30' : ''} ${expandedCard === stat.id && stat.expandable ? 'ring-2 ring-primary border-transparent shadow-lg shadow-primary/10' : ''}`}
             style={{ animationDelay: `${index * 100}ms` }}
             onClick={() => stat.expandable ? toggleCard(stat.id!) : null}
           >
@@ -82,7 +82,7 @@ const Dashboard: React.FC = () => {
               {React.cloneElement(stat.icon as React.ReactElement<any>, { size: 80, className: 'text-gray-900' })}
             </div>
             
-            <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="relative z-10 flex flex-col flex-1 justify-between min-h-[120px]">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-white/50 rounded-xl shadow-sm backdrop-blur-md">
                   {stat.icon}
