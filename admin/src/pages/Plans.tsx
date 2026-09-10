@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Calendar, X, Layers, Coins, Users as UsersIcon, ChevronDown, ChevronUp, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Trash2, Calendar, X, Layers, Coins, Users as UsersIcon, ChevronDown, ChevronUp, CheckCircle, Clock, ArrowRight, Search } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 interface PlansManagementProps {
@@ -19,6 +19,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
   const [planUsers, setPlanUsers] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFetchingUsers, setIsFetchingUsers] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Transaction State
   const [expandedUserPlanId, setExpandedUserPlanId] = useState<string | null>(null);
@@ -31,6 +32,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
     // When tab changes, close modal and form
     setIsAddingPlan(false);
     setIsModalOpen(false);
+    setSearchQuery('');
   }, [typeFilter, metalFilter]);
 
   const fetchPlans = async () => {
@@ -52,6 +54,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
     setIsModalOpen(true);
     setIsFetchingUsers(true);
     setExpandedUserPlanId(null);
+    setSearchQuery('');
     try {
       const res = await fetch(`https://ns-jewellery.onrender.com/api/plans/${plan.id}/users`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -184,14 +187,28 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
       {isModalOpen && selectedPlan && (
         <div className="fixed inset-0 bg-secondary/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 bg-gradient-to-r from-primary/10 to-transparent border-b border-gray-100 flex justify-between items-center">
+            <div className="p-6 bg-gradient-to-r from-primary/10 to-transparent border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h3 className="text-2xl font-serif text-secondary">{selectedPlan.name}</h3>
                 <p className="text-sm text-gray-500 mt-1">Customers currently enrolled in this scheme</p>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm">
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <div className="relative flex-1 sm:w-64">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search size={16} className="text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search name or amount..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
+                  />
+                </div>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm shrink-0">
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             
             <div className="p-0 overflow-y-auto flex-1">
@@ -217,7 +234,27 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                      {planUsers.map((enrollment, idx) => (
+                      {planUsers.filter(enrollment => {
+                        if (!searchQuery) return true;
+                        const q = searchQuery.toLowerCase();
+                        const nameMatch = enrollment.user?.name?.toLowerCase().includes(q) || false;
+                        const phoneMatch = enrollment.user?.phone?.toLowerCase().includes(q) || false;
+                        const amountMatch = enrollment.monthlyAmount?.toString().includes(q) || enrollment.totalPaid?.toString().includes(q) || false;
+                        return nameMatch || phoneMatch || amountMatch;
+                      }).length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="text-center py-8 text-gray-500">
+                            No customers found matching "{searchQuery}"
+                          </td>
+                        </tr>
+                      ) : planUsers.filter(enrollment => {
+                        if (!searchQuery) return true;
+                        const q = searchQuery.toLowerCase();
+                        const nameMatch = enrollment.user?.name?.toLowerCase().includes(q) || false;
+                        const phoneMatch = enrollment.user?.phone?.toLowerCase().includes(q) || false;
+                        const amountMatch = enrollment.monthlyAmount?.toString().includes(q) || enrollment.totalPaid?.toString().includes(q) || false;
+                        return nameMatch || phoneMatch || amountMatch;
+                      }).map((enrollment, idx) => (
                         <React.Fragment key={idx}>
                           <tr 
                             onClick={() => toggleExpandCustomer(enrollment.id)}
