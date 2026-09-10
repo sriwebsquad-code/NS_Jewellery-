@@ -59,7 +59,13 @@ const Dashboard: React.FC = () => {
       expandable: true,
       id: 'jewellery'
     },
-    { label: 'Monthly Revenue', value: formatCurrency(statsData.monthlyRevenue), icon: <TrendingUp size={24} className="text-primary" />, expandable: false },
+    { 
+      label: 'Monthly Revenue', 
+      value: formatCurrency(statsData.monthlyRevenue), 
+      icon: <TrendingUp size={24} className="text-primary" />, 
+      expandable: true,
+      id: 'revenue'
+    },
   ];
 
   return (
@@ -125,6 +131,36 @@ const Dashboard: React.FC = () => {
                 <div className="bg-[#C0C0C0]/20 p-3 rounded-lg flex justify-between items-center">
                   <span className="text-sm font-bold text-gray-700">Total Silver</span>
                   <span className="text-lg font-serif font-bold text-gray-600">{(statsData.totalSilverWeight || 0).toFixed(4)}g</span>
+                </div>
+              </div>
+            )}
+
+            {/* Expanded Content for Revenue */}
+            {expandedCard === 'revenue' && stat.id === 'revenue' && (
+              <div className="mt-4 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-2">
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">digisilver:</span>
+                  <span className="font-bold text-secondary text-base">{formatCurrency(statsData.revenueBreakdown?.digiSilver || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">digigold :</span>
+                  <span className="font-bold text-secondary text-base">{formatCurrency(statsData.revenueBreakdown?.digiGold || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">Gold Value Schemes :</span>
+                  <span className="font-bold text-secondary text-base">{formatCurrency(statsData.revenueBreakdown?.goldValue || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">Silver Value Schemes:</span>
+                  <span className="font-bold text-secondary text-base">{formatCurrency(statsData.revenueBreakdown?.silverValue || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">Gold Weight Schemes:</span>
+                  <span className="font-bold text-secondary text-base">{formatCurrency(statsData.revenueBreakdown?.goldWeight || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">Silver Weight Schemes:</span>
+                  <span className="font-bold text-secondary text-base">{formatCurrency(statsData.revenueBreakdown?.silverWeight || 0)}</span>
                 </div>
               </div>
             )}

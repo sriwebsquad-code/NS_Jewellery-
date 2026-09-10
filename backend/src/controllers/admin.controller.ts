@@ -64,15 +64,61 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
+    let monthlyRevenue = 0;
+    let revenueBreakdown = {
+      digiSilver: 0,
+      digiGold: 0,
+      goldValue: 0,
+      silverValue: 0,
+      goldWeight: 0,
+      silverWeight: 0
+    };
+
+    const allUserPlansSnapshot = await db.collection('userPlans').get();
+    const userPlansMap: Record<string, any> = {};
+    allUserPlansSnapshot.forEach(doc => {
+      userPlansMap[doc.id] = doc.data();
+    });
+
     const installmentsSnapshot = await db.collection('installments')
       .where('status', '==', 'PAID')
       .get();
 
-    let monthlyRevenue = 0;
     installmentsSnapshot.forEach(doc => {
       const data = doc.data();
       if (data.paidAt && data.paidAt >= startOfMonth.toISOString()) {
-        monthlyRevenue += (data.amount || 0);
+        const amt = data.amount || 0;
+        monthlyRevenue += amt;
+
+        const uPlan = userPlansMap[data.userPlanId];
+        if (uPlan) {
+          const planInfo = plansMap[uPlan.planId];
+          if (planInfo) {
+            if (planInfo.metalType === 'GOLD') {
+              if (planInfo.schemeType === 'VALUE_BASED') revenueBreakdown.goldValue += amt;
+              else revenueBreakdown.goldWeight += amt;
+            } else if (planInfo.metalType === 'SILVER') {
+              if (planInfo.schemeType === 'VALUE_BASED') revenueBreakdown.silverValue += amt;
+              else revenueBreakdown.silverWeight += amt;
+            }
+          }
+        }
+      }
+    });
+
+    const digitalTxnsSnapshot = await db.collection('digitalTransactions')
+      .where('status', '==', 'SUCCESS')
+      .where('type', '==', 'BUY')
+      .get();
+
+    digitalTxnsSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.createdAt && data.createdAt >= startOfMonth.toISOString()) {
+        const amt = data.amount || 0;
+        monthlyRevenue += amt;
+        
+        if (data.metalType === 'GOLD') revenueBreakdown.digiGold += amt;
+        else if (data.metalType === 'SILVER') revenueBreakdown.digiSilver += amt;
       }
     });
     
@@ -113,6 +159,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         totalGoldWeight,
         totalSilverWeight,
         monthlyRevenue,
+        revenueBreakdown,
         recentActions
       }
     });
