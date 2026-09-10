@@ -125,21 +125,38 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     // Recent Actions
     let recentActions: any[] = [];
     try {
-      const recentTxnsSnapshot = await db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(5).get();
+      const recentDigi = await db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(10).get();
+      const recentInst = await db.collection('installments').orderBy('createdAt', 'desc').limit(10).get();
       
-      const actionsPromises = recentTxnsSnapshot.docs.map(async (doc) => {
-        const data = doc.data();
+      const allRecent = [
+        ...recentDigi.docs.map(d => ({ id: d.id, collection: 'digital', ...d.data() })),
+        ...recentInst.docs.map(d => ({ id: d.id, collection: 'installment', ...d.data() }))
+      ].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 10);
+      
+      const actionsPromises = allRecent.map(async (data: any) => {
         let userName = 'Unknown';
         if (data.userId) {
           const userDoc = await db.collection('users').doc(data.userId).get();
           if (userDoc.exists) userName = userDoc.data()?.name || data.userId.substring(0, 4);
         }
         
+        let title = '';
+        if (data.collection === 'digital') {
+          title = `${data.type} ${data.metalType}`;
+        } else {
+          title = `SCHEME INSTALLMENT`;
+          if (data.userPlanId && userPlansMap[data.userPlanId]) {
+            const planInfo = plansMap[userPlansMap[data.userPlanId].planId];
+            if (planInfo) title = planInfo.name || 'SCHEME INSTALLMENT';
+          }
+        }
+        
         return {
-          id: doc.id,
-          title: `${data.type} ${data.metalType}`,
+          id: data.id,
+          title,
           time: data.createdAt,
-          user: userName
+          user: userName,
+          route: '/transactions'
         };
       });
       

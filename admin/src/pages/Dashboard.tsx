@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Users, Gem, TrendingUp, Landmark, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthStore } from '../store/authStore';
+import { useNavigate } from 'react-router-dom';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard: React.FC = () => {
   const [statsData, setStatsData] = useState<any>({
@@ -18,6 +20,7 @@ const Dashboard: React.FC = () => {
 
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const token = useAuthStore(state => state.token);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('https://ns-jewellery.onrender.com/api/admin/dashboard/stats', {
@@ -174,21 +177,59 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-        <div className="lg:col-span-2 glass-card p-6 rounded-2xl min-h-[350px] relative overflow-hidden">
+        <div className="lg:col-span-2 glass-card p-6 rounded-2xl min-h-[350px] relative overflow-hidden flex flex-col">
           <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
-          <h3 className="font-serif text-secondary mb-6 text-2xl relative z-10">Revenue Analytics</h3>
-          <div className="text-gray-400 text-sm flex flex-col h-full items-center justify-center pb-8 relative z-10">
-            <TrendingUp size={48} className="text-primary/20 mb-4" />
-            <span>Chart integration pending...</span>
+          <h3 className="font-serif text-secondary mb-6 text-2xl relative z-10 flex items-center">
+            <TrendingUp className="mr-3 text-primary" size={24} />
+            Revenue Analytics
+          </h3>
+          <div className="flex-1 relative z-10 min-h-[300px]">
+            {statsData.revenueBreakdown ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={[
+                    { name: 'Digi Gold', value: statsData.revenueBreakdown.digiGold || 0 },
+                    { name: 'Digi Silver', value: statsData.revenueBreakdown.digiSilver || 0 },
+                    { name: 'Gold Schemes', value: (statsData.revenueBreakdown.goldValue || 0) + (statsData.revenueBreakdown.goldWeight || 0) },
+                    { name: 'Silver Schemes', value: (statsData.revenueBreakdown.silverValue || 0) + (statsData.revenueBreakdown.silverWeight || 0) }
+                  ].filter(d => d.value > 0)}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#D4AF37" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
+                  <YAxis tickFormatter={(val) => `₹${val/1000}k`} axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                  <Tooltip 
+                    formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Revenue']}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
+                  />
+                  <Area type="monotone" dataKey="value" stroke="#D4AF37" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-gray-400 text-sm flex flex-col h-full items-center justify-center pb-8">
+                <TrendingUp size={48} className="text-primary/20 mb-4" />
+                <span>No revenue data available for this month</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="glass-card p-6 rounded-2xl min-h-[350px] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 to-transparent pointer-events-none" />
           <h3 className="font-serif text-secondary mb-6 text-2xl relative z-10">Recent Actions</h3>
           <div className="space-y-4 relative z-10">
-             {statsData.recentActions && statsData.recentActions.length > 0 ? (
-               statsData.recentActions.map((action: any, i: number) => (
-                <div key={i} className="flex items-center space-x-4 p-3 bg-white/40 rounded-xl hover:bg-white/60 transition-colors cursor-pointer border border-transparent hover:border-primary/10">
+              {statsData.recentActions && statsData.recentActions.length > 0 ? (
+                statsData.recentActions.map((action: any, i: number) => (
+                 <div 
+                   key={i} 
+                   onClick={() => action.route ? navigate(action.route) : null}
+                   className="flex items-center space-x-4 p-3 bg-white/40 rounded-xl hover:bg-white/60 transition-colors cursor-pointer border border-transparent hover:border-primary/30 shadow-sm hover:shadow-md"
+                 >
                   <div className="w-10 h-10 rounded-full bg-background border border-primary/20 flex items-center justify-center text-primary text-sm font-bold font-serif shadow-sm uppercase">
                     {action.user ? action.user.substring(0, 2) : 'US'}
                   </div>
