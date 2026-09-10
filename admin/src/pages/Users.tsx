@@ -21,6 +21,8 @@ interface User {
   panNumber?: string;
   createdAt: string;
   activeSchemes?: any[];
+  digitalGoldBalance?: number;
+  digitalSilverBalance?: number;
 }
 
 const UserTransactions: React.FC<{ userId: string, token: string | null }> = ({ userId, token }) => {
