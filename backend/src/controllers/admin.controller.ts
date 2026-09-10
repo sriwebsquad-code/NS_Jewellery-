@@ -22,14 +22,23 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       silverWeight: 0
     };
 
+    const allPlansSnapshot = await db.collection('plans').get();
+    const plansMap: Record<string, any> = {};
+    allPlansSnapshot.forEach(doc => {
+      plansMap[doc.id] = doc.data();
+    });
+
     plansSnapshot.forEach(doc => {
       const p = doc.data();
-      if (p.planId?.toLowerCase().includes('gold') || p.metalType === 'GOLD') {
-         if (p.schemeType === 'VALUE_BASED') plansBreakdown.goldValue++;
-         else plansBreakdown.goldWeight++;
-      } else {
-         if (p.schemeType === 'VALUE_BASED') plansBreakdown.silverValue++;
-         else plansBreakdown.silverWeight++;
+      const planInfo = plansMap[p.planId];
+      if (planInfo) {
+        if (planInfo.metalType === 'GOLD') {
+           if (planInfo.schemeType === 'VALUE_BASED') plansBreakdown.goldValue++;
+           else plansBreakdown.goldWeight++;
+        } else if (planInfo.metalType === 'SILVER') {
+           if (planInfo.schemeType === 'VALUE_BASED') plansBreakdown.silverValue++;
+           else plansBreakdown.silverWeight++;
+        }
       }
     });
 

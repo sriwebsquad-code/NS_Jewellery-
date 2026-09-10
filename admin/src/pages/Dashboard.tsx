@@ -95,20 +95,22 @@ const Dashboard: React.FC = () => {
 
             {/* Expanded Content for Plans */}
             {expandedCard === 'plans' && stat.id === 'plans' && (
-              <div className="mt-6 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-3">
-                <div className="bg-primary/5 p-3 rounded-lg">
-                  <p className="text-xs font-bold text-gray-500 uppercase mb-2">Value Based</p>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">Gold Members: <span className="font-bold text-secondary">{statsData.plansBreakdown?.goldValue || 0}</span></span>
-                    <span className="text-gray-700">Silver Members: <span className="font-bold text-secondary">{statsData.plansBreakdown?.silverValue || 0}</span></span>
-                  </div>
+              <div className="mt-4 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-2">
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">Gold Value Schemes :</span>
+                  <span className="font-bold text-secondary text-base">{statsData.plansBreakdown?.goldValue || 0}</span>
                 </div>
-                <div className="bg-secondary/5 p-3 rounded-lg">
-                  <p className="text-xs font-bold text-gray-500 uppercase mb-2">Weight Based</p>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">Gold Members: <span className="font-bold text-secondary">{statsData.plansBreakdown?.goldWeight || 0}</span></span>
-                    <span className="text-gray-700">Silver Members: <span className="font-bold text-secondary">{statsData.plansBreakdown?.silverWeight || 0}</span></span>
-                  </div>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">Silver Value Schemes:</span>
+                  <span className="font-bold text-secondary text-base">{statsData.plansBreakdown?.silverValue || 0}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">Gold Weight Schemes:</span>
+                  <span className="font-bold text-secondary text-base">{statsData.plansBreakdown?.goldWeight || 0}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-600 font-medium">Silver Weight Schemes:</span>
+                  <span className="font-bold text-secondary text-base">{statsData.plansBreakdown?.silverWeight || 0}</span>
                 </div>
               </div>
             )}
