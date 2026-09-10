@@ -122,16 +122,23 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       }
     });
     
-    // Recent Actions
+    // Recent Actions - fetch from all 3 collections
     let recentActions: any[] = [];
     try {
-      const recentDigi = await db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(10).get();
-      const recentInst = await db.collection('installments').orderBy('createdAt', 'desc').limit(10).get();
+      const [recentDigi, recentInst, recentRedemptions] = await Promise.all([
+        db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(20).get(),
+        db.collection('installments').orderBy('createdAt', 'desc').limit(20).get(),
+        db.collection('userPlans').where('status', '==', 'REDEEMED').orderBy('updatedAt', 'desc').limit(20).get()
+      ]);
       
       const allRecent = [
-        ...recentDigi.docs.map(d => ({ id: d.id, collection: 'digital', ...d.data() })),
-        ...recentInst.docs.map(d => ({ id: d.id, collection: 'installment', ...d.data() }))
-      ].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 10);
+        ...recentDigi.docs.map(d => ({ id: d.id, collection: 'digital', createdAt: d.data().createdAt, ...d.data() })),
+        ...recentInst.docs.map(d => ({ id: d.id, collection: 'installment', createdAt: d.data().createdAt, ...d.data() })),
+        ...recentRedemptions.docs.map(d => ({ id: d.id, collection: 'redemption', createdAt: d.data().updatedAt || d.data().createdAt, ...d.data() }))
+      ]
+        .filter((a: any) => a.createdAt)
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 15);
       
       const actionsPromises = allRecent.map(async (data: any) => {
         let userName = 'Unknown';
@@ -143,11 +150,17 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         let title = '';
         if (data.collection === 'digital') {
           title = `${data.type} ${data.metalType}`;
-        } else {
+        } else if (data.collection === 'installment') {
           title = `SCHEME INSTALLMENT`;
           if (data.userPlanId && userPlansMap[data.userPlanId]) {
             const planInfo = plansMap[userPlansMap[data.userPlanId].planId];
-            if (planInfo) title = planInfo.name || 'SCHEME INSTALLMENT';
+            if (planInfo) title = `INSTALLMENT - ${planInfo.name || 'Scheme'}`;
+          }
+        } else if (data.collection === 'redemption') {
+          title = `REDEEM SCHEME`;
+          if (data.planId) {
+            const planInfo = plansMap[data.planId];
+            if (planInfo) title = `REDEEM - ${planInfo.name || 'Scheme'}`;
           }
         }
         
@@ -156,13 +169,13 @@ export const getDashboardStats = async (req: Request, res: Response) => {
           title,
           time: data.createdAt,
           user: userName,
-          route: '/transactions'
+          route: '/admin/transactions'
         };
       });
       
       recentActions = await Promise.all(actionsPromises);
     } catch (e) {
-      console.log('Error fetching recent actions, maybe index missing:', e);
+      console.log('Error fetching recent actions:', e);
     }
 
     // Build date-wise daily chart data for Digi Gold & Digi Silver (last 30 days)

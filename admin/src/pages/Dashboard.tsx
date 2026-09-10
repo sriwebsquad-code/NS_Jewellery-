@@ -252,8 +252,8 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="glass-card p-6 rounded-2xl min-h-[350px] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 to-transparent pointer-events-none" />
-          <h3 className="font-serif text-secondary mb-6 text-2xl relative z-10">Recent Actions</h3>
-          <div className="space-y-4 relative z-10">
+          <h3 className="font-serif text-secondary mb-4 text-2xl relative z-10">Recent Actions</h3>
+          <div className="space-y-3 relative z-10 overflow-y-auto max-h-[380px] pr-1">
               {statsData.recentActions && statsData.recentActions.length > 0 ? (
                 statsData.recentActions.map((action: any, i: number) => (
                  <div 
