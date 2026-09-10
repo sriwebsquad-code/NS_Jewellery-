@@ -233,8 +233,11 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
                                 {enrollment.user?.name ? enrollment.user.name.charAt(0).toUpperCase() : 'C'}
                               </div>
                               <div>
+                              <div className="flex items-center space-x-2">
                                 <p className="font-semibold text-gray-800">{enrollment.user?.name || 'Unknown Customer'}</p>
-                                <p className="text-xs text-gray-500">{enrollment.user?.phone || 'No phone'}</p>
+                                <span className="text-[10px] font-medium text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">#{enrollment.user?.customId || enrollment.user?.id}</span>
+                              </div>
+                              <p className="text-xs text-gray-500">{enrollment.user?.phone || 'No phone'}</p>
                               </div>
                             </div>
                           </td>

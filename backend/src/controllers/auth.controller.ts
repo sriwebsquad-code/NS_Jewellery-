@@ -6,6 +6,7 @@ import { whatsappService } from '../services/whatsapp.service';
 import { smsService } from '../services/sms.service';
 import axios from 'axios';
 import nodemailer from 'nodemailer';
+import { getNextSequence } from '../utils/counter';
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
@@ -86,8 +87,11 @@ export const verifyOTP = async (req: Request, res: Response) => {
 
     if (snapshot.empty) {
       const newUserRef = usersRef.doc();
+      const customId = await getNextSequence('customer_id', 'NSMJCUD');
+      
       user = {
         id: newUserRef.id,
+        customId,
         phone: phoneNumber,
         role: 'CUSTOMER',
         kycStatus: 'PENDING',

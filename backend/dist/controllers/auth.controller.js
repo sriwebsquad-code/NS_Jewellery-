@@ -10,6 +10,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const whatsapp_service_1 = require("../services/whatsapp.service");
 const sms_service_1 = require("../services/sms.service");
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const counter_1 = require("../utils/counter");
 // Nodemailer configuration
 const transporter = nodemailer_1.default.createTransport({
     service: 'gmail',
@@ -76,8 +77,10 @@ const verifyOTP = async (req, res) => {
         let isNewUser = false;
         if (snapshot.empty) {
             const newUserRef = usersRef.doc();
+            const customId = await (0, counter_1.getNextSequence)('customer_id', 'NSMJCUD');
             user = {
                 id: newUserRef.id,
+                customId,
                 phone: phoneNumber,
                 role: 'CUSTOMER',
                 kycStatus: 'PENDING',
