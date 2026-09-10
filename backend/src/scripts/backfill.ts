@@ -26,11 +26,13 @@ async function backfillTransactions() {
         const planDoc = await db.collection('plans').doc(data.planId).get();
         if (planDoc.exists) {
           const pData = planDoc.data();
-          if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') prefix = 'Gold Value Schemes';
-          else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Gold Weight Schemes';
-          else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') prefix = 'Silver Value Schemes';
-          else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Silver Weight Schemes';
-          else prefix = pData.name || 'Scheme';
+          if (pData) {
+            if (pData.metalType === 'GOLD' && pData.schemeType === 'VALUE_BASED') prefix = 'Gold Value Schemes';
+            else if (pData.metalType === 'GOLD' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Gold Weight Schemes';
+            else if (pData.metalType === 'SILVER' && pData.schemeType === 'VALUE_BASED') prefix = 'Silver Value Schemes';
+            else if (pData.metalType === 'SILVER' && pData.schemeType === 'WEIGHT_BASED') prefix = 'Silver Weight Schemes';
+            else prefix = pData.name || 'Scheme';
+          }
         }
       } catch (e) {}
       
