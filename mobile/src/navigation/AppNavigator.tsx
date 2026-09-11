@@ -82,11 +82,7 @@ const AppNavigator = () => {
     },
   };
 
-  useEffect(() => {
-    if (_hasHydrated) {
-      SplashScreen.hideAsync().catch(() => {});
-    }
-  }, [_hasHydrated]);
+  // Splash screen hide logic removed to allow native splash to close immediately and show app
 
   if (!_hasHydrated) {
     // Keep a blank view while hydrating, the native splash screen covers it.

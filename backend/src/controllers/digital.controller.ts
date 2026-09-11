@@ -29,10 +29,11 @@ export const getTransactions = async (req: Request, res: Response) => {
 
     const snapshot = await db.collection('digitalTransactions')
       .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
       .get();
       
     const txns = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Sort in JS to avoid requiring a composite index
+    txns.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     res.status(200).json({ success: true, data: txns });
   } catch (error: any) {
@@ -107,10 +108,11 @@ export const getLockerDashboard = async (req: Request, res: Response) => {
 
     const txnsSnapshot = await db.collection('digitalTransactions')
       .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
       .get();
       
     const transactions = txnsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Sort in JS to avoid requiring a composite index
+    transactions.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     res.status(200).json({ success: true, data: { locker, currentRates, installments: [], transactions } });
   } catch (error: any) {

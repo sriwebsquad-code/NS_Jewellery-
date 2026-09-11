@@ -9,8 +9,7 @@ import SecurityBoundary from './src/components/SecurityBoundary';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import * as SplashScreen from 'expo-splash-screen';
 
-// Keep the splash screen visible while we fetch resources
-SplashScreen.preventAutoHideAsync().catch(() => {});
+// Removed artificial splash screen delay for faster startup
 
 export default function App() {
   return (

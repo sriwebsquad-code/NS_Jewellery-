@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../../constants/theme';
 import { Menu, Lock, Phone } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
+import { ENV } from '../../config/env';
 
 const ChangeMpinScreen = () => {
   const navigation = useNavigation<any>();
   const { user } = useAuthStore() as any;
+  const [step, setStep] = useState(1);
   const [phone, setPhone] = useState(user?.phone || '');
   const [newMpin, setNewMpin] = useState('');
   const [confirmMpin, setConfirmMpin] = useState('');
+  const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleChangeMpin = () => {
+  const handleRequestOtp = async () => {
     if (!phone) {
       Alert.alert('Error', 'Please enter your registered phone number');
       return;
@@ -27,10 +31,62 @@ const ChangeMpinScreen = () => {
       return;
     }
 
-    // Call backend to update MPIN here
-    Alert.alert('Success', 'Your MPIN has been updated successfully', [
-      { text: 'OK', onPress: () => navigation.goBack() }
-    ]);
+    setLoading(true);
+    try {
+      const res = await fetch(`${ENV.API_URL}/auth/mpin/request-reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        Alert.alert('OTP Sent', data.message);
+        setStep(2);
+      } else {
+        Alert.alert('Error', data.message || 'Failed to send OTP');
+      }
+    } catch (err: any) {
+      Alert.alert('Error', 'Failed to request OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetMpin = async () => {
+    if (!otp || otp.length !== 4) {
+      Alert.alert('Error', 'Please enter a valid 4-digit OTP');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${ENV.API_URL}/auth/mpin/reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp, newMpin })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        Alert.alert('Success', 'Your MPIN has been updated successfully', [
+          { text: 'OK', onPress: () => {
+              setStep(1);
+              setNewMpin('');
+              setConfirmMpin('');
+              setOtp('');
+              navigation.goBack();
+            } 
+          }
+        ]);
+      } else {
+        Alert.alert('Error', data.message || 'Failed to update MPIN');
+      }
+    } catch (err: any) {
+      Alert.alert('Error', 'Failed to update MPIN');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,59 +100,89 @@ const ChangeMpinScreen = () => {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.description}>
-          Enter your registered phone number and a new 4-digit MPIN to secure your account.
-        </Text>
+        {step === 1 ? (
+          <>
+            <Text style={styles.description}>
+              Enter your registered phone number and a new 4-digit MPIN to secure your account.
+            </Text>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Phone Number</Text>
-          <View style={styles.inputWrapper}>
-            <Phone color={COLORS.darkGray} size={20} style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Phone Number"
-              keyboardType="phone-pad"
-              value={phone}
-              onChangeText={setPhone}
-            />
-          </View>
-        </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Phone Number</Text>
+              <View style={styles.inputWrapper}>
+                <Phone color={COLORS.darkGray} size={20} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter Phone Number"
+                  keyboardType="phone-pad"
+                  value={phone}
+                  onChangeText={setPhone}
+                  editable={!user?.phone}
+                />
+              </View>
+            </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>New MPIN</Text>
-          <View style={styles.inputWrapper}>
-            <Lock color={COLORS.darkGray} size={20} style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter 4-digit MPIN"
-              keyboardType="numeric"
-              maxLength={4}
-              secureTextEntry
-              value={newMpin}
-              onChangeText={setNewMpin}
-            />
-          </View>
-        </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>New MPIN</Text>
+              <View style={styles.inputWrapper}>
+                <Lock color={COLORS.darkGray} size={20} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter 4-digit MPIN"
+                  keyboardType="numeric"
+                  maxLength={4}
+                  secureTextEntry
+                  value={newMpin}
+                  onChangeText={setNewMpin}
+                />
+              </View>
+            </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirm MPIN</Text>
-          <View style={styles.inputWrapper}>
-            <Lock color={COLORS.darkGray} size={20} style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm 4-digit MPIN"
-              keyboardType="numeric"
-              maxLength={4}
-              secureTextEntry
-              value={confirmMpin}
-              onChangeText={setConfirmMpin}
-            />
-          </View>
-        </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Confirm MPIN</Text>
+              <View style={styles.inputWrapper}>
+                <Lock color={COLORS.darkGray} size={20} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirm 4-digit MPIN"
+                  keyboardType="numeric"
+                  maxLength={4}
+                  secureTextEntry
+                  value={confirmMpin}
+                  onChangeText={setConfirmMpin}
+                />
+              </View>
+            </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleChangeMpin}>
-          <Text style={styles.submitButtonText}>Update MPIN</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.submitButton} onPress={handleRequestOtp} disabled={loading}>
+              {loading ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.submitButtonText}>Send OTP</Text>}
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={styles.description}>
+              Please enter the 4-digit OTP sent to your registered phone number.
+            </Text>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Enter OTP</Text>
+              <View style={styles.inputWrapper}>
+                <Lock color={COLORS.darkGray} size={20} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter 4-digit OTP"
+                  keyboardType="numeric"
+                  maxLength={4}
+                  value={otp}
+                  onChangeText={setOtp}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleResetMpin} disabled={loading}>
+              {loading ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.submitButtonText}>Verify & Update MPIN</Text>}
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );

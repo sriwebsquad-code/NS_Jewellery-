@@ -142,9 +142,13 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       
       const actionsPromises = allRecent.map(async (data: any) => {
         let userName = 'Unknown';
+        let userPhone = '';
         if (data.userId) {
           const userDoc = await db.collection('users').doc(data.userId).get();
-          if (userDoc.exists) userName = userDoc.data()?.name || data.userId.substring(0, 4);
+          if (userDoc.exists) {
+            userName = userDoc.data()?.name || data.userId.substring(0, 4);
+            userPhone = userDoc.data()?.phone || '';
+          }
         }
         
         let title = '';
@@ -169,6 +173,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
           title,
           time: data.createdAt,
           user: userName,
+          userPhone,
           route: '/admin/transactions'
         };
       });

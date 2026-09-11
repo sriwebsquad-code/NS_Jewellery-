@@ -33,7 +33,7 @@ const MyLockerScreen = () => {
     try {
       const timestamp = Date.now();
       const [lockerRes, plansRes] = await Promise.all([
-        fetch(`${ENV.API_URL}/digital/locker-dashboard?t=${timestamp}`, {
+        fetch(`${ENV.API_URL}/digital/locker?t=${timestamp}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
         }),
         fetch(`${ENV.API_URL}/plans/my-plans?t=${timestamp}`, {

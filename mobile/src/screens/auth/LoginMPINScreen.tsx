@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, Platform, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
-import { Delete, ChevronLeft, Lock } from 'lucide-react-native';
+import { Delete, Lock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ENV } from '../../config/env';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -13,6 +14,7 @@ const LoginMPINScreen = () => {
   const [loading, setLoading] = useState(false);
   const { logout, updateActivity, setLogin, user } = useAuthStore();
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
 
   const handleLogin = async (code: string) => {
     setLoading(true);
@@ -64,10 +66,9 @@ const LoginMPINScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FDFCF8" translucent={false} />
       
-      {/* Header Removed as requested */}      
       <View style={styles.contentContainer}>
         {/* Logo Section */}
         <View style={styles.logoSection}>
@@ -106,7 +107,7 @@ const LoginMPINScreen = () => {
             style={styles.gradientButton}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Lock color="#FFF" size={18} style={{ marginRight: 8 }} />
+              <Lock color="#FFF" size={16} style={{ marginRight: 6 }} />
               <Text style={styles.buttonText}>{loading ? 'Unlocking...' : 'Unlock'}</Text>
             </View>
             {loading && <ActivityIndicator color="#fff" size="small" style={{ marginLeft: 8 }} />}
@@ -141,7 +142,7 @@ const LoginMPINScreen = () => {
             return (
               <TouchableOpacity key={index} style={styles.keypadButton} onPress={handleBackspace}>
                 <View style={styles.keypadButtonInner}>
-                  <Delete color="#333" size={24} />
+                  <Delete color="#333" size={20} />
                 </View>
               </TouchableOpacity>
             );
@@ -156,8 +157,7 @@ const LoginMPINScreen = () => {
           );
         })}
       </View>
-
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -165,34 +165,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FDFCF8',
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#D5A539',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
+    justifyContent: 'space-between',
   },
   contentContainer: {
     flex: 1,
     paddingHorizontal: 30,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 10,
   },
   logoSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    marginTop: -10,
-    width: width * 0.55,
-    height: width * 0.55,
+    marginBottom: 15,
+    width: width * 0.45,
+    height: width * 0.45,
   },
   logo: {
     width: '100%',
@@ -201,30 +188,30 @@ const styles = StyleSheet.create({
   },
   textSection: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   heading: {
     fontFamily: 'serif',
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#A67A27',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   subheading: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#555',
     fontWeight: '500',
   },
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 35,
-    gap: 15,
+    marginBottom: 25,
+    gap: 12,
   },
   dotOuter: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#D5A539',
     justifyContent: 'center',
@@ -232,17 +219,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   dotInner: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: '#D5A539',
   },
   button: {
-    height: 55,
+    height: 48,
     width: '100%',
     borderRadius: 8,
     overflow: 'hidden',
-    marginBottom: 25,
+    marginBottom: 15,
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -254,21 +241,21 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
   },
   forgotBtn: {
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   forgotText: {
     color: '#A67A27',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
   logoutBtn: {
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 10,
   },
   logoutText: {
     color: '#999',
@@ -279,7 +266,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    marginBottom: 15,
+    marginBottom: 10,
     paddingHorizontal: 40,
   },
   dividerLine: {
@@ -288,34 +275,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#D5A539',
   },
   diamond: {
-    width: 8,
-    height: 8,
+    width: 6,
+    height: 6,
     backgroundColor: '#D5A539',
     transform: [{ rotate: '45deg' }],
-    marginHorizontal: 15,
+    marginHorizontal: 12,
   },
   keypadContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     backgroundColor: 'transparent',
-    paddingTop: 10,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 25,
+    paddingTop: 5,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 15,
   },
   keypadButton: {
     width: '33.33%',
-    height: 75,
+    height: 65,
     justifyContent: 'center',
     alignItems: 'center',
   },
   keypadButtonInner: {
-    width: 75,
-    height: 65,
+    width: 65,
+    height: 55,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FDFCF8',
-    borderRadius: 12,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#E8D4A2',
     shadowColor: '#000',
@@ -325,15 +312,15 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   keyNum: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '500',
     color: '#111',
   },
   keyLetters: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#777',
     marginTop: -2,
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
   },
 });
 

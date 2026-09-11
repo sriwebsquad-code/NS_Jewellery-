@@ -266,8 +266,15 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-bold text-gray-800">{action.title}</p>
-                    <p className="text-xs text-gray-600 font-medium">{action.user}</p>
-                    <p className="text-[10px] text-gray-400 flex items-center mt-0.5">
+                    <div className="flex items-center space-x-2 mt-0.5">
+                      <p className="text-xs text-gray-600 font-medium">{action.user}</p>
+                      {action.userPhone && (
+                        <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono border border-primary/20">
+                          {action.userPhone}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-gray-400 flex items-center mt-1">
                       <Clock size={10} className="mr-1" />
                       {action.time ? formatDistanceToNow(new Date(action.time), { addSuffix: true }) : 'Recently'}
                     </p>
