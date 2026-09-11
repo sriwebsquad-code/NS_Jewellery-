@@ -132,9 +132,26 @@ const getUserPlans = async (req, res) => {
                 const p = await firebase_1.db.collection('plans').doc(data.planId).get();
                 planCache[data.planId] = p.data();
             }
+            // Dynamically calculate totals from installments to guarantee exact match with TransactionsScreen
+            const instSnap = await firebase_1.db.collection('installments')
+                .where('userPlanId', '==', doc.id)
+                .where('status', '==', 'PAID')
+                .get();
+            let dynamicTotalPaid = 0;
+            let dynamicWeight = 0;
+            let completedMonths = 0;
+            instSnap.forEach(i => {
+                const idata = i.data();
+                dynamicTotalPaid += (idata.amount || 0);
+                dynamicWeight += (idata.calculatedWeight || 0);
+                completedMonths += 1;
+            });
             formattedPlans.push({
                 id: doc.id,
                 ...data,
+                totalPaid: dynamicTotalPaid,
+                accumulatedWeight: dynamicWeight,
+                completedMonths: completedMonths,
                 plan: planCache[data.planId]
             });
         }
