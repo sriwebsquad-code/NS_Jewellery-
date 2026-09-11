@@ -52,5 +52,6 @@
     "web": "expo start --web",
     "postinstall": "patch-package"
   },
-  "private": true
+  "private": true,
+  "overrides": {}
 }
