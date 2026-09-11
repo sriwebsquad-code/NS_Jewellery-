@@ -261,11 +261,14 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
                           </td>
                           <td className="px-6 py-4 text-right">
                             <p className="font-bold text-secondary text-lg">₹{enrollment.totalPaid}</p>
-                            {typeFilter === 'WEIGHT_BASED' && enrollment.accumulatedWeight != null ? (
-                              <p className="text-xs text-primary font-bold">{enrollment.accumulatedWeight.toFixed(3)}g {enrollment.metalType === 'GOLD' ? 'Gold' : 'Silver'}</p>
+                            {typeFilter === 'WEIGHT_BASED' ? (
+                              <p className="text-xs text-primary font-bold">
+                                {enrollment.accumulatedWeight ? enrollment.accumulatedWeight.toFixed(3) : '0.000'}g {enrollment.metalType === 'SILVER' ? 'Silver' : 'Gold'}
+                              </p>
                             ) : (
                               <p className="text-xs text-gray-500 font-medium">₹{enrollment.monthlyAmount}/mo</p>
                             )}
+                            <p className="text-[10px] text-gray-400 font-medium mt-0.5">{enrollment.completedMonths || 1} Month(s) Paid</p>
                           </td>
                           <td className="px-6 py-4 text-center">
                             <button className="text-gray-400 p-1 hover:text-primary transition-colors">
