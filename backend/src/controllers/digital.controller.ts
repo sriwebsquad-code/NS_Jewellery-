@@ -110,9 +110,46 @@ export const getLockerDashboard = async (req: Request, res: Response) => {
       .where('userId', '==', userId)
       .get();
       
-    const transactions = txnsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    let transactions = txnsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    
     // Sort in JS to avoid requiring a composite index
     transactions.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    // Filter out any corrupted/scheme transactions
+    transactions = transactions.filter(t => t.type && ['BUY', 'SELL', 'REDEEM'].includes(t.type.toUpperCase()));
+
+    // Calculate investment metrics
+    let goldBuyWeight = 0;
+    let goldBuyAmount = 0;
+    let silverBuyWeight = 0;
+    let silverBuyAmount = 0;
+
+    transactions.forEach(t => {
+      if (t.type === 'BUY' && (t.status === 'SUCCESS' || t.status === 'PAID')) {
+        if (t.metalType === 'GOLD') {
+          goldBuyWeight += (t.weight || 0);
+          goldBuyAmount += (t.amount || 0);
+        } else if (t.metalType === 'SILVER') {
+          silverBuyWeight += (t.weight || 0);
+          silverBuyAmount += (t.amount || 0);
+        }
+      }
+    });
+
+    const avgGoldBuyRate = goldBuyWeight > 0 ? goldBuyAmount / goldBuyWeight : 0;
+    const avgSilverBuyRate = silverBuyWeight > 0 ? silverBuyAmount / silverBuyWeight : 0;
+
+    const goldBalance = locker.goldBalance || 0;
+    const silverBalance = locker.silverBalance || 0;
+
+    locker.totalInvestedGold = avgGoldBuyRate * goldBalance;
+    locker.totalInvestedSilver = avgSilverBuyRate * silverBalance;
+
+    locker.currentGoldValue = goldBalance * (currentRates.goldRate || 0);
+    locker.currentSilverValue = silverBalance * (currentRates.silverRate || 0);
+
+    locker.goldProfitLoss = locker.currentGoldValue - locker.totalInvestedGold;
+    locker.silverProfitLoss = locker.currentSilverValue - locker.totalInvestedSilver;
 
     res.status(200).json({ success: true, data: { locker, currentRates, installments: [], transactions } });
   } catch (error: any) {

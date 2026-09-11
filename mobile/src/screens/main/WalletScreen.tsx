@@ -36,7 +36,11 @@ const WalletScreen = () => {
       const data = await res.json();
       if (data.success && data.data) {
         setLockerData(data.data.locker);
-        setTransactions(data.data.transactions.filter((t: any) => t.metalType === metalType));
+        setTransactions(data.data.transactions.filter((t: any) => 
+          t.metalType === metalType && 
+          t.type && 
+          ['BUY', 'SELL', 'REDEEM'].includes(t.type.toUpperCase())
+        ));
       }
     } catch (error) {
       console.error(error);

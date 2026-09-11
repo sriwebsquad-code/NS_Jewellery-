@@ -25,6 +25,7 @@ import PanVerificationScreen from '../screens/main/PanVerificationScreen';
 import AdminDashboard from '../screens/admin/AdminDashboard';
 import FavoritesScreen from '../screens/main/FavoritesScreen';
 import TermsPrivacyScreen from '../screens/main/TermsPrivacyScreen';
+import TransactionsScreen from '../screens/main/TransactionsScreen';
 
 import RegistrationScreen from '../screens/auth/RegistrationScreen';
 
@@ -107,6 +108,7 @@ const AppNavigator = () => {
             <Stack.Screen name="LoginMPIN" component={LoginMPINScreen} />
             <Stack.Screen name="Main" component={DrawerNavigator} />
             <Stack.Screen name="JewelleryDetail" component={JewelleryDetailScreen} />
+            <Stack.Screen name="TransactionsScreen" component={TransactionsScreen} />
             <Stack.Screen name="ForgotMpin" component={ForgotMpinScreen} />
             <Stack.Screen name="Payment" component={PaymentScreen} />
             <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />

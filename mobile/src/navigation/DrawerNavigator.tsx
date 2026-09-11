@@ -10,7 +10,6 @@ import AboutUsScreen from '../screens/main/AboutUsScreen';
 import ReturnPoliciesScreen from '../screens/main/ReturnPoliciesScreen';
 import AdvanceBookingsScreen from '../screens/main/AdvanceBookingsScreen';
 import MyLockerScreen from '../screens/main/MyLockerScreen';
-import TransactionsScreen from '../screens/main/TransactionsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -29,7 +28,6 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="CatalogueScreen" component={CatalogueScreen} />
       <Drawer.Screen name="MyAccountScreen" component={MyAccountScreen} />
       <Drawer.Screen name="MyLockerScreen" component={MyLockerScreen} />
-      <Drawer.Screen name="TransactionsScreen" component={TransactionsScreen} />
       <Drawer.Screen name="TermsPrivacyScreen" component={TermsPrivacyScreen} />
       <Drawer.Screen name="ChangeMpinScreen" component={ChangeMpinScreen} />
       <Drawer.Screen name="AboutUsScreen" component={AboutUsScreen} />

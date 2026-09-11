@@ -35,7 +35,11 @@ const TransactionsScreen = () => {
         });
         const data = await response.json();
         if (data.success) {
-          const filtered = data.data.filter((t: any) => t.metalType === metal);
+          const filtered = data.data.filter((t: any) => 
+            t.metalType === metal && 
+            t.type && 
+            ['BUY', 'SELL', 'REDEEM'].includes(t.type.toUpperCase())
+          );
           setTransactions(filtered);
         }
       } else if (type === 'PLAN' && planId) {
