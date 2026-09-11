@@ -88,7 +88,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
     }
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     setError('');
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters long.');
@@ -99,13 +99,30 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
       return;
     }
 
-    // Save to localStorage to persist the password for the mock login
-    localStorage.setItem('adminPassword', newPassword);
-    
-    setSuccess('Password has been successfully changed!');
-    setTimeout(() => {
-      onClose();
-    }, 2000);
+    setLoading(true);
+    try {
+      const body = JSON.stringify({ newPassword });
+
+      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/admin/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setSuccess('Password has been successfully changed!');
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      } else {
+        setError(data.message || 'Failed to reset password.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -37,25 +37,36 @@ const Login: React.FC = () => {
     }, 3000); // Increased timeout to 3 seconds for easier clicking
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    // In production, this will hit POST /api/admin/login
-    const savedPassword = localStorage.getItem('adminPassword') || 'RN_NS_Mahaveerj@2026';
-    
     // Check credentials (using .trim() to prevent accidental copy-paste spaces)
-    const isMasterPassword = password.trim() === 'RN_NS_Mahaveerj@2026';
-    const isCorrectId = adminId.trim() === 'NS_Mahaveer_Jewellery_RN';
-    const isCorrectPassword = password.trim() === savedPassword || isMasterPassword;
+    const trimmedId = adminId.trim();
+    const trimmedPassword = password.trim();
 
-    if (isCorrectId && isCorrectPassword) {
-      login({ id: '1', name: 'NS Admin', phone: '0000000000', role: 'ADMIN' }, 'fake-jwt-token');
-      navigate('/');
-    } else if (!isCorrectId) {
+    if (trimmedId !== 'NS_Mahaveer_Jewellery_RN') {
       setError('Incorrect Admin ID. Make sure it is exactly: NS_Mahaveer_Jewellery_RN');
-    } else {
-      setError('Incorrect Password. Make sure there are no typos.');
+      return;
+    }
+
+    try {
+      const response = await fetch('https://ns-jewellery.onrender.com/api/auth/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminId: trimmedId, password: trimmedPassword })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        login(data.data.user, data.data.token);
+        navigate('/');
+      } else {
+        setError(data.message || 'Incorrect Password. Make sure there are no typos.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
     }
   };
 

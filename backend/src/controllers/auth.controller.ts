@@ -397,3 +397,78 @@ export const verifyOtpOnly = async (req: Request, res: Response) => {
   }
 };
 
+export const adminLogin = async (req: Request, res: Response) => {
+  try {
+    const { adminId, password } = req.body;
+    
+    if (!adminId || !password) {
+      return res.status(400).json({ success: false, message: 'Admin ID and password are required' });
+    }
+
+    if (adminId !== 'NS_Mahaveer_Jewellery_RN') {
+      return res.status(401).json({ success: false, message: 'Incorrect Admin ID' });
+    }
+
+    // Check against master password first (fallback)
+    if (password === 'RN_NS_Mahaveerj@2026') {
+      const token = generateToken({ userId: 'admin', role: 'ADMIN' });
+      return res.status(200).json({
+        success: true,
+        data: {
+          token,
+          user: { id: '1', name: 'NS Admin', phone: '0000000000', role: 'ADMIN' }
+        }
+      });
+    }
+
+    // Check Firebase for updated password
+    const adminRef = db.collection('settings').doc('adminAuth');
+    const doc = await adminRef.get();
+    
+    if (doc.exists) {
+      const data = doc.data();
+      if (data?.hashedPassword) {
+        const isMatch = await bcrypt.compare(password, data.hashedPassword);
+        if (isMatch) {
+          const token = generateToken({ userId: 'admin', role: 'ADMIN' });
+          return res.status(200).json({
+            success: true,
+            data: {
+              token,
+              user: { id: '1', name: 'NS Admin', phone: '0000000000', role: 'ADMIN' }
+            }
+          });
+        }
+      }
+    }
+
+    return res.status(401).json({ success: false, message: 'Incorrect Password' });
+
+  } catch (error: any) {
+    console.error('Admin Login Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+};
+
+export const adminResetPassword = async (req: Request, res: Response) => {
+  try {
+    const { newPassword } = req.body;
+    
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    const adminRef = db.collection('settings').doc('adminAuth');
+    await adminRef.set({
+      hashedPassword,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    res.status(200).json({ success: true, message: 'Admin password reset successfully' });
+  } catch (error: any) {
+    console.error('Admin Reset Password Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+};
