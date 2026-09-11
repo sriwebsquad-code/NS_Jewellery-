@@ -126,8 +126,9 @@ const verifyPayment = async (req, res) => {
                             // Join now
                             const startDate = new Date();
                             const endDate = new Date(startDate.getTime() + basePlan.durationMonths * 30 * 24 * 60 * 60 * 1000);
-                            const nextPaymentDate = new Date(startDate);
-                            nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+                            // Initial next payment date is 1st of current month. 
+                            // The subsequent payment block will advance this by 1 month to the 1st of the next month.
+                            const nextPaymentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
                             const newUserPlanRef = firebase_1.db.collection('userPlans').doc();
                             const userPlan = {
                                 id: newUserPlanRef.id,
@@ -199,7 +200,8 @@ const verifyPayment = async (req, res) => {
                     });
                     // Update userPlans ledger
                     let nextPaymentDate = new Date(userPlanData.nextPaymentDate || userPlanData.startDate);
-                    nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+                    // Advance by 1 month and force to the 1st of the month
+                    nextPaymentDate = new Date(nextPaymentDate.getFullYear(), nextPaymentDate.getMonth() + 1, 1);
                     let durationMonths = 11;
                     const planRef = await firebase_1.db.collection('plans').doc(userPlanData.planId).get();
                     if (planRef.exists) {

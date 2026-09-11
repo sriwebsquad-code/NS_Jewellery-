@@ -406,9 +406,9 @@ const verifyTransaction = async (req, res) => {
                 if (userPlanDoc.exists) {
                     const userPlanData = userPlanDoc.data();
                     const newTotalPaid = (userPlanData.totalPaid || 0) + installmentData.amount;
-                    // Push next payment date by 1 month
+                    // Push next payment date by 1 month and force to the 1st of the month
                     let nextPaymentDate = new Date(userPlanData.nextPaymentDate || userPlanData.startDate);
-                    nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+                    nextPaymentDate = new Date(nextPaymentDate.getFullYear(), nextPaymentDate.getMonth() + 1, 1);
                     await userPlanRef.update({
                         totalPaid: newTotalPaid,
                         nextPaymentDate: nextPaymentDate.toISOString()

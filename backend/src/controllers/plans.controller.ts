@@ -85,9 +85,9 @@ export const joinPlan = async (req: Request, res: Response) => {
     const startDate = new Date();
     const endDate = new Date(startDate.getTime() + planDoc.data()!.durationMonths * 30 * 24 * 60 * 60 * 1000);
     
-    // By default, the next payment is due exactly 1 month after starting the plan
-    const nextPaymentDate = new Date(startDate);
-    nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+    // Initial next payment date is 1st of current month. 
+    // The subsequent payment block will advance this by 1 month to the 1st of the next month.
+    const nextPaymentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
 
     const docRef = db.collection('userPlans').doc();
     const userPlan = {
