@@ -112,11 +112,15 @@ const verifyPayment = async (req, res) => {
                     const basePlanDoc = await firebase_1.db.collection('plans').doc(planId).get();
                     if (basePlanDoc.exists) {
                         const basePlan = basePlanDoc.data();
-                        // See if user already joined this exact plan
+                        // See if user already joined this exact plan and it's still ACTIVE
                         const existingJoin = await firebase_1.db.collection('userPlans').where('userId', '==', userId).where('planId', '==', planId).get();
+                        let activeJoin = null;
                         if (!existingJoin.empty) {
-                            actualUserPlanId = existingJoin.docs[0]?.id;
-                            userPlanDoc = existingJoin.docs[0];
+                            activeJoin = existingJoin.docs.find(doc => doc.data().status === 'ACTIVE');
+                        }
+                        if (activeJoin) {
+                            actualUserPlanId = activeJoin.id;
+                            userPlanDoc = activeJoin;
                         }
                         else {
                             // Join now

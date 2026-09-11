@@ -8,4 +8,6 @@ export declare const verifyMpinResetOtp: (req: Request, res: Response) => Promis
 export declare const resetMpin: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const sendEmailOTP: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const verifyOtpOnly: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const adminLogin: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const adminResetPassword: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 //# sourceMappingURL=auth.controller.d.ts.map

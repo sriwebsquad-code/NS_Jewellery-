@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyOtpOnly = exports.sendEmailOTP = exports.resetMpin = exports.verifyMpinResetOtp = exports.requestMpinReset = exports.loginWithMPIN = exports.createMPIN = exports.verifyOTP = exports.sendOTP = void 0;
+exports.adminResetPassword = exports.adminLogin = exports.verifyOtpOnly = exports.sendEmailOTP = exports.resetMpin = exports.verifyMpinResetOtp = exports.requestMpinReset = exports.loginWithMPIN = exports.createMPIN = exports.verifyOTP = exports.sendOTP = void 0;
 const firebase_1 = require("../config/firebase");
 const jwt_1 = require("../utils/jwt");
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -346,4 +346,71 @@ const verifyOtpOnly = async (req, res) => {
     }
 };
 exports.verifyOtpOnly = verifyOtpOnly;
+const adminLogin = async (req, res) => {
+    try {
+        const { adminId, password } = req.body;
+        if (!adminId || !password) {
+            return res.status(400).json({ success: false, message: 'Admin ID and password are required' });
+        }
+        if (adminId !== 'NS_Mahaveer_Jewellery_RN') {
+            return res.status(401).json({ success: false, message: 'Incorrect Admin ID' });
+        }
+        // Check against master password first (fallback)
+        if (password === 'RN_NS_Mahaveerj@2026') {
+            const token = (0, jwt_1.generateToken)({ userId: 'admin', role: 'ADMIN' });
+            return res.status(200).json({
+                success: true,
+                data: {
+                    token,
+                    user: { id: '1', name: 'NS Admin', phone: '0000000000', role: 'ADMIN' }
+                }
+            });
+        }
+        // Check Firebase for updated password
+        const adminRef = firebase_1.db.collection('settings').doc('adminAuth');
+        const doc = await adminRef.get();
+        if (doc.exists) {
+            const data = doc.data();
+            if (data?.hashedPassword) {
+                const isMatch = await bcrypt_1.default.compare(password, data.hashedPassword);
+                if (isMatch) {
+                    const token = (0, jwt_1.generateToken)({ userId: 'admin', role: 'ADMIN' });
+                    return res.status(200).json({
+                        success: true,
+                        data: {
+                            token,
+                            user: { id: '1', name: 'NS Admin', phone: '0000000000', role: 'ADMIN' }
+                        }
+                    });
+                }
+            }
+        }
+        return res.status(401).json({ success: false, message: 'Incorrect Password' });
+    }
+    catch (error) {
+        console.error('Admin Login Error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+    }
+};
+exports.adminLogin = adminLogin;
+const adminResetPassword = async (req, res) => {
+    try {
+        const { newPassword } = req.body;
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
+        }
+        const hashedPassword = await bcrypt_1.default.hash(newPassword, 10);
+        const adminRef = firebase_1.db.collection('settings').doc('adminAuth');
+        await adminRef.set({
+            hashedPassword,
+            updatedAt: new Date().toISOString()
+        }, { merge: true });
+        res.status(200).json({ success: true, message: 'Admin password reset successfully' });
+    }
+    catch (error) {
+        console.error('Admin Reset Password Error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+    }
+};
+exports.adminResetPassword = adminResetPassword;
 //# sourceMappingURL=auth.controller.js.map

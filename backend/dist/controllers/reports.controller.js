@@ -18,23 +18,23 @@ const getReports = async (req, res) => {
             if (category === 'digigold' || category === 'digisilver') {
                 const metalType = category === 'digigold' ? 'GOLD' : 'SILVER';
                 const snapshot = await firebase_1.db.collection('digitalTransactions')
-                    .where('metalType', '==', metalType)
-                    .where('status', '==', 'SUCCESS')
                     .where('createdAt', '>=', startIso)
                     .where('createdAt', '<=', endIso)
                     .get();
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    results.push({
-                        id: doc.id,
-                        date: data.createdAt,
-                        type: data.type,
-                        user: data.userId || 'Unknown',
-                        amount: data.amount,
-                        weight: data.weight || 0,
-                        metal: metalType,
-                        receiptId: data.receiptId || '-'
-                    });
+                    if (data.metalType === metalType && data.status === 'SUCCESS') {
+                        results.push({
+                            id: doc.id,
+                            date: data.createdAt,
+                            type: data.type,
+                            user: data.userId || 'Unknown',
+                            amount: data.amount,
+                            weight: data.weight || 0,
+                            metal: metalType,
+                            receiptId: data.receiptId || '-'
+                        });
+                    }
                 });
             }
             else {
@@ -87,13 +87,12 @@ const getReports = async (req, res) => {
                         // Fetch installments
                         // Cannot use 'in' if userPlanIds > 10, so fetch by date range and filter
                         const instSnap = await firebase_1.db.collection('installments')
-                            .where('status', '==', 'PAID')
                             .where('createdAt', '>=', startIso)
                             .where('createdAt', '<=', endIso)
                             .get();
                         instSnap.forEach(doc => {
                             const data = doc.data();
-                            if (userPlanIds.includes(data.userPlanId)) {
+                            if (data.status === 'PAID' && userPlanIds.includes(data.userPlanId)) {
                                 results.push({
                                     id: doc.id,
                                     date: data.paidAt || data.createdAt,
@@ -117,8 +116,6 @@ const getReports = async (req, res) => {
                 // Easiest is to fetch all success transactions in range, group by user,
                 // and fetch user details. (This is an approximation for new customers)
                 const snapshot = await firebase_1.db.collection('digitalTransactions')
-                    .where('metalType', '==', metalType)
-                    .where('status', '==', 'SUCCESS')
                     .where('createdAt', '>=', startIso)
                     .where('createdAt', '<=', endIso)
                     .get();
@@ -126,7 +123,7 @@ const getReports = async (req, res) => {
                 const userTotals = {};
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (data.userId && data.type === 'BUY') {
+                    if (data.metalType === metalType && data.status === 'SUCCESS' && data.userId && data.type === 'BUY') {
                         userSet.add(data.userId);
                         if (!userTotals[data.userId])
                             userTotals[data.userId] = { amount: 0, weight: 0 };
@@ -171,20 +168,10 @@ const getReports = async (req, res) => {
                 const planIds = plansSnap.docs.map(d => d.id);
                 const planNames = plansSnap.docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data().name }), {});
                 if (planIds.length > 0) {
-                    let userPlansSnap;
-                    if (planIds.length <= 10) {
-                        userPlansSnap = await firebase_1.db.collection('userPlans')
-                            .where('planId', 'in', planIds)
-                            .where('createdAt', '>=', startIso)
-                            .where('createdAt', '<=', endIso)
-                            .get();
-                    }
-                    else {
-                        userPlansSnap = await firebase_1.db.collection('userPlans')
-                            .where('createdAt', '>=', startIso)
-                            .where('createdAt', '<=', endIso)
-                            .get();
-                    }
+                    let userPlansSnap = await firebase_1.db.collection('userPlans')
+                        .where('createdAt', '>=', startIso)
+                        .where('createdAt', '<=', endIso)
+                        .get();
                     userPlansSnap.forEach(doc => {
                         const data = doc.data();
                         if (planIds.includes(data.planId)) {

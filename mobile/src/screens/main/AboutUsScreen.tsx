@@ -29,7 +29,7 @@ const AboutUsScreen = () => {
             source={require('../../../assets/app_logo.jpg')} 
             style={{ width: 140, height: 140, alignSelf: 'center', marginBottom: 10, resizeMode: 'contain' }} 
           />
-          <Text style={[styles.subtitle, { color: colors.textMuted, textTransform: 'uppercase', fontWeight: 'bold' }]}>ESTABLISHED: 1962</Text>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>Since 1962</Text>
           
           <View style={styles.divider} />
           
