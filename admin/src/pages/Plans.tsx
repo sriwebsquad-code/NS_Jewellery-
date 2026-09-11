@@ -19,6 +19,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
   const [planUsers, setPlanUsers] = useState<any[]>([]);
   const [isFetchingUsers, setIsFetchingUsers] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'REDEEMED'>('ALL');
   
   // Transaction State
   const [expandedUserPlanId, setExpandedUserPlanId] = useState<string | null>(null);
@@ -165,6 +166,15 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
               <p className="text-sm text-gray-500 mt-1">Customers currently enrolled in this scheme</p>
             </div>
             <div className="flex items-center gap-4 w-full sm:w-auto">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="block w-32 pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors bg-white appearance-none cursor-pointer"
+              >
+                <option value="ALL">All</option>
+                <option value="ACTIVE">Active</option>
+                <option value="REDEEMED">Redeemed</option>
+              </select>
               <div className="relative flex-1 sm:w-64">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search size={16} className="text-gray-400" />
@@ -202,6 +212,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {planUsers.filter(enrollment => {
+                      if (statusFilter !== 'ALL' && enrollment.status !== statusFilter) return false;
                       if (!searchQuery) return true;
                       const q = searchQuery.toLowerCase();
                       const nameMatch = enrollment.user?.name?.toLowerCase().includes(q) || false;
@@ -215,6 +226,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
                         </td>
                       </tr>
                     ) : planUsers.filter(enrollment => {
+                      if (statusFilter !== 'ALL' && enrollment.status !== statusFilter) return false;
                       if (!searchQuery) return true;
                       const q = searchQuery.toLowerCase();
                       const nameMatch = enrollment.user?.name?.toLowerCase().includes(q) || false;
