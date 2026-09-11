@@ -101,7 +101,7 @@ export const getLockerDashboard = async (req: Request, res: Response) => {
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
     const lockerDoc = await db.collection('digitalBalances').doc(userId).get();
-    const locker = lockerDoc.exists ? lockerDoc.data() : { goldBalance: 0, silverBalance: 0 };
+    const locker: any = lockerDoc.exists ? lockerDoc.data() : { goldBalance: 0, silverBalance: 0 };
 
     const rateSnapshot = await db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
     const currentRates = rateSnapshot.empty ? { goldRate: 0, silverRate: 0, updatedAt: new Date() } : rateSnapshot.docs[0]!.data();

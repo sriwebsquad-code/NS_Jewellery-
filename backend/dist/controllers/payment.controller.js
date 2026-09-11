@@ -219,10 +219,14 @@ const verifyPayment = async (req, res) => {
                     // In-App Notification for Scheme Payment
                     try {
                         const planDetails = planRef.exists ? planRef.data() : { name: 'Scheme' };
+                        let notificationMessage = `Your payment of ₹${amount} for ${formatPlanName(planDetails.name, planDetails.schemeType, planDetails.metalType)} (Month ${newCompletedMonths}) was successful.`;
+                        if (calculatedWeight) {
+                            notificationMessage += ` Credited Weight: ${calculatedWeight.toFixed(3)}g.`;
+                        }
                         await firebase_1.db.collection('notifications').add({
                             userId,
                             title: 'Installment Paid Successfully',
-                            message: `Your payment of ₹${amount} for ${formatPlanName(planDetails.name, planDetails.schemeType, planDetails.metalType)} (Month ${newCompletedMonths}) was successful.`,
+                            message: notificationMessage,
                             isRead: false,
                             createdAt: new Date().toISOString()
                         });

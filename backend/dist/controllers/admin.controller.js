@@ -137,10 +137,13 @@ const getDashboardStats = async (req, res) => {
                 .slice(0, 15);
             const actionsPromises = allRecent.map(async (data) => {
                 let userName = 'Unknown';
+                let userPhone = '';
                 if (data.userId) {
                     const userDoc = await firebase_1.db.collection('users').doc(data.userId).get();
-                    if (userDoc.exists)
+                    if (userDoc.exists) {
                         userName = userDoc.data()?.name || data.userId.substring(0, 4);
+                        userPhone = userDoc.data()?.phone || '';
+                    }
                 }
                 let title = '';
                 if (data.collection === 'digital') {
@@ -167,6 +170,7 @@ const getDashboardStats = async (req, res) => {
                     title,
                     time: data.createdAt,
                     user: userName,
+                    userPhone,
                     route: '/admin/transactions'
                 };
             });
