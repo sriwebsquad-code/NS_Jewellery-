@@ -237,10 +237,14 @@ export const verifyPayment = async (req: Request, res: Response) => {
           // In-App Notification for Scheme Payment
           try {
             const planDetails = planRef.exists ? planRef.data() : { name: 'Scheme' };
+            let notificationMessage = `Your payment of ₹${amount} for ${formatPlanName(planDetails!.name, planDetails!.schemeType, planDetails!.metalType)} (Month ${newCompletedMonths}) was successful.`;
+            if (calculatedWeight) {
+              notificationMessage += ` Credited Weight: ${calculatedWeight.toFixed(3)}g.`;
+            }
             await db.collection('notifications').add({
               userId,
               title: 'Installment Paid Successfully',
-              message: `Your payment of ₹${amount} for ${formatPlanName(planDetails!.name, planDetails!.schemeType, planDetails!.metalType)} (Month ${newCompletedMonths}) was successful.`,
+              message: notificationMessage,
               isRead: false,
               createdAt: new Date().toISOString()
             });

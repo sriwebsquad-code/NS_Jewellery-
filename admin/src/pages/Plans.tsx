@@ -261,7 +261,11 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
                           </td>
                           <td className="px-6 py-4 text-right">
                             <p className="font-bold text-secondary text-lg">₹{enrollment.totalPaid}</p>
-                            <p className="text-xs text-gray-500 font-medium">₹{enrollment.monthlyAmount}/mo</p>
+                            {typeFilter === 'WEIGHT_BASED' && enrollment.accumulatedWeight != null ? (
+                              <p className="text-xs text-primary font-bold">{enrollment.accumulatedWeight.toFixed(3)}g {enrollment.metalType === 'GOLD' ? 'Gold' : 'Silver'}</p>
+                            ) : (
+                              <p className="text-xs text-gray-500 font-medium">₹{enrollment.monthlyAmount}/mo</p>
+                            )}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <button className="text-gray-400 p-1 hover:text-primary transition-colors">
@@ -309,13 +313,18 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
                                             <ArrowRight size={14} />
                                           </div>
                                           <div>
-                                            <p className="font-semibold text-gray-700 text-sm">Payment</p>
+                                            <p className="font-semibold text-gray-700 text-sm">
+                                              Payment {tx.monthNumber ? `(Month ${tx.monthNumber})` : ''}
+                                            </p>
                                             <p className="text-[10px] text-gray-400 font-medium">{new Date(tx.createdAt).toLocaleString()}</p>
                                           </div>
                                         </div>
                                         <div className="text-right">
                                           <p className="font-bold text-secondary">₹{tx.amount}</p>
-                                          <p className={`text-[10px] font-bold tracking-wider uppercase ${tx.status === 'VERIFIED' || tx.status === 'SUCCESS' ? 'text-green-600' : 'text-amber-600'}`}>{tx.status}</p>
+                                          {tx.calculatedWeight != null && (
+                                            <p className="text-[11px] text-primary font-bold my-0.5">+{tx.calculatedWeight.toFixed(3)}g</p>
+                                          )}
+                                          <p className={`text-[10px] font-bold tracking-wider uppercase ${tx.status === 'VERIFIED' || tx.status === 'SUCCESS' || tx.status === 'PAID' ? 'text-green-600' : 'text-amber-600'}`}>{tx.status}</p>
                                         </div>
                                       </div>
                                     ))}
