@@ -124,7 +124,7 @@ const TransactionsScreen = () => {
                         {t.monthNumber ? ` (Month ${t.monthNumber})` : ''}
                       </Text>
                       <Text style={[styles.txDate, { color: colors.textMuted }]}>
-                        {formatDate(t.createdAt)} • {t.status}
+                        {formatDate(t.createdAt)} • {t.status === 'RATE_PENDING' ? 'Rate Pending' : t.status}
                       </Text>
                       {t.metalType && t.applicableRate && (
                         <Text style={[styles.txDate, { color: '#B8860B', marginTop: 2, fontSize: 11 }]}>
@@ -139,6 +139,11 @@ const TransactionsScreen = () => {
                         <Text style={[styles.txAmount, { color: isCredit ? '#48C9B0' : '#E74C3C' }]}>
                           {isCredit ? '+' : '-'}₹{t.amount}
                         </Text>
+                        {t.status === 'RATE_PENDING' && schemeType !== 'VALUE_BASED' && (
+                          <Text style={[styles.txDate, { color: '#B8860B', fontWeight: 'bold', fontSize: 11 }]}>
+                            Weight pending rate
+                          </Text>
+                        )}
                         {t.calculatedWeight && schemeType !== 'VALUE_BASED' && (
                           <Text style={[styles.txDate, { color: '#B8860B', fontWeight: 'bold' }]}>
                             +{t.calculatedWeight.toFixed(3)}g {t.metalType === 'GOLD' ? 'Gold' : 'Silver'}
@@ -147,9 +152,13 @@ const TransactionsScreen = () => {
                       </View>
                     ) : (
                       <View style={{ alignItems: 'flex-end' }}>
-                         <Text style={[styles.txAmount, { color: isCredit ? '#48C9B0' : '#E74C3C' }]}>
-                          {isCredit ? '+' : '-'}{t.weight?.toFixed(3)}g
-                        </Text>
+                        {t.status === 'RATE_PENDING' ? (
+                           <Text style={[styles.txAmount, { color: '#B8860B', fontSize: 12 }]}>Weight pending</Text>
+                        ) : (
+                          <Text style={[styles.txAmount, { color: isCredit ? '#48C9B0' : '#E74C3C' }]}>
+                            {isCredit ? '+' : '-'}{t.weight?.toFixed(3)}g
+                          </Text>
+                        )}
                         <Text style={[styles.txDate, { color: colors.textMuted }]}>₹{t.amount}</Text>
                       </View>
                     )}

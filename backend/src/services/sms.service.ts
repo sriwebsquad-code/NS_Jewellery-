@@ -136,6 +136,18 @@ class SMSService {
     if (!templateId) return; // Silent skip if no template
     await this.sendDLTMessage(phone, templateId, { name, schemeName });
   }
+
+  public async sendPaymentRatePending(phone: string, name: string) {
+    const templateId = process.env.TEMPLATE_ID_RATE_PENDING;
+    if (!templateId) return; // Silent skip if no template
+    await this.sendDLTMessage(phone, templateId, { name });
+  }
+
+  public async sendPaymentFinalized(phone: string, name: string, amount: string, rate: string, grams: string) {
+    const templateId = process.env.TEMPLATE_ID_RATE_FINALIZED;
+    if (!templateId) return; // Silent skip if no template
+    await this.sendDLTMessage(phone, templateId, { name, amount, rate, grams });
+  }
 }
 
 export const smsService = new SMSService();
