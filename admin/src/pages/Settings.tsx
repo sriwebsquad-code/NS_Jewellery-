@@ -138,6 +138,47 @@ const Settings: React.FC = () => {
           </div>
         </div>
 
+        {/* Local Backup Folder Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-100 flex items-center space-x-3 bg-gray-50">
+            <Save className="text-primary" size={24} />
+            <h2 className="text-xl font-bold text-gray-800">Local Receipt Storage</h2>
+          </div>
+          
+          <div className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
+              <div className="flex-1 mr-4">
+                <h3 className="font-semibold text-gray-800 text-lg">Auto-Save PDF Bills</h3>
+                <p className="text-gray-500 text-sm mt-1 mb-3">Select a folder on your computer to automatically save a copy of every generated bill. Bills will be organized into subfolders (e.g. digisilver, digigold, gold value scheme).</p>
+                
+                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 items-start sm:items-center">
+                  <button 
+                    onClick={async () => {
+                      try {
+                        const { selectBackupDirectory } = await import('../utils/fileSystem');
+                        const handle = await selectBackupDirectory();
+                        if (handle) {
+                          alert(`Successfully selected folder: ${handle.name}\nAll future receipts will be saved here automatically.`);
+                        }
+                      } catch (e) {
+                        console.error(e);
+                        alert('Failed to select folder.');
+                      }
+                    }}
+                    className="bg-secondary text-white px-6 py-2.5 rounded-lg font-medium hover:bg-secondary/90 transition-all shadow-sm flex items-center justify-center space-x-2"
+                  >
+                    <span>Select Backup Folder</span>
+                    <ArrowRight size={16} />
+                  </button>
+                  <span className="text-xs text-gray-400 font-medium ml-2">
+                    *Requires a modern browser like Chrome or Edge.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {showModal && (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Printer, Share2 } from 'lucide-react';
+import { X, Printer } from 'lucide-react';
 
 export interface ReceiptData {
   id: string;
@@ -21,16 +21,60 @@ interface ReceiptModalProps {
 const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) => {
   if (!isOpen || !data) return null;
 
-  const handlePrint = () => {
-    // A simple hack to only print the modal content
+  const handlePrint = async () => {
+    // 1. Generate PDF and save if folder is configured
+    try {
+      const { getBackupDirectory, saveFileToBackup } = await import('../utils/fileSystem');
+      const backupDir = await getBackupDirectory();
+      
+      if (backupDir) {
+        const jsPDF = (await import('jspdf')).default;
+        const html2canvas = (await import('html2canvas')).default;
+        
+        const printArea = document.getElementById('receipt-print-area');
+        if (printArea) {
+          // Add a temporary class to ensure rendering isn't compromised by being inside a hidden/fixed modal
+          printArea.classList.add('bg-white');
+          const canvas = await html2canvas(printArea, { scale: 2, useCORS: true, logging: false });
+          const imgData = canvas.toDataURL('image/png');
+          
+          // A5 size: 148 x 210 mm
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a5'
+          });
+          
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+          
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          const pdfBlob = pdf.output('blob');
+          
+          // Organize by type
+          const subfolderName = data.type.toLowerCase().replace(/_/g, ' ');
+          const fileName = `Receipt_${data.receiptId || data.id.slice(-8)}.pdf`;
+          
+          await saveFileToBackup(backupDir, subfolderName, fileName, pdfBlob);
+        }
+      }
+    } catch (e) {
+      console.error("Error saving backup:", e);
+    }
+
+    // 2. Open Print Dialog with A5 sizing
     const style = document.createElement('style');
     style.innerHTML = `
       @media print {
+        @page {
+          size: A5 portrait;
+          margin: 0mm;
+        }
         body * {
-          visibility: hidden;
+          visibility: hidden !important;
         }
         #receipt-print-area, #receipt-print-area * {
-          visibility: visible;
+          visibility: visible !important;
         }
         #receipt-print-area {
           position: absolute;
@@ -38,30 +82,22 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) =>
           top: 0;
           width: 100%;
           padding: 20px;
+          margin: 0;
         }
       }
     `;
     document.head.appendChild(style);
+    
+    // We also need to briefly make sure the modal container is not display:none or clipped
     window.print();
-    // Use timeout to allow print dialog to open before removing styles
+    
     setTimeout(() => {
       document.head.removeChild(style);
     }, 1000);
   };
 
-  const handleWhatsAppShare = () => {
-    if (!data.customerPhone) {
-      alert("Customer phone number is missing.");
-      return;
-    }
-    const displayId = data.receiptId || data.id.slice(-8).toUpperCase();
-    const text = `Dear ${data.customerName || 'Customer'},\n\nYour redemption for ${data.details} was successful.\nTransaction ID: ${displayId}\nAmount: ${data.amount}\nDate: ${new Date(data.date).toLocaleDateString()}\n\nThank you for choosing NS Mahaveer Jewellery!`;
-    const url = `https://wa.me/${data.customerPhone.replace('+', '')}?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
-  };
-
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 print:bg-white print:p-0">
+    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 print:static print:bg-transparent print:p-0 print:block">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative flex flex-col print:shadow-none print:w-full print:max-w-none print:rounded-none">
         
         {/* Modal Controls - Hidden in print */}
@@ -126,13 +162,6 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) =>
 
         {/* Action Buttons - Hidden in print */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end space-x-3 print:hidden">
-          <button 
-            onClick={handleWhatsAppShare}
-            className="px-4 py-2 bg-[#25D366] text-white font-bold rounded-lg hover:bg-[#128C7E] transition-colors flex items-center space-x-2"
-          >
-            <Share2 size={16} />
-            <span>WhatsApp</span>
-          </button>
           <button 
             onClick={handlePrint}
             className="px-4 py-2 bg-secondary text-white font-bold rounded-lg hover:bg-secondary/90 transition-colors flex items-center space-x-2"
