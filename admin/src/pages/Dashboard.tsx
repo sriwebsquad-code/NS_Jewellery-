@@ -76,8 +76,109 @@ const Dashboard: React.FC = () => {
     },
   ];
 
+  const [isGraphExpanded, setIsGraphExpanded] = useState(false);
+
+  const renderGraph = (isExpanded: boolean) => {
+    return (
+      <div className="flex-1 relative z-10 min-h-[300px] w-full h-full flex flex-col">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="font-serif text-secondary text-2xl relative z-10 flex items-center">
+            <TrendingUp className="mr-3 text-primary" size={24} />
+            Revenue Analytics
+          </h3>
+          <button 
+            onClick={() => setIsGraphExpanded(!isExpanded)} 
+            className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-600 bg-white/50 shadow-sm"
+          >
+            {isExpanded ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            )}
+          </button>
+        </div>
+        <div className="flex-1 min-h-[300px]">
+          {statsData.dailyChartData && statsData.dailyChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={statsData.dailyChartData}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="date" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#9ca3af', fontSize: 10 }} 
+                  interval="preserveEnd"
+                  minTickGap={20}
+                  dy={8}
+                />
+                <YAxis 
+                  tickFormatter={(val) => val === 0 ? '₹0' : `₹${(val/1000).toFixed(1)}k`} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#9ca3af', fontSize: 11 }} 
+                />
+                <Tooltip 
+                  formatter={(value: any, name: any) => [
+                    `₹${Number(value || 0).toLocaleString()}`, 
+                    name === 'gold' ? 'Digi Gold' : 'Digi Silver'
+                  ]}
+                  contentStyle={{ 
+                    borderRadius: '12px', 
+                    border: '1px solid #f3f0e8', 
+                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.08)',
+                    fontSize: '13px'
+                  }}
+                  labelStyle={{ fontWeight: 600, color: '#374151' }}
+                />
+                <Legend 
+                  formatter={(value) => value === 'gold' ? 'Digi Gold' : 'Digi Silver'}
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="gold" 
+                  stroke="#D4AF37" 
+                  strokeWidth={2.5} 
+                  dot={false}
+                  activeDot={{ r: 5, fill: '#D4AF37' }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="silver" 
+                  stroke="#9ca3af" 
+                  strokeWidth={2.5} 
+                  dot={false}
+                  activeDot={{ r: 5, fill: '#9ca3af' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="text-gray-400 text-sm flex flex-col h-full items-center justify-center pb-8">
+              <TrendingUp size={48} className="text-primary/20 mb-4" />
+              <span>No digital transactions in the last 30 days</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
+      {isGraphExpanded && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-fade-in">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsGraphExpanded(false)} />
+          <div className="relative z-10 w-full h-full bg-[#fdfdfc] rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col">
+             {renderGraph(true)}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
         {stats.map((stat, index) => (
           <div 
@@ -179,77 +280,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         <div className="lg:col-span-2 glass-card p-6 rounded-2xl min-h-[350px] relative overflow-hidden flex flex-col">
           <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
-          <h3 className="font-serif text-secondary mb-6 text-2xl relative z-10 flex items-center">
-            <TrendingUp className="mr-3 text-primary" size={24} />
-            Revenue Analytics
-          </h3>
-          <div className="flex-1 relative z-10 min-h-[300px]">
-            {statsData.dailyChartData && statsData.dailyChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={statsData.dailyChartData}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="date" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#9ca3af', fontSize: 10 }} 
-                    interval="preserveEnd"
-                    minTickGap={20}
-                    dy={8}
-                  />
-                  <YAxis 
-                    tickFormatter={(val) => val === 0 ? '₹0' : `₹${(val/1000).toFixed(1)}k`} 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#9ca3af', fontSize: 11 }} 
-                  />
-                  <Tooltip 
-                    formatter={(value: any, name: any) => [
-                      `₹${Number(value || 0).toLocaleString()}`, 
-                      name === 'gold' ? 'Digi Gold' : 'Digi Silver'
-                    ]}
-                    contentStyle={{ 
-                      borderRadius: '12px', 
-                      border: '1px solid #f3f0e8', 
-                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.08)',
-                      fontSize: '13px'
-                    }}
-                    labelStyle={{ fontWeight: 600, color: '#374151' }}
-                  />
-                  <Legend 
-                    formatter={(value) => value === 'gold' ? 'Digi Gold' : 'Digi Silver'}
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="gold" 
-                    stroke="#D4AF37" 
-                    strokeWidth={2.5} 
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#D4AF37' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="silver" 
-                    stroke="#9ca3af" 
-                    strokeWidth={2.5} 
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#9ca3af' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-gray-400 text-sm flex flex-col h-full items-center justify-center pb-8">
-                <TrendingUp size={48} className="text-primary/20 mb-4" />
-                <span>No digital transactions in the last 30 days</span>
-              </div>
-            )}
-          </div>
+          {renderGraph(false)}
         </div>
         <div className="glass-card p-6 rounded-2xl min-h-[350px] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 to-transparent pointer-events-none" />
