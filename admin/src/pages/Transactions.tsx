@@ -6,6 +6,7 @@ const TransactionsManagement: React.FC = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTxn, setSelectedTxn] = useState<any>(null);
   const token = useAuthStore((state) => state.token);
@@ -59,12 +60,16 @@ const TransactionsManagement: React.FC = () => {
     }
   };
 
-  const filteredTransactions = transactions.filter(t => 
-    t.user?.phone?.includes(searchQuery) || 
-    t.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.id.includes(searchQuery)
-  );
+  const filteredTransactions = transactions.filter(t => {
+    const matchesSearch = t.user?.phone?.includes(searchQuery) || 
+      t.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.id.includes(searchQuery);
+      
+    const matchesType = typeFilter ? t.type?.toUpperCase().includes(typeFilter) : true;
+    
+    return matchesSearch && matchesType;
+  });
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12">
@@ -86,6 +91,21 @@ const TransactionsManagement: React.FC = () => {
             <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
           </div>
           
+          <div className="relative">
+            <select 
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="pl-9 pr-8 py-2 bg-background border border-primary/20 rounded focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-sm text-secondary appearance-none cursor-pointer"
+            >
+              <option value="">All Types</option>
+              <option value="BUY">Buy</option>
+              <option value="REDEEM">Redeem</option>
+              <option value="INSTALLMENT">Installment</option>
+              <option value="SELL">Sell</option>
+            </select>
+            <Filter size={14} className="absolute left-3 top-3 text-gray-400" />
+          </div>
+
           <div className="relative">
             <select 
               value={statusFilter}
