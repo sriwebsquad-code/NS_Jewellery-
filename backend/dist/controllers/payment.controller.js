@@ -252,10 +252,10 @@ const verifyPayment = async (req, res) => {
                 const balanceDoc = await balanceRef.get();
                 const currentBalance = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
                 if (itemType === 'GOLD') {
-                    currentBalance.goldBalance = (currentBalance.goldBalance || 0) + metalWeight;
+                    currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + metalWeight).toFixed(4));
                 }
                 else if (itemType === 'SILVER') {
-                    currentBalance.silverBalance = (currentBalance.silverBalance || 0) + metalWeight;
+                    currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + metalWeight).toFixed(4));
                 }
                 await balanceRef.set(currentBalance);
                 // Send SMS Notification

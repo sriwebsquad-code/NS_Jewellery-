@@ -60,6 +60,11 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       }
     });
 
+    // Round to 4 decimal places to avoid floating point display errors
+    totalGoldWeight = parseFloat(totalGoldWeight.toFixed(4));
+    totalSilverWeight = parseFloat(totalSilverWeight.toFixed(4));
+
+
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);

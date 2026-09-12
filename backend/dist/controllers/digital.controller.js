@@ -76,10 +76,10 @@ const createTransaction = async (req, res) => {
             const balanceDoc = await balanceRef.get();
             const currentBalance = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
             if (metalType === 'GOLD') {
-                currentBalance.goldBalance = (currentBalance.goldBalance || 0) + parseFloat(weight);
+                currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + parseFloat(weight)).toFixed(4));
             }
             else if (metalType === 'SILVER') {
-                currentBalance.silverBalance = (currentBalance.silverBalance || 0) + parseFloat(weight);
+                currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + parseFloat(weight)).toFixed(4));
             }
             await balanceRef.set(currentBalance);
         }
