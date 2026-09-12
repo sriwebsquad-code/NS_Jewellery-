@@ -130,11 +130,21 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     // Recent Actions - fetch from all 3 collections
     let recentActions: any[] = [];
     try {
-      const [recentDigi, recentInst, recentRedemptions] = await Promise.all([
-        db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(20).get(),
-        db.collection('installments').orderBy('createdAt', 'desc').limit(20).get(),
-        db.collection('userPlans').where('status', '==', 'REDEEMED').orderBy('updatedAt', 'desc').limit(20).get()
-      ]);
+      let recentDigi = { docs: [] as any[] };
+      let recentInst = { docs: [] as any[] };
+      let recentRedemptions = { docs: [] as any[] };
+
+      try {
+        recentDigi = await db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(20).get();
+      } catch (e) { console.error('Error fetching digital txns for recent:', e); }
+
+      try {
+        recentInst = await db.collection('installments').orderBy('createdAt', 'desc').limit(20).get();
+      } catch (e) { console.error('Error fetching installments for recent:', e); }
+
+      try {
+        recentRedemptions = await db.collection('userPlans').where('status', '==', 'REDEEMED').orderBy('updatedAt', 'desc').limit(20).get();
+      } catch (e) { console.error('Error fetching redemptions for recent:', e); }
       
       const allRecent = [
         ...recentDigi.docs.map(d => ({ id: d.id, collection: 'digital', createdAt: d.data().createdAt, ...d.data() })),

@@ -196,7 +196,8 @@ const Dashboard: React.FC = () => {
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: '#9ca3af', fontSize: 10 }} 
-                    interval={4}
+                    interval="preserveEnd"
+                    minTickGap={20}
                     dy={8}
                   />
                   <YAxis 
