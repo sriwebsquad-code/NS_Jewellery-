@@ -70,7 +70,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) =>
           size: A5 portrait;
           margin: 0mm;
         }
-        #root {
+        #app {
           display: none !important;
         }
         .print-only-container {
