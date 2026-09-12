@@ -156,7 +156,7 @@ const MyLockerScreen = () => {
                       <TouchableOpacity 
                         key={up.id} 
                         style={[styles.assetCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
-                        onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER') })}
+                        onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER'), schemeType: up.plan?.schemeType })}
                       >
                         <View style={styles.assetLeft}>
                           <View style={styles.assetIconWrapper}>

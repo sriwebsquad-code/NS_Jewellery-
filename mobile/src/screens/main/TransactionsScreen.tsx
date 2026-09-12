@@ -11,7 +11,7 @@ import { ENV } from '../../config/env';
 const TransactionsScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { type, planId, title, accumulatedWeight, totalPaid, metalType } = route.params || {};
+  const { type, planId, title, accumulatedWeight, totalPaid, metalType, schemeType } = route.params || {};
   const { token } = useAuthStore() as any;
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
@@ -84,11 +84,18 @@ const TransactionsScreen = () => {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          {type === 'PLAN' && accumulatedWeight !== undefined && (
+          {type === 'PLAN' && schemeType !== 'VALUE_BASED' && accumulatedWeight !== undefined && (
             <View style={{ backgroundColor: colors.cardBackground, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20, alignItems: 'center' }}>
                <Text style={{ color: colors.textMuted, fontSize: 14, marginBottom: 5 }}>Total Accumulated Weight</Text>
                <Text style={{ color: '#B8860B', fontSize: 24, fontWeight: 'bold' }}>{accumulatedWeight.toFixed(3)}g {metalType === 'GOLD' ? 'Gold' : (metalType === 'SILVER' ? 'Silver' : '')}</Text>
                <Text style={{ color: colors.text, fontSize: 16, marginTop: 5, fontWeight: '600' }}>Total Paid: ₹{totalPaid}</Text>
+            </View>
+          )}
+
+          {type === 'PLAN' && schemeType === 'VALUE_BASED' && (
+            <View style={{ backgroundColor: colors.cardBackground, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20, alignItems: 'center' }}>
+               <Text style={{ color: colors.textMuted, fontSize: 14, marginBottom: 5 }}>Total Paid Amount</Text>
+               <Text style={{ color: '#B8860B', fontSize: 28, fontWeight: 'bold' }}>₹{totalPaid}</Text>
             </View>
           )}
 
@@ -131,7 +138,7 @@ const TransactionsScreen = () => {
                         <Text style={[styles.txAmount, { color: isCredit ? '#48C9B0' : '#E74C3C' }]}>
                           {isCredit ? '+' : '-'}₹{t.amount}
                         </Text>
-                        {t.calculatedWeight && (
+                        {t.calculatedWeight && schemeType !== 'VALUE_BASED' && (
                           <Text style={[styles.txDate, { color: '#B8860B', fontWeight: 'bold' }]}>
                             +{t.calculatedWeight.toFixed(3)}g {t.metalType === 'GOLD' ? 'Gold' : 'Silver'}
                           </Text>

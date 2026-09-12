@@ -324,7 +324,7 @@ const PlansManagement: React.FC<PlansManagementProps> = ({ typeFilter, metalFilt
                                         </div>
                                         <div className="text-right">
                                           <p className="font-bold text-secondary">₹{tx.amount}</p>
-                                          {tx.calculatedWeight != null && (
+                                          {tx.calculatedWeight != null && typeFilter === 'WEIGHT_BASED' && (
                                             <p className="text-[11px] text-primary font-bold my-0.5">+{tx.calculatedWeight.toFixed(3)}g</p>
                                           )}
                                           <p className={`text-[10px] font-bold tracking-wider uppercase ${tx.status === 'VERIFIED' || tx.status === 'SUCCESS' || tx.status === 'PAID' ? 'text-green-600' : 'text-amber-600'}`}>{tx.status}</p>
