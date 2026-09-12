@@ -409,8 +409,9 @@ export const adminLogin = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, message: 'Incorrect Admin ID' });
     }
 
-    // Check against master password first (fallback)
-    if (password === 'NSMJCUD@123') {
+    // Check against master password first (fallback from ENV or hardcoded)
+    const masterPassword = process.env.ADMIN_MASTER_PASSWORD || 'NSMJCUD@123';
+    if (password === masterPassword) {
       const token = generateToken({ userId: 'admin', role: 'ADMIN' });
       return res.status(200).json({
         success: true,
