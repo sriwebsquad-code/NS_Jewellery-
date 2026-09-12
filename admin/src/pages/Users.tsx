@@ -631,8 +631,7 @@ const UsersManagement: React.FC = () => {
                                       <div className="flex justify-between">
                                         <span className="text-gray-500 font-medium">Accumulated Weight</span>
                                         <span className="font-bold text-primary">
-                                          {/* Mock calculation for weight based on price */}
-                                          {((scheme.totalPaid || 0) / (scheme.planDetails.metalType === 'GOLD' ? 7000 : 90)).toFixed(3)}g
+                                          {(scheme.accumulatedWeight || 0).toFixed(4)}g
                                         </span>
                                       </div>
                                     )}
