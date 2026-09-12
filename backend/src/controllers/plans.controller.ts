@@ -152,7 +152,7 @@ export const getUserPlans = async (req: Request, res: Response) => {
 
       // Use stored accumulatedWeight from userPlans — this is the authoritative value
       // maintained precisely by the payment flows (Cashfree & admin verification)
-      const accumulatedWeight = parseFloat((data.accumulatedWeight || 0).toFixed(4));
+      const accumulatedWeight = parseFloat((data.accumulatedWeight || 0).toFixed(3));
 
       formattedPlans.push({
         id: doc.id,

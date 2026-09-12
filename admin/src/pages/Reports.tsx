@@ -144,7 +144,7 @@ const Reports: React.FC = () => {
         {headers.map(h => (
           <td key={h} className="px-6 py-4 text-sm text-gray-700">
             {h === 'amount' || h === 'totalAmount' || h === 'maturityAmount' ? `₹${row[h]?.toLocaleString()}` : 
-             h === 'weight' || h === 'totalWeight' ? `${Number(row[h]).toFixed(4)}g` :
+             h === 'weight' || h === 'totalWeight' ? `${Number(row[h]).toFixed(3)}g` :
              h === 'date' || h === 'joinedDate' ? new Date(row[h]).toLocaleString() :
              row[h]}
           </td>

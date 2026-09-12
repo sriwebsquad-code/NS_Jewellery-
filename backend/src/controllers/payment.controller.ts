@@ -254,7 +254,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
         }
       } else if ((itemType === 'GOLD' || itemType === 'SILVER') && liveRate) {
         // DIGITAL GOLD/SILVER PURCHASE
-        const metalWeight = Number((amount / liveRate).toFixed(4));
+        const metalWeight = Number((amount / liveRate).toFixed(3));
         await db.collection('digitalTransactions').add({
           userId,
           type: 'BUY',
@@ -270,9 +270,9 @@ export const verifyPayment = async (req: Request, res: Response) => {
         const currentBalance: any = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
         
         if (itemType === 'GOLD') {
-          currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + metalWeight).toFixed(4));
+          currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + metalWeight).toFixed(3));
         } else if (itemType === 'SILVER') {
-          currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + metalWeight).toFixed(4));
+          currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + metalWeight).toFixed(3));
         }
         
         await balanceRef.set(currentBalance);
@@ -284,9 +284,9 @@ export const verifyPayment = async (req: Request, res: Response) => {
            const phone = userDoc2.data()!.phone;
            
            if (itemType === 'GOLD') {
-               await smsService.sendDigitalGold(phone, userName, metalWeight.toFixed(4), currentBalance.goldBalance.toFixed(4));
+               await smsService.sendDigitalGold(phone, userName, metalWeight.toFixed(3), currentBalance.goldBalance.toFixed(3));
            } else {
-               await smsService.sendDigitalSilver(phone, userName, metalWeight.toFixed(4), currentBalance.silverBalance.toFixed(4));
+               await smsService.sendDigitalSilver(phone, userName, metalWeight.toFixed(3), currentBalance.silverBalance.toFixed(3));
            }
         }
 
@@ -295,7 +295,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
           await db.collection('notifications').add({
             userId,
             title: `Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} Purchased`,
-            message: `Your purchase of ${metalWeight.toFixed(4)}g Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} was successful. It has been added to your Digi Locker.`,
+            message: `Your purchase of ${metalWeight.toFixed(3)}g Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} was successful. It has been added to your Digi Locker.`,
             isRead: false,
             createdAt: new Date().toISOString()
           });

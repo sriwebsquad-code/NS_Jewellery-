@@ -191,7 +191,7 @@ const PaymentScreen = () => {
               {liveRate ? (
                 <>
                   <Text style={[styles.metalInfoText, { fontWeight: 'bold', fontSize: 14, marginBottom: 4 }]}>
-                    Estimated Weight: {(amount / liveRate).toFixed(4)}g
+                    Estimated Weight: {(amount / liveRate).toFixed(3)}g
                   </Text>
                   <Text style={[styles.metalInfoText, { fontSize: 11, opacity: 0.8 }]}>
                     Based on live {planType === 'GOLD' ? 'Gold' : 'Silver'} rate of ₹{liveRate}/g

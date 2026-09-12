@@ -573,7 +573,7 @@ const UsersManagement: React.FC = () => {
                                 </div>
                                 <div>
                                   <p className="text-xs font-bold text-yellow-800 uppercase tracking-wider">Digital Gold</p>
-                                  <p className="text-2xl font-bold text-gray-900 mt-1">{(user.digitalGoldBalance || 0).toFixed(4)} <span className="text-sm text-gray-500 font-medium">g</span></p>
+                                  <p className="text-2xl font-bold text-gray-900 mt-1">{(user.digitalGoldBalance || 0).toFixed(3)} <span className="text-sm text-gray-500 font-medium">g</span></p>
                                 </div>
                               </div>
                             </div>
@@ -585,7 +585,7 @@ const UsersManagement: React.FC = () => {
                                 </div>
                                 <div>
                                   <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">Digital Silver</p>
-                                  <p className="text-2xl font-bold text-gray-900 mt-1">{(user.digitalSilverBalance || 0).toFixed(4)} <span className="text-sm text-gray-500 font-medium">g</span></p>
+                                  <p className="text-2xl font-bold text-gray-900 mt-1">{(user.digitalSilverBalance || 0).toFixed(3)} <span className="text-sm text-gray-500 font-medium">g</span></p>
                                 </div>
                               </div>
                             </div>
@@ -631,7 +631,7 @@ const UsersManagement: React.FC = () => {
                                       <div className="flex justify-between">
                                         <span className="text-gray-500 font-medium">Accumulated Weight</span>
                                         <span className="font-bold text-primary">
-                                          {(scheme.accumulatedWeight || 0).toFixed(4)}g
+                                          {(scheme.accumulatedWeight || 0).toFixed(3)}g
                                         </span>
                                       </div>
                                     )}

@@ -171,7 +171,7 @@ const MyLockerScreen = () => {
                           {isValueBased ? (
                             <Text style={[styles.assetValue, { color: '#8D6E63' }]}>Rs.{up.totalPaid}</Text>
                           ) : (
-                            <Text style={[styles.assetValue, { color: '#8D6E63' }]}>{((up.accumulatedWeight || up.totalWeight || 0).toFixed(4))}g</Text>
+                            <Text style={[styles.assetValue, { color: '#8D6E63' }]}>{((up.accumulatedWeight || up.totalWeight || 0).toFixed(3))}g</Text>
                           )}
                           <ArrowRight size={16} color={colors.textMuted} />
                         </View>

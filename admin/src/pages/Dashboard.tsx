@@ -134,11 +134,11 @@ const Dashboard: React.FC = () => {
               <div className="mt-4 pt-4 border-t border-gray-100 relative z-10 animate-fade-in space-y-2">
                 <div className="flex justify-between items-center text-sm p-2 rounded-lg bg-[#D4AF37]/10 transition-colors">
                   <span className="text-gray-700 font-medium">Gold Customer : {statsData.totalGoldMembers || 0}</span>
-                  <span className="font-bold text-[#D4AF37] text-base">{(statsData.totalGoldWeight || 0).toFixed(4)}g</span>
+                  <span className="font-bold text-[#D4AF37] text-base">{(statsData.totalGoldWeight || 0).toFixed(3)}g</span>
                 </div>
                 <div className="flex justify-between items-center text-sm p-2 rounded-lg bg-[#C0C0C0]/20 transition-colors">
                   <span className="text-gray-700 font-medium">Silver Customer : {statsData.totalSilverMembers || 0}</span>
-                  <span className="font-bold text-gray-600 text-base">{(statsData.totalSilverWeight || 0).toFixed(4)}g</span>
+                  <span className="font-bold text-gray-600 text-base">{(statsData.totalSilverWeight || 0).toFixed(3)}g</span>
                 </div>
               </div>
             )}

@@ -41,8 +41,8 @@ async function fixDigitalBalances() {
   for (const uid in balanceMap) {
     const b = balanceMap[uid];
     if (b) {
-      b.goldBalance   = parseFloat(b.goldBalance.toFixed(4));
-      b.silverBalance = parseFloat(b.silverBalance.toFixed(4));
+      b.goldBalance   = parseFloat(b.goldBalance.toFixed(3));
+      b.silverBalance = parseFloat(b.silverBalance.toFixed(3));
     }
   }
 

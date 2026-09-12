@@ -105,7 +105,7 @@ const DigitalCustomers: React.FC = () => {
           receiptId: data.receiptId,
           date: new Date().toISOString(),
           type: activeTab === 'GOLD' ? 'DIGITAL_GOLD_REDEEM' : 'DIGITAL_SILVER_REDEEM',
-          details: `${redeemWeight.toFixed(4)}g`,
+          details: `${redeemWeight.toFixed(3)}g`,
           amount: '₹0 (Physical Delivery)',
           customerName: customer?.user?.name || 'Customer',
           customerPhone: customer?.user?.phone
@@ -233,7 +233,7 @@ const DigitalCustomers: React.FC = () => {
                         <td className="px-6 py-4 text-right">
                           <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg border ${activeTab === 'GOLD' ? 'bg-yellow-50 border-yellow-100 text-yellow-800' : 'bg-gray-50 border-gray-200 text-gray-700'}`}>
                             <Coins size={14} className={activeTab === 'GOLD' ? 'text-yellow-600' : 'text-gray-500'} />
-                            <span className="font-bold">{currentBalance.toFixed(4)} g</span>
+                            <span className="font-bold">{currentBalance.toFixed(3)} g</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-center">
@@ -320,7 +320,7 @@ const DigitalCustomers: React.FC = () => {
             <div className="p-6 space-y-4">
               <div className="bg-blue-50 p-4 rounded-lg flex justify-between items-center">
                 <span className="text-sm font-bold text-gray-700">Total Balance</span>
-                <span className="text-lg font-serif font-bold text-blue-800">{redeemModalData.currentBalance.toFixed(4)}g</span>
+                <span className="text-lg font-serif font-bold text-blue-800">{redeemModalData.currentBalance.toFixed(3)}g</span>
               </div>
               
               <div>
@@ -340,7 +340,7 @@ const DigitalCustomers: React.FC = () => {
               <div className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
                 <span className="text-sm font-bold text-gray-700">Remaining Balance</span>
                 <span className="text-lg font-serif font-bold text-gray-800">
-                  {Math.max(0, redeemModalData.currentBalance - (parseFloat(redeemInputWeight) || 0)).toFixed(4)}g
+                  {Math.max(0, redeemModalData.currentBalance - (parseFloat(redeemInputWeight) || 0)).toFixed(3)}g
                 </span>
               </div>
             </div>

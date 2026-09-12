@@ -215,7 +215,7 @@ const TransactionsManagement: React.FC = () => {
                     } else if (key === 'id' && selectedTxn.raw.receiptId) {
                       displayValue = selectedTxn.raw.receiptId;
                     } else if (key === 'weight' && typeof value === 'number') {
-                      displayValue = value.toFixed(4);
+                      displayValue = value.toFixed(3);
                     } else if ((key === 'planId' || key === 'userPlanId') && selectedTxn.details) {
                       displayValue = selectedTxn.details;
                     }

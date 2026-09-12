@@ -87,7 +87,7 @@ const TransactionsScreen = () => {
           {type === 'PLAN' && accumulatedWeight !== undefined && (
             <View style={{ backgroundColor: colors.cardBackground, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20, alignItems: 'center' }}>
                <Text style={{ color: colors.textMuted, fontSize: 14, marginBottom: 5 }}>Total Accumulated Weight</Text>
-               <Text style={{ color: '#B8860B', fontSize: 24, fontWeight: 'bold' }}>{accumulatedWeight.toFixed(4)}g {metalType === 'GOLD' ? 'Gold' : (metalType === 'SILVER' ? 'Silver' : '')}</Text>
+               <Text style={{ color: '#B8860B', fontSize: 24, fontWeight: 'bold' }}>{accumulatedWeight.toFixed(3)}g {metalType === 'GOLD' ? 'Gold' : (metalType === 'SILVER' ? 'Silver' : '')}</Text>
                <Text style={{ color: colors.text, fontSize: 16, marginTop: 5, fontWeight: '600' }}>Total Paid: ₹{totalPaid}</Text>
             </View>
           )}
@@ -133,7 +133,7 @@ const TransactionsScreen = () => {
                         </Text>
                         {t.calculatedWeight && (
                           <Text style={[styles.txDate, { color: '#B8860B', fontWeight: 'bold' }]}>
-                            +{t.calculatedWeight.toFixed(4)}g {t.metalType === 'GOLD' ? 'Gold' : 'Silver'}
+                            +{t.calculatedWeight.toFixed(3)}g {t.metalType === 'GOLD' ? 'Gold' : 'Silver'}
                           </Text>
                         )}
                       </View>

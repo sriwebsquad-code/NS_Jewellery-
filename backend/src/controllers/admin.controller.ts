@@ -61,8 +61,8 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     });
 
     // Round to 4 decimal places to avoid floating point display errors
-    totalGoldWeight = parseFloat(totalGoldWeight.toFixed(4));
-    totalSilverWeight = parseFloat(totalSilverWeight.toFixed(4));
+    totalGoldWeight = parseFloat(totalGoldWeight.toFixed(3));
+    totalSilverWeight = parseFloat(totalSilverWeight.toFixed(3));
 
 
     const startOfMonth = new Date();
@@ -333,7 +333,7 @@ export const getTransactions = async (req: Request, res: Response) => {
         receiptId: data.receiptId,
         user,
         type: `DIGITAL_${data.metalType}_${data.type}`,
-        details: `${(data.weight || 0).toFixed(4)}g`,
+        details: `${(data.weight || 0).toFixed(3)}g`,
         amount: data.amount,
         status: data.status,
         date: data.createdAt,
@@ -434,12 +434,12 @@ export const verifyTransaction = async (req: Request, res: Response) => {
               if (liveRate && liveRate > 0) {
                 const addedWeight = installmentData.amount / liveRate;
                 const currentAccumulated = userPlanData.accumulatedWeight || 0;
-                const newAccumulatedWeight = parseFloat((currentAccumulated + addedWeight).toFixed(4));
+                const newAccumulatedWeight = parseFloat((currentAccumulated + addedWeight).toFixed(3));
                 weightUpdate = { accumulatedWeight: newAccumulatedWeight };
 
                 // Also store calculatedWeight on the installment for audit trail
                 await installmentRef.update({
-                  calculatedWeight: parseFloat(addedWeight.toFixed(4)),
+                  calculatedWeight: parseFloat(addedWeight.toFixed(3)),
                   applicableRate: liveRate,
                   metalType
                 });
