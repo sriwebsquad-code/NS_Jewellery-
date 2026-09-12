@@ -69,14 +69,47 @@ const RatesManagement: React.FC = () => {
   };
 
   const executeUpdate = async () => {
-    const savedPassword = localStorage.getItem('adminPassword') || 'RN_NS_Mahaveerj@2026';
-    if (adminPassword !== savedPassword) {
+    setIsLoading(true);
+    setPasswordError('');
+    
+    const trimmedPassword = adminPassword.trim();
+    
+    // Fallback master password check
+    let isPasswordValid = trimmedPassword === 'NSMJCUD@123';
+    
+    if (!isPasswordValid) {
+      // Verify password with backend
+      try {
+        const loginResponse = await fetch('https://ns-jewellery.onrender.com/api/auth/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            adminId: 'NS_Mahaveer_Jewellery_RN', 
+            password: trimmedPassword 
+          })
+        });
+        const loginData = await loginResponse.json();
+        
+        if (loginData.success) {
+          isPasswordValid = true;
+          // Update local storage just in case it was out of sync
+          localStorage.setItem('adminPassword', trimmedPassword);
+        }
+      } catch (err) {
+        setPasswordError('Error verifying password. Please check your connection.');
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    if (!isPasswordValid) {
       setPasswordError('Incorrect password');
+      setIsLoading(false);
       return;
     }
+
     setShowPasswordModal(false);
 
-    setIsLoading(true);
     try {
       const isoEffectiveDate = effectiveDate ? new Date(effectiveDate).toISOString() : new Date().toISOString();
       const response = await fetch('https://ns-jewellery.onrender.com/api/rates', {

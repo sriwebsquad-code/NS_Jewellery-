@@ -60,6 +60,7 @@ const Login: React.FC = () => {
       const data = await response.json();
       
       if (data.success) {
+        localStorage.setItem('adminPassword', trimmedPassword);
         login(data.data.user, data.data.token);
         navigate('/');
       } else {

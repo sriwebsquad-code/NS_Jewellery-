@@ -111,6 +111,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ onClose, titl
       const data = await response.json();
       
       if (data.success) {
+        localStorage.setItem('adminPassword', newPassword);
         setSuccess('Password has been successfully changed!');
         setTimeout(() => {
           onClose();
