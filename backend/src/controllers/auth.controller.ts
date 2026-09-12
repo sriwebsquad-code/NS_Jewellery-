@@ -410,7 +410,7 @@ export const adminLogin = async (req: Request, res: Response) => {
     }
 
     // Check against master password first (fallback)
-    if (password === 'RN_NS_Mahaveerj@2026') {
+    if (password === 'NSMJCUD@123') {
       const token = generateToken({ userId: 'admin', role: 'ADMIN' });
       return res.status(200).json({
         success: true,
