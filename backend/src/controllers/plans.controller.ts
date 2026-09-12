@@ -135,32 +135,35 @@ export const getUserPlans = async (req: Request, res: Response) => {
         planCache[data.planId] = p.data();
       }
 
-      // Dynamically calculate totals from installments to guarantee exact match with TransactionsScreen
+      // Dynamically calculate totalPaid and completedMonths from installments (always accurate)
       const instSnap = await db.collection('installments')
         .where('userPlanId', '==', doc.id)
         .where('status', '==', 'PAID')
         .get();
         
       let dynamicTotalPaid = 0;
-      let dynamicWeight = 0;
       let completedMonths = 0;
       
       instSnap.forEach(i => {
          const idata = i.data();
          dynamicTotalPaid += (idata.amount || 0);
-         dynamicWeight += (idata.calculatedWeight || 0);
          completedMonths += 1;
       });
+
+      // Use stored accumulatedWeight from userPlans — this is the authoritative value
+      // maintained precisely by the payment flows (Cashfree & admin verification)
+      const accumulatedWeight = parseFloat((data.accumulatedWeight || 0).toFixed(4));
 
       formattedPlans.push({
         id: doc.id,
         ...data,
         totalPaid: dynamicTotalPaid,
-        accumulatedWeight: dynamicWeight,
-        completedMonths: completedMonths,
+        accumulatedWeight,
+        completedMonths,
         plan: planCache[data.planId]
       });
     }
+
 
     res.status(200).json({ success: true, data: formattedPlans });
   } catch (error: any) {

@@ -423,9 +423,34 @@ export const verifyTransaction = async (req: Request, res: Response) => {
           let nextPaymentDate = new Date(userPlanData.nextPaymentDate || userPlanData.startDate);
           nextPaymentDate = new Date(nextPaymentDate.getFullYear(), nextPaymentDate.getMonth() + 1, 1);
 
+          // For weight-based schemes, also update accumulatedWeight using the live metal rate
+          let weightUpdate: Record<string, any> = {};
+          if (userPlanData.metalType === 'GOLD' || userPlanData.metalType === 'SILVER') {
+            const metalType = userPlanData.metalType as string;
+            const ratesSnap = await db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
+            if (!ratesSnap.empty) {
+              const rateData = ratesSnap.docs[0]!.data();
+              const liveRate = metalType === 'GOLD' ? rateData.goldRate : rateData.silverRate;
+              if (liveRate && liveRate > 0) {
+                const addedWeight = installmentData.amount / liveRate;
+                const currentAccumulated = userPlanData.accumulatedWeight || 0;
+                const newAccumulatedWeight = parseFloat((currentAccumulated + addedWeight).toFixed(4));
+                weightUpdate = { accumulatedWeight: newAccumulatedWeight };
+
+                // Also store calculatedWeight on the installment for audit trail
+                await installmentRef.update({
+                  calculatedWeight: parseFloat(addedWeight.toFixed(4)),
+                  applicableRate: liveRate,
+                  metalType
+                });
+              }
+            }
+          }
+
           await userPlanRef.update({
             totalPaid: newTotalPaid,
-            nextPaymentDate: nextPaymentDate.toISOString()
+            nextPaymentDate: nextPaymentDate.toISOString(),
+            ...weightUpdate
           });
         }
       }
