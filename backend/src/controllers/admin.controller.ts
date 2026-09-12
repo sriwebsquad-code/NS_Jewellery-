@@ -264,7 +264,9 @@ export const getTransactions = async (req: Request, res: Response) => {
     const [installmentsSnap, digitalSnap, redemptionsSnap] = await Promise.all([
       installmentsRef.limit(100).get(),
       digitalRef.limit(100).get(),
-      db.collection('userPlans').where('status', '==', 'REDEEMED').limit(100).get()
+      (!status || status === 'SUCCESS') 
+        ? db.collection('userPlans').where('status', '==', 'REDEEMED').limit(100).get()
+        : Promise.resolve({ empty: true, docs: [] })
     ]);
 
     // Manual population of user details since it's NoSQL
