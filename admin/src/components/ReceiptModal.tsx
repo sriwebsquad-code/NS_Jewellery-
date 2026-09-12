@@ -70,30 +70,49 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, data }) =>
           size: A5 portrait;
           margin: 0mm;
         }
-        body * {
-          visibility: hidden !important;
+        #root {
+          display: none !important;
         }
-        #receipt-print-area, #receipt-print-area * {
-          visibility: visible !important;
-        }
-        #receipt-print-area {
+        .print-only-container {
+          display: block !important;
           position: absolute;
           left: 0;
           top: 0;
           width: 100%;
           padding: 20px;
-          margin: 0;
+          background: white;
+          z-index: 999999;
+        }
+      }
+      @media screen {
+        .print-only-container {
+          display: none !important;
         }
       }
     `;
     document.head.appendChild(style);
     
-    // We also need to briefly make sure the modal container is not display:none or clipped
-    window.print();
+    const printArea = document.getElementById('receipt-print-area');
+    const printContainer = document.createElement('div');
+    printContainer.className = 'print-only-container p-4 bg-white text-black';
+    if (printArea) {
+      printContainer.innerHTML = printArea.innerHTML;
+    }
+    document.body.appendChild(printContainer);
     
+    // Brief delay to allow styles and images to apply/load in the cloned node
     setTimeout(() => {
-      document.head.removeChild(style);
-    }, 1000);
+      window.print();
+      
+      setTimeout(() => {
+        if (document.body.contains(printContainer)) {
+          document.body.removeChild(printContainer);
+        }
+        if (document.head.contains(style)) {
+          document.head.removeChild(style);
+        }
+      }, 1000);
+    }, 100);
   };
 
   return (
