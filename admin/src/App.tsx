@@ -13,6 +13,7 @@ import Reports from './pages/Reports';
 import { useAuthStore } from './store/authStore';
 
 import Settings from './pages/Settings';
+import CustomerDetails from './pages/CustomerDetails';
 
 // Public Pages
 import Landing from './pages/public/Landing';
@@ -66,6 +67,7 @@ const App: React.FC = () => {
           <Route path="rates" element={<RatesManagement />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="settings/customers" element={<CustomerDetails />} />
         </Route>
       </Routes>
     </BrowserRouter>

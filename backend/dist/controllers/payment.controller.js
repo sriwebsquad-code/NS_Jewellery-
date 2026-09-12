@@ -96,10 +96,26 @@ const verifyPayment = async (req, res) => {
             const planId = orderData.planId;
             const itemType = orderData.itemType; // 'GOLD', 'SILVER', 'AMOUNT'
             let liveRate = null;
+            let rateEffectiveDate = null;
             if (itemType === 'GOLD' || itemType === 'SILVER') {
                 const ratesSnapshot = await firebase_1.db.collection('metalRates').orderBy('createdAt', 'desc').limit(1).get();
                 if (!ratesSnapshot.empty) {
                     liveRate = itemType === 'GOLD' ? ratesSnapshot.docs[0].data()?.goldRate : ratesSnapshot.docs[0].data()?.silverRate;
+                    rateEffectiveDate = ratesSnapshot.docs[0].data()?.effectiveDate;
+                }
+            }
+            const paymentTimestamp = new Date();
+            const paymentISTString = paymentTimestamp.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+            const paymentDateIST = new Date(paymentISTString);
+            const paymentBusinessDate = `${paymentDateIST.getFullYear()}-${paymentDateIST.getMonth() + 1}-${paymentDateIST.getDate()}`;
+            let isRateActive = false;
+            if (rateEffectiveDate) {
+                const rateEffectiveTimestamp = new Date(rateEffectiveDate);
+                const rateISTString = rateEffectiveTimestamp.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+                const rateDateIST = new Date(rateISTString);
+                const rateBusinessDate = `${rateDateIST.getFullYear()}-${rateDateIST.getMonth() + 1}-${rateDateIST.getDate()}`;
+                if (rateBusinessDate === paymentBusinessDate && paymentTimestamp >= rateEffectiveTimestamp) {
+                    isRateActive = true;
                 }
             }
             if (planId) {
@@ -179,21 +195,30 @@ const verifyPayment = async (req, res) => {
                     const currentAccumulatedWeight = userPlanData.accumulatedWeight || 0;
                     const currentCompletedMonths = userPlanData.completedMonths || 0;
                     let calculatedWeight = null;
-                    if (isWeightBased && liveRate) {
-                        calculatedWeight = amount / liveRate;
+                    let installmentStatus = 'PAID';
+                    let applicableRate = null;
+                    if (isWeightBased) {
+                        if (isRateActive && liveRate) {
+                            calculatedWeight = amount / liveRate;
+                            applicableRate = liveRate;
+                        }
+                        else {
+                            installmentStatus = 'RATE_PENDING';
+                        }
                     }
-                    // Create the Installment directly as PAID
+                    // Create the Installment
                     const installmentRef = firebase_1.db.collection('installments').doc();
                     await installmentRef.set({
                         id: installmentRef.id,
                         userId,
                         userPlanId: actualUserPlanId,
                         amount: parseFloat(amount),
-                        status: 'PAID',
+                        status: installmentStatus,
+                        businessDate: paymentBusinessDate,
                         paidAt: new Date().toISOString(),
                         createdAt: new Date().toISOString(),
                         metalType: isWeightBased ? itemType : null,
-                        applicableRate: isWeightBased ? liveRate : null,
+                        applicableRate: applicableRate,
                         calculatedWeight: calculatedWeight,
                         eligibleAmount: parseFloat(amount),
                         monthNumber: currentCompletedMonths + 1
@@ -219,9 +244,19 @@ const verifyPayment = async (req, res) => {
                     // In-App Notification for Scheme Payment
                     try {
                         const planDetails = planRef.exists ? planRef.data() : { name: 'Scheme' };
-                        let notificationMessage = `Your payment of ₹${amount} for ${formatPlanName(planDetails.name, planDetails.schemeType, planDetails.metalType)} (Month ${newCompletedMonths}) was successful.`;
-                        if (calculatedWeight) {
-                            notificationMessage += ` Credited Weight: ${calculatedWeight.toFixed(3)}g.`;
+                        let notificationMessage = '';
+                        if (installmentStatus === 'RATE_PENDING') {
+                            notificationMessage = `Your payment was successful. Your gold/silver weight is pending today's rate update. Once today's rate is published, your weight will be calculated and added.`;
+                            const userDoc2 = await firebase_1.db.collection('users').doc(userId).get();
+                            if (userDoc2.exists && userDoc2.data()?.phone) {
+                                await sms_service_1.smsService.sendPaymentRatePending(userDoc2.data().phone, userDoc2.data().name || 'Customer');
+                            }
+                        }
+                        else {
+                            notificationMessage = `Your payment of ₹${amount} for ${formatPlanName(planDetails.name, planDetails.schemeType, planDetails.metalType)} (Month ${newCompletedMonths}) was successful.`;
+                            if (calculatedWeight) {
+                                notificationMessage += ` Credited Weight: ${calculatedWeight.toFixed(3)}g.`;
+                            }
                         }
                         await firebase_1.db.collection('notifications').add({
                             userId,
@@ -236,52 +271,73 @@ const verifyPayment = async (req, res) => {
                     }
                 }
             }
-            else if ((itemType === 'GOLD' || itemType === 'SILVER') && liveRate) {
+            else if (itemType === 'GOLD' || itemType === 'SILVER') {
                 // DIGITAL GOLD/SILVER PURCHASE
-                const metalWeight = Number((amount / liveRate).toFixed(4));
+                const status = (isRateActive && liveRate) ? 'SUCCESS' : 'RATE_PENDING';
+                const metalWeight = (isRateActive && liveRate) ? Number((amount / liveRate).toFixed(3)) : null;
                 await firebase_1.db.collection('digitalTransactions').add({
                     userId,
                     type: 'BUY',
                     metalType: itemType,
                     weight: metalWeight,
                     amount: parseFloat(amount),
-                    status: 'SUCCESS',
+                    status: status,
+                    businessDate: paymentBusinessDate,
                     createdAt: new Date().toISOString()
                 });
-                const balanceRef = firebase_1.db.collection('digitalBalances').doc(userId);
-                const balanceDoc = await balanceRef.get();
-                const currentBalance = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
-                if (itemType === 'GOLD') {
-                    currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + metalWeight).toFixed(4));
-                }
-                else if (itemType === 'SILVER') {
-                    currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + metalWeight).toFixed(4));
-                }
-                await balanceRef.set(currentBalance);
-                // Send SMS Notification
-                const userDoc2 = await firebase_1.db.collection('users').doc(userId).get();
-                if (userDoc2.exists && userDoc2.data()?.phone) {
-                    const userName = userDoc2.data().name || 'Customer';
-                    const phone = userDoc2.data().phone;
+                if (isRateActive && liveRate) {
+                    const balanceRef = firebase_1.db.collection('digitalBalances').doc(userId);
+                    const balanceDoc = await balanceRef.get();
+                    const currentBalance = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
                     if (itemType === 'GOLD') {
-                        await sms_service_1.smsService.sendDigitalGold(phone, userName, metalWeight.toFixed(4), currentBalance.goldBalance.toFixed(4));
+                        currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + metalWeight).toFixed(3));
                     }
-                    else {
-                        await sms_service_1.smsService.sendDigitalSilver(phone, userName, metalWeight.toFixed(4), currentBalance.silverBalance.toFixed(4));
+                    else if (itemType === 'SILVER') {
+                        currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + metalWeight).toFixed(3));
+                    }
+                    await balanceRef.set(currentBalance);
+                    // Send SMS Notification
+                    const userDoc2 = await firebase_1.db.collection('users').doc(userId).get();
+                    if (userDoc2.exists && userDoc2.data()?.phone) {
+                        const userName = userDoc2.data().name || 'Customer';
+                        const phone = userDoc2.data().phone;
+                        if (itemType === 'GOLD') {
+                            await sms_service_1.smsService.sendDigitalGold(phone, userName, metalWeight.toFixed(3), currentBalance.goldBalance.toFixed(3));
+                        }
+                        else {
+                            await sms_service_1.smsService.sendDigitalSilver(phone, userName, metalWeight.toFixed(3), currentBalance.silverBalance.toFixed(3));
+                        }
+                    }
+                    // In-App Notification for Digital Purchase
+                    try {
+                        await firebase_1.db.collection('notifications').add({
+                            userId,
+                            title: `Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} Purchased`,
+                            message: `Your purchase of ${metalWeight.toFixed(3)}g Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} was successful. It has been added to your Digi Locker.`,
+                            isRead: false,
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+                    catch (e) {
+                        console.error('Failed to add digital purchase notification:', e);
                     }
                 }
-                // In-App Notification for Digital Purchase
-                try {
-                    await firebase_1.db.collection('notifications').add({
-                        userId,
-                        title: `Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} Purchased`,
-                        message: `Your purchase of ${metalWeight.toFixed(4)}g Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} was successful. It has been added to your Digi Locker.`,
-                        isRead: false,
-                        createdAt: new Date().toISOString()
-                    });
-                }
-                catch (e) {
-                    console.error('Failed to add digital purchase notification:', e);
+                else {
+                    // RATE_PENDING
+                    const userDoc2 = await firebase_1.db.collection('users').doc(userId).get();
+                    if (userDoc2.exists && userDoc2.data()?.phone) {
+                        await sms_service_1.smsService.sendPaymentRatePending(userDoc2.data().phone, userDoc2.data().name || 'Customer');
+                    }
+                    try {
+                        await firebase_1.db.collection('notifications').add({
+                            userId,
+                            title: `Digital ${itemType === 'GOLD' ? 'Gold' : 'Silver'} Payment Successful`,
+                            message: `Your payment was successful. Your gold/silver weight is pending today's rate update. Once today's rate is published, your weight will be calculated and added.`,
+                            isRead: false,
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+                    catch (e) { }
                 }
             }
             return res.status(200).json({ success: true, message: 'Payment verified successfully' });

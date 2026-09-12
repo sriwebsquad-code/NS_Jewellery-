@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Key, ArrowRight, MessageCircle, Save, Loader2 } from 'lucide-react';
+import { Shield, Key, ArrowRight, MessageCircle, Save, Loader2, Users } from 'lucide-react';
 import PasswordChangeModal from '../components/PasswordChangeModal';
+import { useNavigate } from 'react-router-dom';
 
 const Settings: React.FC = () => {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [loading, setLoading] = useState(true);
@@ -175,6 +177,35 @@ const Settings: React.FC = () => {
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Customer Data Management Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-100 flex items-center space-x-3 bg-red-50">
+            <Users className="text-red-500" size={24} />
+            <h2 className="text-xl font-bold text-gray-800">Customer Data Management</h2>
+          </div>
+          
+          <div className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-red-100 rounded-xl bg-red-50/30 hover:bg-red-50/60 transition-colors">
+              <div className="flex items-start space-x-4 mb-4 sm:mb-0">
+                <div className="p-3 bg-white rounded-lg shadow-sm border border-red-100">
+                  <Shield className="text-red-500" size={24} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 text-lg">Customer Details & Deletion</h3>
+                  <p className="text-gray-500 text-sm mt-1">Access sensitive customer information and permanently delete accounts. Requires admin password verification.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => navigate('/admin/settings/customers')}
+                className="bg-red-500 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-red-600 transition-all shadow-sm hover:shadow-md flex items-center justify-center space-x-2 shrink-0"
+              >
+                <span>Manage Customers</span>
+                <ArrowRight size={16} />
+              </button>
             </div>
           </div>
         </div>

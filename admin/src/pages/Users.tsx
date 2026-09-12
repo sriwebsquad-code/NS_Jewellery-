@@ -155,7 +155,11 @@ const UserTransactions: React.FC<{ userId: string, token: string | null, userNam
   );
 };
 
-const UsersManagement: React.FC = () => {
+interface UsersManagementProps {
+  allowDelete?: boolean;
+}
+
+const UsersManagement: React.FC<UsersManagementProps> = ({ allowDelete = false }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -167,6 +171,12 @@ const UsersManagement: React.FC = () => {
   const [filterSchemeType, setFilterSchemeType] = useState('ALL');
   const [filterMetalType, setFilterMetalType] = useState('ALL');
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
+
+  // Delete Customer State
+  const [deleteModalData, setDeleteModalData] = useState<{ isOpen: boolean; userId: string; userName: string; } | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const token = useAuthStore(state => state.token);
 
@@ -189,6 +199,37 @@ const UsersManagement: React.FC = () => {
       console.error('Failed to fetch users:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteCustomer = async () => {
+    if (!deletePassword) {
+      setDeleteError('Admin password is required');
+      return;
+    }
+    setIsDeleting(true);
+    setDeleteError('');
+    try {
+      const response = await fetch(`https://ns-jewellery.onrender.com/api/admin/customer/${deleteModalData?.userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ adminPassword: deletePassword })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDeleteModalData(null);
+        setDeletePassword('');
+        fetchUsers();
+      } else {
+        setDeleteError(data.message || 'Failed to delete customer');
+      }
+    } catch (err) {
+      setDeleteError('Network error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -645,6 +686,26 @@ const UsersManagement: React.FC = () => {
                           <div className="mt-4">
                             <UserTransactions userId={user.id} token={token} userName={user.name} userPhone={user.phone} />
                           </div>
+
+                          {/* NEW: Danger Zone (Conditional Delete) */}
+                          {allowDelete && (
+                            <div className="mt-8 pt-6 border-t border-red-100">
+                              <div className="bg-red-50/50 border border-red-200 rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div>
+                                  <h4 className="text-red-700 font-bold text-sm uppercase tracking-wider mb-1 flex items-center">
+                                    <ShieldCheck size={16} className="mr-2" /> Danger Zone
+                                  </h4>
+                                  <p className="text-red-600/80 text-xs font-medium">Permanently delete this customer and all associated data. This action cannot be undone.</p>
+                                </div>
+                                <button 
+                                  onClick={() => setDeleteModalData({ isOpen: true, userId: user.id, userName: user.name || 'Unknown' })}
+                                  className="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors shrink-0"
+                                >
+                                  Delete Customer
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )}
@@ -655,6 +716,61 @@ const UsersManagement: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {deleteModalData?.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative border border-red-100">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-red-500" />
+            <div className="p-6">
+              <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-4 border border-red-100">
+                <ShieldCheck size={24} className="text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold font-serif text-gray-900 mb-2">Delete Customer</h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Are you sure you want to permanently delete <strong className="text-gray-900">{deleteModalData.userName}</strong>? This will wipe their profile, balances, transactions, and schemes. <strong>This action cannot be undone.</strong>
+              </p>
+              
+              <div className="space-y-1 mb-6">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Admin Password Required</label>
+                <input
+                  type="password"
+                  placeholder="Enter your admin password"
+                  value={deletePassword}
+                  onChange={(e) => {
+                    setDeletePassword(e.target.value);
+                    if (deleteError) setDeleteError('');
+                  }}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all text-sm"
+                  disabled={isDeleting}
+                  autoFocus
+                />
+                {deleteError && <p className="text-red-500 text-xs font-medium mt-1">{deleteError}</p>}
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setDeleteModalData(null);
+                    setDeletePassword('');
+                    setDeleteError('');
+                  }}
+                  className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold text-sm transition-colors"
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteCustomer}
+                  className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm transition-colors flex justify-center items-center"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete Customer'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -11,6 +11,8 @@ declare class SMSService {
     sendMpinResetOtp(phone: string, otp: string): Promise<void>;
     sendMetalRedeemed(phone: string, name: string, metalType: string, weight: string, balance: string): Promise<void>;
     sendSchemeRedeemed(phone: string, name: string, schemeName: string): Promise<void>;
+    sendPaymentRatePending(phone: string, name: string): Promise<void>;
+    sendPaymentFinalized(phone: string, name: string, amount: string, rate: string, grams: string): Promise<void>;
 }
 export declare const smsService: SMSService;
 export {};

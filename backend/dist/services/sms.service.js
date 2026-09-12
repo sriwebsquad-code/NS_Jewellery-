@@ -132,6 +132,18 @@ class SMSService {
             return; // Silent skip if no template
         await this.sendDLTMessage(phone, templateId, { name, schemeName });
     }
+    async sendPaymentRatePending(phone, name) {
+        const templateId = process.env.TEMPLATE_ID_RATE_PENDING;
+        if (!templateId)
+            return; // Silent skip if no template
+        await this.sendDLTMessage(phone, templateId, { name });
+    }
+    async sendPaymentFinalized(phone, name, amount, rate, grams) {
+        const templateId = process.env.TEMPLATE_ID_RATE_FINALIZED;
+        if (!templateId)
+            return; // Silent skip if no template
+        await this.sendDLTMessage(phone, templateId, { name, amount, rate, grams });
+    }
 }
 exports.smsService = new SMSService();
 //# sourceMappingURL=sms.service.js.map

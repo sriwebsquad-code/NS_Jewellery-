@@ -47,55 +47,122 @@ const updateRates = async (req, res) => {
             createdAt: new Date().toISOString()
         };
         await docRef.set(rate);
-        // Adjust midnight purchases (purchased between 12:00 AM IST and now)
+        // Finalize RATE_PENDING transactions for the newly published business date
         try {
-            const now = new Date();
-            const istTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-            istTime.setHours(0, 0, 0, 0);
-            const midnightUTC = new Date(istTime.getTime() - (5.5 * 60 * 60 * 1000));
-            const midnightISO = midnightUTC.toISOString();
+            const rateEffectiveTimestamp = new Date(rate.effectiveDate);
+            const rateISTString = rateEffectiveTimestamp.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+            const rateDateIST = new Date(rateISTString);
+            const rateBusinessDate = `${rateDateIST.getFullYear()}-${rateDateIST.getMonth() + 1}-${rateDateIST.getDate()}`;
+            let finalizedCount = 0;
+            // 1. Finalize Digital Transactions
             const txnsSnapshot = await firebase_1.db.collection('digitalTransactions')
                 .where('type', '==', 'BUY')
-                .where('status', '==', 'SUCCESS')
-                .where('createdAt', '>=', midnightISO)
+                .where('status', '==', 'RATE_PENDING')
+                .where('businessDate', '==', rateBusinessDate)
                 .get();
-            const batch = firebase_1.db.batch();
-            let adjustedCount = 0;
             for (const txnDoc of txnsSnapshot.docs) {
                 const txn = txnDoc.data();
                 const metalType = txn.metalType;
                 const newRate = metalType === 'GOLD' ? parseFloat(goldRate) : parseFloat(silverRate);
                 if (newRate > 0) {
-                    const newWeight = txn.amount / newRate;
-                    const delta = newWeight - txn.weight;
-                    if (Math.abs(delta) > 0.000001) {
-                        // Update transaction
-                        batch.update(txnDoc.ref, {
-                            weight: newWeight,
-                            originalWeight: txn.weight, // Keep record of original
-                            adjustedByRateUpdate: true,
-                            adjustedAt: new Date().toISOString()
-                        });
-                        // Update balance
-                        const balanceRef = firebase_1.db.collection('digitalBalances').doc(txn.userId);
-                        const balanceDoc = await balanceRef.get();
-                        if (balanceDoc.exists) {
-                            const currentBalance = balanceDoc.data()[metalType === 'GOLD' ? 'goldBalance' : 'silverBalance'] || 0;
-                            batch.update(balanceRef, {
-                                [metalType === 'GOLD' ? 'goldBalance' : 'silverBalance']: Math.max(0, currentBalance + delta)
+                    const newWeight = Number((txn.amount / newRate).toFixed(3));
+                    await txnDoc.ref.update({
+                        weight: newWeight,
+                        status: 'SUCCESS',
+                        finalizedAt: new Date().toISOString()
+                    });
+                    const balanceRef = firebase_1.db.collection('digitalBalances').doc(txn.userId);
+                    const balanceDoc = await balanceRef.get();
+                    const currentBalance = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
+                    if (metalType === 'GOLD') {
+                        currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + newWeight).toFixed(3));
+                    }
+                    else if (metalType === 'SILVER') {
+                        currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + newWeight).toFixed(3));
+                    }
+                    await balanceRef.set(currentBalance);
+                    const userDoc = await firebase_1.db.collection('users').doc(txn.userId).get();
+                    if (userDoc.exists) {
+                        const phone = userDoc.data()?.phone;
+                        const name = userDoc.data()?.name || 'Customer';
+                        if (phone) {
+                            const { smsService } = require('../services/sms.service');
+                            await smsService.sendPaymentFinalized(phone, name, txn.amount.toString(), newRate.toString(), newWeight.toFixed(3));
+                            if (metalType === 'GOLD') {
+                                await smsService.sendDigitalGold(phone, name, newWeight.toFixed(3), currentBalance.goldBalance.toFixed(3));
+                            }
+                            else {
+                                await smsService.sendDigitalSilver(phone, name, newWeight.toFixed(3), currentBalance.silverBalance.toFixed(3));
+                            }
+                        }
+                        try {
+                            await firebase_1.db.collection('notifications').add({
+                                userId: txn.userId,
+                                title: `Pending Digital ${metalType === 'GOLD' ? 'Gold' : 'Silver'} Finalized`,
+                                message: `Your pending purchase has been finalized. ₹${txn.amount} has been converted at today's rate of ₹${newRate} per gram, and ${newWeight.toFixed(3)}g has been added.`,
+                                isRead: false,
+                                createdAt: new Date().toISOString()
                             });
                         }
-                        adjustedCount++;
+                        catch (e) { }
                     }
+                    finalizedCount++;
                 }
             }
-            if (adjustedCount > 0) {
-                await batch.commit();
-                console.log(`[RATES] Adjusted ${adjustedCount} midnight purchases to new rates.`);
+            // 2. Finalize Scheme Installments
+            const installmentsSnapshot = await firebase_1.db.collection('installments')
+                .where('status', '==', 'RATE_PENDING')
+                .where('businessDate', '==', rateBusinessDate)
+                .get();
+            for (const instDoc of installmentsSnapshot.docs) {
+                const inst = instDoc.data();
+                const metalType = inst.metalType;
+                const newRate = metalType === 'GOLD' ? parseFloat(goldRate) : parseFloat(silverRate);
+                if (newRate > 0) {
+                    const calculatedWeight = inst.amount / newRate;
+                    await instDoc.ref.update({
+                        status: 'PAID',
+                        applicableRate: newRate,
+                        calculatedWeight: calculatedWeight,
+                        finalizedAt: new Date().toISOString()
+                    });
+                    const userPlanRef = firebase_1.db.collection('userPlans').doc(inst.userPlanId);
+                    const userPlanDoc = await userPlanRef.get();
+                    if (userPlanDoc.exists) {
+                        const userPlanData = userPlanDoc.data();
+                        const currentAccumulatedWeight = userPlanData.accumulatedWeight || 0;
+                        await userPlanRef.update({
+                            accumulatedWeight: currentAccumulatedWeight + calculatedWeight
+                        });
+                    }
+                    const userDoc = await firebase_1.db.collection('users').doc(inst.userId).get();
+                    if (userDoc.exists) {
+                        const phone = userDoc.data()?.phone;
+                        const name = userDoc.data()?.name || 'Customer';
+                        if (phone) {
+                            const { smsService } = require('../services/sms.service');
+                            await smsService.sendPaymentFinalized(phone, name, inst.amount.toString(), newRate.toString(), calculatedWeight.toFixed(3));
+                        }
+                        try {
+                            await firebase_1.db.collection('notifications').add({
+                                userId: inst.userId,
+                                title: `Pending Installment Finalized`,
+                                message: `Your pending installment purchase has been finalized. ₹${inst.amount} has been converted at today's rate of ₹${newRate} per gram, and ${calculatedWeight.toFixed(3)}g has been added.`,
+                                isRead: false,
+                                createdAt: new Date().toISOString()
+                            });
+                        }
+                        catch (e) { }
+                    }
+                    finalizedCount++;
+                }
+            }
+            if (finalizedCount > 0) {
+                console.log(`[RATES] Finalized ${finalizedCount} pending transactions to new rates for ${rateBusinessDate}.`);
             }
         }
         catch (e) {
-            console.error('[RATES ERROR] Failed to adjust midnight purchases:', e);
+            console.error('[RATES ERROR] Failed to finalize pending purchases:', e);
         }
         // Global Notification
         try {

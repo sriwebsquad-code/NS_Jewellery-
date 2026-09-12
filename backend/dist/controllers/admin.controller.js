@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyTransaction = exports.getTransactions = exports.getDashboardStats = void 0;
+exports.deleteCustomer = exports.verifyAdminPassword = exports.verifyTransaction = exports.getTransactions = exports.getDashboardStats = void 0;
 const firebase_1 = require("../config/firebase");
 const sms_service_1 = require("../services/sms.service");
 const getDashboardStats = async (req, res) => {
@@ -60,8 +60,8 @@ const getDashboardStats = async (req, res) => {
             }
         });
         // Round to 4 decimal places to avoid floating point display errors
-        totalGoldWeight = parseFloat(totalGoldWeight.toFixed(4));
-        totalSilverWeight = parseFloat(totalSilverWeight.toFixed(4));
+        totalGoldWeight = parseFloat(totalGoldWeight.toFixed(3));
+        totalSilverWeight = parseFloat(totalSilverWeight.toFixed(3));
         const startOfMonth = new Date();
         startOfMonth.setDate(1);
         startOfMonth.setHours(0, 0, 0, 0);
@@ -125,11 +125,27 @@ const getDashboardStats = async (req, res) => {
         // Recent Actions - fetch from all 3 collections
         let recentActions = [];
         try {
-            const [recentDigi, recentInst, recentRedemptions] = await Promise.all([
-                firebase_1.db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(20).get(),
-                firebase_1.db.collection('installments').orderBy('createdAt', 'desc').limit(20).get(),
-                firebase_1.db.collection('userPlans').where('status', '==', 'REDEEMED').orderBy('updatedAt', 'desc').limit(20).get()
-            ]);
+            let recentDigi = { docs: [] };
+            let recentInst = { docs: [] };
+            let recentRedemptions = { docs: [] };
+            try {
+                recentDigi = await firebase_1.db.collection('digitalTransactions').orderBy('createdAt', 'desc').limit(20).get();
+            }
+            catch (e) {
+                console.error('Error fetching digital txns for recent:', e);
+            }
+            try {
+                recentInst = await firebase_1.db.collection('installments').orderBy('createdAt', 'desc').limit(20).get();
+            }
+            catch (e) {
+                console.error('Error fetching installments for recent:', e);
+            }
+            try {
+                recentRedemptions = await firebase_1.db.collection('userPlans').where('status', '==', 'REDEEMED').orderBy('updatedAt', 'desc').limit(20).get();
+            }
+            catch (e) {
+                console.error('Error fetching redemptions for recent:', e);
+            }
             const allRecent = [
                 ...recentDigi.docs.map(d => ({ id: d.id, collection: 'digital', createdAt: d.data().createdAt, ...d.data() })),
                 ...recentInst.docs.map(d => ({ id: d.id, collection: 'installment', createdAt: d.data().createdAt, ...d.data() })),
@@ -259,7 +275,9 @@ const getTransactions = async (req, res) => {
         const [installmentsSnap, digitalSnap, redemptionsSnap] = await Promise.all([
             installmentsRef.limit(100).get(),
             digitalRef.limit(100).get(),
-            firebase_1.db.collection('userPlans').where('status', '==', 'REDEEMED').limit(100).get()
+            (!status || status === 'SUCCESS')
+                ? firebase_1.db.collection('userPlans').where('status', '==', 'REDEEMED').limit(100).get()
+                : Promise.resolve({ empty: true, docs: [] })
         ]);
         // Manual population of user details since it's NoSQL
         const userCache = {};
@@ -333,7 +351,7 @@ const getTransactions = async (req, res) => {
                 receiptId: data.receiptId,
                 user,
                 type: `DIGITAL_${data.metalType}_${data.type}`,
-                details: `${(data.weight || 0).toFixed(4)}g`,
+                details: `${(data.weight || 0).toFixed(3)}g`,
                 amount: data.amount,
                 status: data.status,
                 date: data.createdAt,
@@ -427,11 +445,11 @@ const verifyTransaction = async (req, res) => {
                             if (liveRate && liveRate > 0) {
                                 const addedWeight = installmentData.amount / liveRate;
                                 const currentAccumulated = userPlanData.accumulatedWeight || 0;
-                                const newAccumulatedWeight = parseFloat((currentAccumulated + addedWeight).toFixed(4));
+                                const newAccumulatedWeight = parseFloat((currentAccumulated + addedWeight).toFixed(3));
                                 weightUpdate = { accumulatedWeight: newAccumulatedWeight };
                                 // Also store calculatedWeight on the installment for audit trail
                                 await installmentRef.update({
-                                    calculatedWeight: parseFloat(addedWeight.toFixed(4)),
+                                    calculatedWeight: parseFloat(addedWeight.toFixed(3)),
                                     applicableRate: liveRate,
                                     metalType
                                 });
@@ -506,4 +524,96 @@ const verifyTransaction = async (req, res) => {
     }
 };
 exports.verifyTransaction = verifyTransaction;
+const verifyAdminPassword = async (req, res) => {
+    try {
+        const { password } = req.body;
+        if (!password) {
+            return res.status(400).json({ success: false, message: 'Password is required' });
+        }
+        const masterPassword = process.env.ADMIN_MASTER_PASSWORD || 'NSMJCUD@123';
+        if (password === masterPassword) {
+            return res.status(200).json({ success: true, message: 'Password verified' });
+        }
+        const adminRef = firebase_1.db.collection('settings').doc('adminAuth');
+        const doc = await adminRef.get();
+        if (doc.exists) {
+            const data = doc.data();
+            if (data?.hashedPassword) {
+                const bcrypt = require('bcrypt'); // Lazy load just in case
+                const isMatch = await bcrypt.compare(password, data.hashedPassword);
+                if (isMatch) {
+                    return res.status(200).json({ success: true, message: 'Password verified' });
+                }
+            }
+        }
+        return res.status(401).json({ success: false, message: 'Incorrect Password' });
+    }
+    catch (error) {
+        console.error('Verify Admin Password Error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+    }
+};
+exports.verifyAdminPassword = verifyAdminPassword;
+const deleteCustomer = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { adminPassword } = req.body;
+        if (!adminPassword) {
+            return res.status(400).json({ success: false, message: 'Admin password is required for deletion' });
+        }
+        // Verify admin password securely on the server
+        const masterPassword = process.env.ADMIN_MASTER_PASSWORD || 'NSMJCUD@123';
+        let isPasswordValid = false;
+        if (adminPassword === masterPassword) {
+            isPasswordValid = true;
+        }
+        else {
+            const adminRef = firebase_1.db.collection('settings').doc('adminAuth');
+            const doc = await adminRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data?.hashedPassword) {
+                    const bcrypt = require('bcrypt');
+                    isPasswordValid = await bcrypt.compare(adminPassword, data.hashedPassword);
+                }
+            }
+        }
+        if (!isPasswordValid) {
+            return res.status(401).json({ success: false, message: 'Incorrect Admin Password. Deletion aborted.' });
+        }
+        // Begin deletion process
+        const userRef = firebase_1.db.collection('users').doc(id);
+        const userDoc = await userRef.get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ success: false, message: 'Customer not found' });
+        }
+        // Delete everything concurrently via Promise.all (for independent collections)
+        const digitalBalancesRef = firebase_1.db.collection('digitalBalances').doc(id);
+        // Get all transactions
+        const txnsSnap = await firebase_1.db.collection('digitalTransactions').where('userId', '==', id).get();
+        const plansSnap = await firebase_1.db.collection('userPlans').where('userId', '==', id).get();
+        const installmentsSnap = await firebase_1.db.collection('installments').where('userId', '==', id).get();
+        // Use a batch for multiple docs to ensure atomicity (up to 500 ops)
+        const batch = firebase_1.db.batch();
+        // Add txns to batch
+        txnsSnap.docs.forEach(doc => batch.delete(doc.ref));
+        // Add plans to batch
+        plansSnap.docs.forEach(doc => batch.delete(doc.ref));
+        // Add installments to batch
+        installmentsSnap.docs.forEach(doc => batch.delete(doc.ref));
+        // Delete digital balance
+        batch.delete(digitalBalancesRef);
+        // Finally, delete the user profile itself
+        batch.delete(userRef);
+        // Commit all deletions
+        await batch.commit();
+        console.log(`[ADMIN] Customer ${id} and all associated data permanently deleted.`);
+        res.status(200).json({ success: true, message: 'Customer deleted successfully' });
+    }
+    catch (error) {
+        console.error('Delete Customer Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete customer', error: error.message });
+    }
+};
+exports.deleteCustomer = deleteCustomer;
 //# sourceMappingURL=admin.controller.js.map

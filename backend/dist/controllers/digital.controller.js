@@ -76,10 +76,10 @@ const createTransaction = async (req, res) => {
             const balanceDoc = await balanceRef.get();
             const currentBalance = balanceDoc.exists ? (balanceDoc.data() || { goldBalance: 0, silverBalance: 0 }) : { goldBalance: 0, silverBalance: 0 };
             if (metalType === 'GOLD') {
-                currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + parseFloat(weight)).toFixed(4));
+                currentBalance.goldBalance = parseFloat(((currentBalance.goldBalance || 0) + parseFloat(weight)).toFixed(3));
             }
             else if (metalType === 'SILVER') {
-                currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + parseFloat(weight)).toFixed(4));
+                currentBalance.silverBalance = parseFloat(((currentBalance.silverBalance || 0) + parseFloat(weight)).toFixed(3));
             }
             await balanceRef.set(currentBalance);
         }
@@ -250,12 +250,12 @@ const redeemUserMetal = async (req, res) => {
             if (userDoc.exists) {
                 const userData = userDoc.data();
                 if (userData.phone) {
-                    await sms_service_1.smsService.sendMetalRedeemed(userData.phone, userData.name || 'Customer', type, redeemWeight.toFixed(4), remainingBalance.toFixed(4));
+                    await sms_service_1.smsService.sendMetalRedeemed(userData.phone, userData.name || 'Customer', type, redeemWeight.toFixed(3), remainingBalance.toFixed(3));
                 }
                 await firebase_1.db.collection('notifications').add({
                     userId,
                     title: `Digital ${type === 'GOLD' ? 'Gold' : 'Silver'} Redeemed`,
-                    message: `You have successfully redeemed ${redeemWeight.toFixed(4)}g of Digital ${type === 'GOLD' ? 'Gold' : 'Silver'}. Your remaining balance is ${remainingBalance.toFixed(4)}g.`,
+                    message: `You have successfully redeemed ${redeemWeight.toFixed(3)}g of Digital ${type === 'GOLD' ? 'Gold' : 'Silver'}. Your remaining balance is ${remainingBalance.toFixed(3)}g.`,
                     isRead: false,
                     createdAt: new Date().toISOString()
                 });

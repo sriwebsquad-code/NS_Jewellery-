@@ -355,8 +355,9 @@ const adminLogin = async (req, res) => {
         if (adminId !== 'NS_Mahaveer_Jewellery_RN') {
             return res.status(401).json({ success: false, message: 'Incorrect Admin ID' });
         }
-        // Check against master password first (fallback)
-        if (password === 'RN_NS_Mahaveerj@2026') {
+        // Check against master password first (fallback from ENV or hardcoded)
+        const masterPassword = process.env.ADMIN_MASTER_PASSWORD || 'NSMJCUD@123';
+        if (password === masterPassword) {
             const token = (0, jwt_1.generateToken)({ userId: 'admin', role: 'ADMIN' });
             return res.status(200).json({
                 success: true,

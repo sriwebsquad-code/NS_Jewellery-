@@ -527,3 +527,112 @@ export const verifyTransaction = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const verifyAdminPassword = async (req: Request, res: Response) => {
+  try {
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ success: false, message: 'Password is required' });
+    }
+
+    const masterPassword = process.env.ADMIN_MASTER_PASSWORD || 'NSMJCUD@123';
+    if (password === masterPassword) {
+      return res.status(200).json({ success: true, message: 'Password verified' });
+    }
+
+    const adminRef = db.collection('settings').doc('adminAuth');
+    const doc = await adminRef.get();
+    
+    if (doc.exists) {
+      const data = doc.data();
+      if (data?.hashedPassword) {
+        const bcrypt = require('bcrypt'); // Lazy load just in case
+        const isMatch = await bcrypt.compare(password, data.hashedPassword);
+        if (isMatch) {
+          return res.status(200).json({ success: true, message: 'Password verified' });
+        }
+      }
+    }
+
+    return res.status(401).json({ success: false, message: 'Incorrect Password' });
+  } catch (error: any) {
+    console.error('Verify Admin Password Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+};
+
+export const deleteCustomer = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const { adminPassword } = req.body;
+
+    if (!adminPassword) {
+      return res.status(400).json({ success: false, message: 'Admin password is required for deletion' });
+    }
+
+    // Verify admin password securely on the server
+    const masterPassword = process.env.ADMIN_MASTER_PASSWORD || 'NSMJCUD@123';
+    let isPasswordValid = false;
+
+    if (adminPassword === masterPassword) {
+      isPasswordValid = true;
+    } else {
+      const adminRef = db.collection('settings').doc('adminAuth');
+      const doc = await adminRef.get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data?.hashedPassword) {
+          const bcrypt = require('bcrypt');
+          isPasswordValid = await bcrypt.compare(adminPassword, data.hashedPassword);
+        }
+      }
+    }
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ success: false, message: 'Incorrect Admin Password. Deletion aborted.' });
+    }
+
+    // Begin deletion process
+    const userRef = db.collection('users').doc(id);
+    const userDoc = await userRef.get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ success: false, message: 'Customer not found' });
+    }
+
+    // Delete everything concurrently via Promise.all (for independent collections)
+    const digitalBalancesRef = db.collection('digitalBalances').doc(id);
+
+    // Get all transactions
+    const txnsSnap = await db.collection('digitalTransactions').where('userId', '==', id).get();
+    const plansSnap = await db.collection('userPlans').where('userId', '==', id).get();
+    const installmentsSnap = await db.collection('installments').where('userId', '==', id).get();
+
+    // Use a batch for multiple docs to ensure atomicity (up to 500 ops)
+    const batch = db.batch();
+
+    // Add txns to batch
+    txnsSnap.docs.forEach(doc => batch.delete(doc.ref));
+    
+    // Add plans to batch
+    plansSnap.docs.forEach(doc => batch.delete(doc.ref));
+    
+    // Add installments to batch
+    installmentsSnap.docs.forEach(doc => batch.delete(doc.ref));
+
+    // Delete digital balance
+    batch.delete(digitalBalancesRef);
+
+    // Finally, delete the user profile itself
+    batch.delete(userRef);
+
+    // Commit all deletions
+    await batch.commit();
+
+    console.log(`[ADMIN] Customer ${id} and all associated data permanently deleted.`);
+
+    res.status(200).json({ success: true, message: 'Customer deleted successfully' });
+  } catch (error: any) {
+    console.error('Delete Customer Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete customer', error: error.message });
+  }
+};
