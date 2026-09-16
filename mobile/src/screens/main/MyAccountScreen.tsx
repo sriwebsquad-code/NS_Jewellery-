@@ -212,7 +212,13 @@ const MyAccountScreen = () => {
               ) : (
                 <TouchableOpacity 
                   style={[styles.verificationBadge, { backgroundColor: 'rgba(255, 99, 71, 0.1)' }]}
-                  onPress={() => navigation.navigate('PanVerification')}
+                  onPress={() => {
+                    if (user?.kycStatus !== 'VERIFIED') {
+                      Alert.alert('Verification Required', 'Please verify your Aadhaar first before verifying your PAN.');
+                    } else {
+                      navigation.navigate('PanVerification');
+                    }
+                  }}
                 >
                   <Text style={[styles.verifiedText, { color: 'tomato' }]}>Verify Now</Text>
                 </TouchableOpacity>

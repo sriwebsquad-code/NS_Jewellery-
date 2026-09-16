@@ -88,6 +88,18 @@ const DigitalSilverScreen = () => {
     
     const amountNum = parseFloat(amount);
     
+    if (user?.kycStatus !== 'VERIFIED') {
+      Alert.alert(
+        "KYC Required",
+        "Please verify your Aadhar to make purchases.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Verify Now", onPress: () => navigation.navigate('AadharVerification') }
+        ]
+      );
+      return;
+    }
+
     if (amountNum > 200000) {
       if (user?.panStatus !== 'VERIFIED') {
         Alert.alert(
@@ -96,18 +108,6 @@ const DigitalSilverScreen = () => {
           [
             { text: "Cancel", style: "cancel" },
             { text: "Verify PAN Now", onPress: () => navigation.navigate('PanVerification') }
-          ]
-        );
-        return;
-      }
-    } else {
-      if (user?.kycStatus !== 'VERIFIED') {
-        Alert.alert(
-          "KYC Required",
-          "Please verify your Aadhar to make purchases.",
-          [
-            { text: "Cancel", style: "cancel" },
-            { text: "Verify Now", onPress: () => navigation.navigate('AadharVerification') }
           ]
         );
         return;
