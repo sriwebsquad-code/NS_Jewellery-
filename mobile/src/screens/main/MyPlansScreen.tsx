@@ -34,6 +34,7 @@ const MyPlansScreen = () => {
   const styles = getStyles(colors, mode);
   
   const [plans, setPlans] = useState<any[]>([]);
+  const [userPlans, setUserPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [selectedCategory, setSelectedCategory] = useState<string>(route.params?.defaultCategory || 'Gold Schemes');
@@ -52,10 +53,18 @@ const MyPlansScreen = () => {
     if (route.params?.defaultPlanId) {
       setSelectedPlanId(route.params.defaultPlanId);
     }
-    if (route.params?.defaultAmount) {
-      setInstallmentAmount(route.params.defaultAmount);
+  }, [route.params?.defaultCategory, route.params?.defaultPlanId]);
+
+  useEffect(() => {
+    const activeJoin = userPlans.find(up => up.planId === selectedPlanId);
+    if (activeJoin && activeJoin.monthlyAmount > 0) {
+      setInstallmentAmount(activeJoin.monthlyAmount.toString());
+    } else if (route.params?.defaultAmount && Number(route.params.defaultAmount) > 0) {
+      setInstallmentAmount(route.params.defaultAmount.toString());
+    } else {
+      setInstallmentAmount('');
     }
-  }, [route.params?.defaultCategory, route.params?.defaultPlanId, route.params?.defaultAmount]);
+  }, [selectedPlanId, userPlans, route.params?.defaultAmount]);
 
   useEffect(() => {
     fetchPlans();
@@ -80,10 +89,18 @@ const MyPlansScreen = () => {
   const fetchPlans = async () => {
     try {
       const API_URL = ENV.BASE_URL;
-      const response = await fetch(`${API_URL}/api/plans`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
+      const timestamp = Date.now();
+      const [plansRes, userPlansRes] = await Promise.all([
+        fetch(`${API_URL}/api/plans`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_URL}/api/plans/my-plans?t=${timestamp}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
+      ]);
+      const data = await plansRes.json();
+      const userPlansData = await userPlansRes.json();
+
+      if (userPlansData.success) {
+        setUserPlans(userPlansData.data.filter((up: any) => up.status === 'ACTIVE'));
+      }
+
       if (data.success && data.data) {
         setPlans(data.data);
         if (data.data.length > 0) {
@@ -191,11 +208,15 @@ const MyPlansScreen = () => {
 
   if (loading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background}}>
         <ActivityIndicator size="large" color="#F5B041" />
       </View>
     );
   }
+
+  const activeJoin = userPlans.find(up => up.planId === selectedPlanId);
+  const isEnrolledContext = !!route.params?.enrollmentId;
+  const isLocked = (activeJoin && activeJoin.monthlyAmount > 0) || (route.params?.defaultAmount && Number(route.params.defaultAmount) > 0) || isEnrolledContext;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -218,9 +239,11 @@ const MyPlansScreen = () => {
           {/* Scheme Category Dropdown */}
           <Text style={[styles.label, { color: colors.text }]}>Select Scheme Category</Text>
           <TouchableOpacity 
-            style={[styles.dropdownField, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+            style={[styles.dropdownField, { backgroundColor: isEnrolledContext ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border }]}
             activeOpacity={0.8}
-            onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            onPress={() => {
+               if (!isEnrolledContext) setShowCategoryDropdown(!showCategoryDropdown);
+            }}
           >
             <Text style={[styles.dropdownText, { color: colors.text }]}>{selectedCategory}</Text>
             <ChevronDown color={colors.icon} size={24} />
@@ -243,9 +266,11 @@ const MyPlansScreen = () => {
           {/* Scheme Name Dropdown */}
           <Text style={[styles.label, { color: colors.text }]}>Select Scheme Name</Text>
           <TouchableOpacity 
-            style={[styles.dropdownField, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+            style={[styles.dropdownField, { backgroundColor: isEnrolledContext ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border }]}
             activeOpacity={0.8}
-            onPress={() => setShowPlanDropdown(!showPlanDropdown)}
+            onPress={() => {
+               if (!isEnrolledContext) setShowPlanDropdown(!showPlanDropdown);
+            }}
           >
             <Text style={[styles.dropdownText, { color: colors.text }]}>{selectedPlan ? formatPlanName(selectedPlan.name, selectedPlan.schemeType, selectedPlan.metalType) : 'No Plans Found'}</Text>
             <ChevronDown color={colors.icon} size={24} />
@@ -273,20 +298,20 @@ const MyPlansScreen = () => {
           )}
 
           <Text style={[styles.label, { color: colors.text }]}>Monthly Installment Amount (₹)</Text>
-          <View style={[styles.dropdownField, { backgroundColor: route.params?.defaultAmount && Number(route.params.defaultAmount) > 0 ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border, paddingVertical: 4 }]}>
-            <Text style={{ color: route.params?.defaultAmount && Number(route.params.defaultAmount) > 0 ? colors.textMuted : colors.text, fontSize: 16, marginRight: 8 }}>₹</Text>
+          <View style={[styles.dropdownField, { backgroundColor: isLocked ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border, paddingVertical: 4 }]}>
+            <Text style={{ color: isLocked ? colors.textMuted : colors.text, fontSize: 16, marginRight: 8 }}>₹</Text>
             <TextInput
-              style={{ flex: 1, color: route.params?.defaultAmount && Number(route.params.defaultAmount) > 0 ? colors.textMuted : colors.text, fontSize: 16, paddingVertical: 8 }}
+              style={{ flex: 1, color: isLocked ? colors.textMuted : colors.text, fontSize: 16, paddingVertical: 8 }}
               value={installmentAmount}
               onChangeText={setInstallmentAmount}
               placeholder="Enter amount"
               placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
               returnKeyType="done"
-              editable={!route.params?.defaultAmount || Number(route.params.defaultAmount) === 0}
+              editable={!isLocked}
             />
           </View>
-          {route.params?.defaultAmount && Number(route.params.defaultAmount) > 0 && (
+          {isLocked && (
             <Text style={{ fontSize: 12, color: colors.textMuted, fontStyle: 'italic', marginTop: -15, marginBottom: 20, marginLeft: 5 }}>
               (Fixed monthly installment)
             </Text>
@@ -365,12 +390,51 @@ const MyPlansScreen = () => {
               );
               return;
             }
-            navigation.navigate('Payment', { 
-              amount: Number(installmentAmount),
-              planId: selectedPlanId,
-              planName: selectedPlan?.name,
-              planType: selectedPlan?.type
-            });
+
+            const navigateToPayment = (finalPlanId: string) => {
+              navigation.navigate('Payment', { 
+                amount: Number(installmentAmount),
+                planId: finalPlanId,
+                planName: selectedPlan?.name,
+                planType: selectedPlan?.type
+              });
+            };
+
+            const enrolledPlan = route.params?.enrollmentId ? userPlans.find(up => up.id === route.params.enrollmentId) : activeJoin;
+
+            if (enrolledPlan) {
+               if (enrolledPlan.nextPaymentDate) {
+                 const nextDate = new Date(enrolledPlan.nextPaymentDate);
+                 const now = new Date();
+                 if (nextDate > now) {
+                    Alert.alert(
+                      "Installment Already Paid",
+                      "Your installment for this month has already been paid.",
+                      [{ text: "OK" }]
+                    );
+                    return;
+                 }
+               }
+
+               if (!route.params?.enrollmentId) {
+                 Alert.alert(
+                   "Already Enrolled",
+                   "You are already enrolled in this installment scheme.",
+                   [
+                     { text: "Cancel", style: "cancel" },
+                     { text: "Continue Payment", onPress: () => navigateToPayment(enrolledPlan.id) }
+                   ]
+                 );
+                 return;
+               } else {
+                 navigateToPayment(enrolledPlan.id);
+                 return;
+               }
+            }
+
+            if (selectedPlanId) {
+              navigateToPayment(selectedPlanId);
+            }
           }}
         >
           <Text style={styles.proceedBtnText}>Proceed</Text>

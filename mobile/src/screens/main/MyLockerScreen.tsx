@@ -183,7 +183,7 @@ const MyLockerScreen = () => {
                         {up.status === 'ACTIVE' && (
                           <TouchableOpacity 
                             style={[styles.payInstallmentBtn, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
-                            onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { defaultCategory: up.plan?.name?.toUpperCase().includes('GOLD') ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: up.plan?.id, defaultAmount: up.monthlyAmount?.toString() } })}
+                            onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { enrollmentId: up.id, defaultCategory: up.plan?.name?.toUpperCase().includes('GOLD') ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: up.plan?.id, defaultAmount: up.monthlyAmount?.toString() } })}
                           >
                             <Text style={[styles.payInstallmentBtnText, { color: colors.primary }]}>Pay Monthly Installment</Text>
                           </TouchableOpacity>

@@ -29,17 +29,35 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
     let finalAmount = parseFloat(amount);
 
     if (planId) {
-      // Check if user is already enrolled in this plan
-      const existingJoin = await db.collection('userPlans')
-        .where('userId', '==', userId)
-        .where('planId', '==', planId)
-        .where('status', '==', 'ACTIVE')
-        .get();
+      let userPlan = null;
+      
+      // Try if planId is actually an enrollmentId
+      const userPlanDoc = await db.collection('userPlans').doc(planId).get();
+      if (userPlanDoc.exists && userPlanDoc.data()?.userId === userId && userPlanDoc.data()?.status === 'ACTIVE') {
+         userPlan = userPlanDoc.data();
+      } else {
+         // Fallback: check if user is already enrolled in this base plan
+         const existingJoin = await db.collection('userPlans')
+          .where('userId', '==', userId)
+          .where('planId', '==', planId)
+          .where('status', '==', 'ACTIVE')
+          .get();
+          if (!existingJoin.empty) {
+             userPlan = existingJoin.docs[0]?.data();
+          }
+      }
 
-      if (!existingJoin.empty) {
-        const userPlan = existingJoin.docs[0]?.data();
-        if (userPlan && userPlan.monthlyAmount && userPlan.monthlyAmount > 0) {
+      if (userPlan) {
+        if (userPlan.monthlyAmount && userPlan.monthlyAmount > 0) {
           finalAmount = userPlan.monthlyAmount;
+        }
+
+        if (userPlan.nextPaymentDate) {
+          const nextDate = new Date(userPlan.nextPaymentDate);
+          const now = new Date();
+          if (nextDate > now) {
+            return res.status(400).json({ success: false, message: 'You have already paid the installment for the current month. Please wait until the next cycle to pay.' });
+          }
         }
       }
     }

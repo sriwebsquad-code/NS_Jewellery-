@@ -111,7 +111,7 @@ const TransactionsScreen = () => {
                  </View>
                  <TouchableOpacity 
                    style={{ backgroundColor: '#D4AF37', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
-                   onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { defaultCategory: metalType === 'GOLD' ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: route.params.basePlanId, defaultAmount: route.params.monthlyAmount?.toString() } })}
+                   onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { enrollmentId: route.params.planId, defaultCategory: metalType === 'GOLD' ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: route.params.basePlanId, defaultAmount: route.params.monthlyAmount?.toString() } })}
                  >
                    <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Pay ₹{route.params.monthlyAmount}</Text>
                  </TouchableOpacity>
