@@ -100,7 +100,7 @@ const TransactionsScreen = () => {
             </View>
           )}
 
-          {type === 'PLAN' && route.params?.monthlyAmount && transactions.length < 11 && (
+          {type === 'PLAN' && route.params?.monthlyAmount && transactions.length < 11 && route.params?.status === 'ACTIVE' && (
             <View style={{ backgroundColor: colors.cardBackground, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20 }}>
                <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 12 }}>Next Installment</Text>
                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

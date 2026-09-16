@@ -155,8 +155,12 @@ const MyLockerScreen = () => {
                     return (
                       <View key={up.id} style={{ marginBottom: 12 }}>
                         <TouchableOpacity 
-                          style={[styles.assetCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginBottom: 0, borderBottomWidth: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]}
-                          onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER'), schemeType: up.plan?.schemeType, monthlyAmount: up.monthlyAmount, createdAt: up.createdAt, basePlanId: up.plan?.id })}
+                          style={[
+                            styles.assetCard, 
+                            { backgroundColor: colors.cardBackground, borderColor: colors.border },
+                            up.status === 'ACTIVE' ? { marginBottom: 0, borderBottomWidth: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 } : {}
+                          ]}
+                          onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER'), schemeType: up.plan?.schemeType, monthlyAmount: up.monthlyAmount, createdAt: up.createdAt, basePlanId: up.plan?.id, status: up.status })}
                         >
                           <View style={styles.assetLeft}>
                             <View style={styles.assetIconWrapper}>
@@ -176,12 +180,14 @@ const MyLockerScreen = () => {
                             <ArrowRight size={16} color={colors.textMuted} />
                           </View>
                         </TouchableOpacity>
-                        <TouchableOpacity 
-                          style={[styles.payInstallmentBtn, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
-                          onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { defaultCategory: up.plan?.name?.toUpperCase().includes('GOLD') ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: up.plan?.id, defaultAmount: up.monthlyAmount?.toString() } })}
-                        >
-                          <Text style={[styles.payInstallmentBtnText, { color: colors.primary }]}>Pay Monthly Installment</Text>
-                        </TouchableOpacity>
+                        {up.status === 'ACTIVE' && (
+                          <TouchableOpacity 
+                            style={[styles.payInstallmentBtn, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+                            onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { defaultCategory: up.plan?.name?.toUpperCase().includes('GOLD') ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: up.plan?.id, defaultAmount: up.monthlyAmount?.toString() } })}
+                          >
+                            <Text style={[styles.payInstallmentBtnText, { color: colors.primary }]}>Pay Monthly Installment</Text>
+                          </TouchableOpacity>
+                        )}
                       </View>
                     );
                   });
