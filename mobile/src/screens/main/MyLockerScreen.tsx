@@ -153,29 +153,36 @@ const MyLockerScreen = () => {
                   return filteredPlans.map((up) => {
                     const isValueBased = up.plan?.schemeType === 'VALUE_BASED';
                     return (
-                      <TouchableOpacity 
-                        key={up.id} 
-                        style={[styles.assetCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
-                        onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER'), schemeType: up.plan?.schemeType })}
-                      >
-                        <View style={styles.assetLeft}>
-                          <View style={styles.assetIconWrapper}>
-                            <TrendingUp size={20} color={isValueBased ? "#48C9B0" : "#F5B041"} />
+                      <View key={up.id} style={{ marginBottom: 12 }}>
+                        <TouchableOpacity 
+                          style={[styles.assetCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginBottom: 0, borderBottomWidth: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]}
+                          onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER'), schemeType: up.plan?.schemeType, monthlyAmount: up.monthlyAmount, createdAt: up.createdAt, basePlanId: up.plan?.id })}
+                        >
+                          <View style={styles.assetLeft}>
+                            <View style={styles.assetIconWrapper}>
+                              <TrendingUp size={20} color={isValueBased ? "#48C9B0" : "#F5B041"} />
+                            </View>
+                            <View>
+                              <Text style={[styles.assetName, { color: colors.text }]}>{up.plan?.name}</Text>
+                              <Text style={[styles.assetDate, { color: colors.textMuted }]}>View Installments</Text>
+                            </View>
                           </View>
-                          <View>
-                            <Text style={[styles.assetName, { color: colors.text }]}>{up.plan?.name}</Text>
-                            <Text style={[styles.assetDate, { color: colors.textMuted }]}>View Installments</Text>
+                          <View style={styles.assetRight}>
+                            {isValueBased ? (
+                              <Text style={[styles.assetValue, { color: '#8D6E63' }]}>Rs.{up.totalPaid}</Text>
+                            ) : (
+                              <Text style={[styles.assetValue, { color: '#8D6E63' }]}>{((up.accumulatedWeight || up.totalWeight || 0).toFixed(3))}g</Text>
+                            )}
+                            <ArrowRight size={16} color={colors.textMuted} />
                           </View>
-                        </View>
-                        <View style={styles.assetRight}>
-                          {isValueBased ? (
-                            <Text style={[styles.assetValue, { color: '#8D6E63' }]}>Rs.{up.totalPaid}</Text>
-                          ) : (
-                            <Text style={[styles.assetValue, { color: '#8D6E63' }]}>{((up.accumulatedWeight || up.totalWeight || 0).toFixed(3))}g</Text>
-                          )}
-                          <ArrowRight size={16} color={colors.textMuted} />
-                        </View>
-                      </TouchableOpacity>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={[styles.payInstallmentBtn, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+                          onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { defaultCategory: up.plan?.name?.toUpperCase().includes('GOLD') ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: up.plan?.id, defaultAmount: up.monthlyAmount?.toString() } })}
+                        >
+                          <Text style={[styles.payInstallmentBtnText, { color: colors.primary }]}>Pay Monthly Installment</Text>
+                        </TouchableOpacity>
+                      </View>
                     );
                   });
                 })()}
@@ -345,6 +352,18 @@ const styles = StyleSheet.create({
   exploreBtnText: {
     color: '#FFF',
     fontWeight: 'bold',
+  },
+  payInstallmentBtn: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  payInstallmentBtnText: {
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   modalOverlay: {
     flex: 1,

@@ -100,6 +100,25 @@ const TransactionsScreen = () => {
             </View>
           )}
 
+          {type === 'PLAN' && route.params?.monthlyAmount && transactions.length < 11 && (
+            <View style={{ backgroundColor: colors.cardBackground, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20 }}>
+               <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 12 }}>Next Installment</Text>
+               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                 <View>
+                   <Text style={{ color: colors.textMuted, fontSize: 14 }}>Month {transactions.length + 1}</Text>
+                   <Text style={{ color: colors.text, fontSize: 14, marginTop: 4 }}>Monthly Installment: ₹{route.params.monthlyAmount}</Text>
+                   <Text style={{ color: '#E74C3C', fontSize: 14, fontWeight: 'bold', marginTop: 4 }}>PAYMENT DUE</Text>
+                 </View>
+                 <TouchableOpacity 
+                   style={{ backgroundColor: '#D4AF37', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
+                   onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { defaultCategory: metalType === 'GOLD' ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: route.params.basePlanId, defaultAmount: route.params.monthlyAmount?.toString() } })}
+                 >
+                   <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Pay ₹{route.params.monthlyAmount}</Text>
+                 </TouchableOpacity>
+               </View>
+            </View>
+          )}
+
           {transactions.length === 0 ? (
             <View style={styles.emptyState}>
               <Clock color={colors.textMuted} size={48} style={{ marginBottom: 16 }} />

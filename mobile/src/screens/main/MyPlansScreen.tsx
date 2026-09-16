@@ -49,7 +49,13 @@ const MyPlansScreen = () => {
     if (route.params?.defaultCategory) {
       setSelectedCategory(route.params.defaultCategory);
     }
-  }, [route.params?.defaultCategory]);
+    if (route.params?.defaultPlanId) {
+      setSelectedPlanId(route.params.defaultPlanId);
+    }
+    if (route.params?.defaultAmount) {
+      setInstallmentAmount(route.params.defaultAmount);
+    }
+  }, [route.params?.defaultCategory, route.params?.defaultPlanId, route.params?.defaultAmount]);
 
   useEffect(() => {
     fetchPlans();
@@ -88,10 +94,10 @@ const MyPlansScreen = () => {
             return false;
           });
           if (filtered.length > 0) {
-            setSelectedPlanId(filtered[0].id);
+            setSelectedPlanId(route.params?.defaultPlanId || filtered[0].id);
             setSelectedCategory(currentCategory);
           } else {
-            setSelectedPlanId(data.data[0].id);
+            setSelectedPlanId(route.params?.defaultPlanId || data.data[0].id);
             setSelectedCategory('Gold Schemes');
           }
         }
@@ -130,7 +136,7 @@ const MyPlansScreen = () => {
         if (currentCategory === 'Silver Schemes') return p.name.toLowerCase().includes('silver');
         return false;
       });
-      setSelectedPlanId(filtered[0].id);
+      setSelectedPlanId(route.params?.defaultPlanId || filtered[0].id);
       setSelectedCategory(currentCategory);
     } finally {
       setLoading(false);
@@ -266,20 +272,25 @@ const MyPlansScreen = () => {
             </View>
           )}
 
-          {/* Monthly Installment Amount */}
           <Text style={[styles.label, { color: colors.text }]}>Monthly Installment Amount (₹)</Text>
-          <View style={[styles.dropdownField, { backgroundColor: colors.cardBackground, borderColor: colors.border, paddingVertical: 4 }]}>
-            <Text style={{ color: colors.text, fontSize: 16, marginRight: 8 }}>₹</Text>
+          <View style={[styles.dropdownField, { backgroundColor: route.params?.defaultAmount ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border, paddingVertical: 4 }]}>
+            <Text style={{ color: route.params?.defaultAmount ? colors.textMuted : colors.text, fontSize: 16, marginRight: 8 }}>₹</Text>
             <TextInput
-              style={{ flex: 1, color: colors.text, fontSize: 16, paddingVertical: 8 }}
+              style={{ flex: 1, color: route.params?.defaultAmount ? colors.textMuted : colors.text, fontSize: 16, paddingVertical: 8 }}
               value={installmentAmount}
               onChangeText={setInstallmentAmount}
               placeholder="Enter amount"
               placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
               returnKeyType="done"
+              editable={!route.params?.defaultAmount}
             />
           </View>
+          {route.params?.defaultAmount && (
+            <Text style={{ fontSize: 12, color: colors.textMuted, fontStyle: 'italic', marginTop: -15, marginBottom: 20, marginLeft: 5 }}>
+              (Fixed monthly installment)
+            </Text>
+          )}
           {/* Estimated Weight Calculator */}
           {selectedPlan && (selectedPlan.type === 'GOLD' || selectedPlan.type === 'SILVER') && (
             <View style={{ marginBottom: 20, paddingHorizontal: 5 }}>

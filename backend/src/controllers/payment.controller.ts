@@ -26,8 +26,25 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
     const { amount, itemType, planId } = req.body;
+    let finalAmount = parseFloat(amount);
 
-    if (!amount || amount <= 0) {
+    if (planId) {
+      // Check if user is already enrolled in this plan
+      const existingJoin = await db.collection('userPlans')
+        .where('userId', '==', userId)
+        .where('planId', '==', planId)
+        .where('status', '==', 'ACTIVE')
+        .get();
+
+      if (!existingJoin.empty) {
+        const userPlan = existingJoin.docs[0]?.data();
+        if (userPlan && userPlan.monthlyAmount && userPlan.monthlyAmount > 0) {
+          finalAmount = userPlan.monthlyAmount;
+        }
+      }
+    }
+
+    if (!finalAmount || finalAmount <= 0) {
       return res.status(400).json({ success: false, message: 'Invalid amount' });
     }
 
@@ -40,14 +57,14 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
     const orderId = `ORDER_${userId.substring(0, 5)}_${Date.now()}`;
 
     // Call Cashfree API
-    const result = await cashfreeService.createOrder(orderId, amount, userId, phone);
+    const result = await cashfreeService.createOrder(orderId, finalAmount, userId, phone);
 
     if (result.success) {
       // Store pending order in DB
       await db.collection('orders').doc(orderId).set({
         orderId,
         userId,
-        amount,
+        amount: finalAmount,
         itemType,
         status: 'PENDING',
         paymentSessionId: result.paymentSessionId,
@@ -166,7 +183,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
                 startDate: startDate.toISOString(),
                 endDate: endDate.toISOString(),
                 nextPaymentDate: nextPaymentDate.toISOString(),
-                monthlyAmount: basePlan.schemeType === 'WEIGHT_BASED' ? 0 : parseFloat(amount),
+                monthlyAmount: parseFloat(amount),
                 metalType: basePlan.schemeType === 'WEIGHT_BASED' ? itemType : null,
                 accumulatedWeight: basePlan.schemeType === 'WEIGHT_BASED' ? 0 : null,
                 completedMonths: 0
