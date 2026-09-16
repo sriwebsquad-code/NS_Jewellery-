@@ -273,20 +273,20 @@ const MyPlansScreen = () => {
           )}
 
           <Text style={[styles.label, { color: colors.text }]}>Monthly Installment Amount (₹)</Text>
-          <View style={[styles.dropdownField, { backgroundColor: route.params?.defaultAmount ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border, paddingVertical: 4 }]}>
-            <Text style={{ color: route.params?.defaultAmount ? colors.textMuted : colors.text, fontSize: 16, marginRight: 8 }}>₹</Text>
+          <View style={[styles.dropdownField, { backgroundColor: route.params?.defaultAmount && Number(route.params.defaultAmount) > 0 ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border, paddingVertical: 4 }]}>
+            <Text style={{ color: route.params?.defaultAmount && Number(route.params.defaultAmount) > 0 ? colors.textMuted : colors.text, fontSize: 16, marginRight: 8 }}>₹</Text>
             <TextInput
-              style={{ flex: 1, color: route.params?.defaultAmount ? colors.textMuted : colors.text, fontSize: 16, paddingVertical: 8 }}
+              style={{ flex: 1, color: route.params?.defaultAmount && Number(route.params.defaultAmount) > 0 ? colors.textMuted : colors.text, fontSize: 16, paddingVertical: 8 }}
               value={installmentAmount}
               onChangeText={setInstallmentAmount}
               placeholder="Enter amount"
               placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
               returnKeyType="done"
-              editable={!route.params?.defaultAmount}
+              editable={!route.params?.defaultAmount || Number(route.params.defaultAmount) === 0}
             />
           </View>
-          {route.params?.defaultAmount && (
+          {route.params?.defaultAmount && Number(route.params.defaultAmount) > 0 && (
             <Text style={{ fontSize: 12, color: colors.textMuted, fontStyle: 'italic', marginTop: -15, marginBottom: 20, marginLeft: 5 }}>
               (Fixed monthly installment)
             </Text>
