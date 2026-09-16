@@ -18,7 +18,9 @@ class CashfreeService {
     
     // Automatically detect Sandbox vs Production based on App ID or Environment variables
     const isProd = process.env.CASHFREE_ENV === 'production' || 
-                   (!process.env.CASHFREE_ENV && this.pgAppId && !this.pgAppId.startsWith('TEST'));
+                   (!process.env.CASHFREE_ENV && 
+                    ((this.pgAppId && !this.pgAppId.startsWith('TEST')) || 
+                     (this.verifyAppId && !this.verifyAppId.startsWith('TEST'))));
     
     this.pgBaseUrl = isProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
     this.verifyBaseUrl = isProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
