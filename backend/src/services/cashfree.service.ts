@@ -16,14 +16,13 @@ class CashfreeService {
     this.verifyAppId = process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId;
     this.verifySecretKey = process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey;
     
-    // Automatically detect Sandbox vs Production based on App ID or Environment variables
-    const isProd = process.env.CASHFREE_ENV === 'production' || 
-                   (!process.env.CASHFREE_ENV && 
-                    ((this.pgAppId && !this.pgAppId.startsWith('TEST')) || 
-                     (this.verifyAppId && !this.verifyAppId.startsWith('TEST'))));
+    // Automatically detect Sandbox vs Production based on App ID
+    // Cashfree Sandbox App IDs ALWAYS start with 'TEST'
+    const isPgProd = this.pgAppId && !this.pgAppId.startsWith('TEST');
+    const isVerifyProd = this.verifyAppId && !this.verifyAppId.startsWith('TEST');
     
-    this.pgBaseUrl = isProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
-    this.verifyBaseUrl = isProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
+    this.pgBaseUrl = isPgProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
+    this.verifyBaseUrl = isVerifyProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
   }
 
   public getEnvironment() {

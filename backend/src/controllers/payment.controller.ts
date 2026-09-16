@@ -390,7 +390,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
 
 export const renderCheckoutPage = (req: Request, res: Response) => {
   const { sessionId } = req.params;
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd = cashfreeService.getEnvironment() === 'PRODUCTION';
   const sdkUrl = isProd ? 'https://sdk.cashfree.com/js/v3/cashfree.js' : 'https://sdk.cashfree.com/js/v3/cashfree.js';
 
   const html = `
