@@ -34,7 +34,7 @@ class CashfreeService {
       'x-client-id': this.pgAppId,
       'x-client-secret': this.pgSecretKey,
       'Content-Type': 'application/json',
-      'x-api-version': '2023-08-01'
+      'x-api-version': '2022-09-01'
     };
   }
 
@@ -43,7 +43,7 @@ class CashfreeService {
       'x-client-id': this.verifyAppId,
       'x-client-secret': this.verifySecretKey,
       'Content-Type': 'application/json',
-      'x-api-version': '2023-08-01'
+      'x-api-version': '2022-09-01'
     };
   }
 
