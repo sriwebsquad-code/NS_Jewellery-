@@ -100,6 +100,7 @@ const MyLockerScreen = () => {
                   style={[styles.gridBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
                   onPress={() => navigation.navigate('TransactionsScreen', { type: 'DIGITAL_GOLD', title: 'Digital Gold' })}
                 >
+                  <Image source={require('../../../assets/gold_coin.png')} style={styles.coinImage} />
                   <Text style={[styles.gridTitle, { color: colors.text }]}>Gold</Text>
                   <Text style={[styles.gridValue, { color: '#8D6E63' }]}>{goldBalance.toFixed(3)}g</Text>
                   <Text style={[styles.gridSubtext, { color: colors.textMuted }]}>if click Give transaction history</Text>
@@ -109,6 +110,7 @@ const MyLockerScreen = () => {
                   style={[styles.gridBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
                   onPress={() => navigation.navigate('TransactionsScreen', { type: 'DIGITAL_SILVER', title: 'Digital Silver' })}
                 >
+                  <Image source={require('../../../assets/silver_coin.png')} style={styles.coinImage} />
                   <Text style={[styles.gridTitle, { color: colors.text }]}>Silver</Text>
                   <Text style={[styles.gridValue, { color: '#8D6E63' }]}>{silverBalance.toFixed(3)}g</Text>
                   <Text style={[styles.gridSubtext, { color: colors.textMuted }]}>if click Give transaction history</Text>
@@ -259,6 +261,12 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  coinImage: {
+    width: 44,
+    height: 44,
+    marginBottom: 8,
+    resizeMode: 'contain',
   },
   gridTitle: {
     fontSize: 22,
