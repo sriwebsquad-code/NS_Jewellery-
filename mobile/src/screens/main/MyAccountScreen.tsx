@@ -233,19 +233,23 @@ const MyAccountScreen = () => {
 
       {/* Edit Profile Modal */}
       <Modal visible={isEditModalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Profile</Text>
-              <TouchableOpacity onPress={() => setIsEditModalVisible(false)}>
-                <X color={colors.text} size={24} />
-              </TouchableOpacity>
-            </View>
-            <KeyboardAvoidingView 
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
-              style={{ width: '100%' }}
-            >
-              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Profile</Text>
+                <TouchableOpacity onPress={() => setIsEditModalVisible(false)}>
+                  <X color={colors.text} size={24} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView 
+                showsVerticalScrollIndicator={false} 
+                contentContainerStyle={{ paddingBottom: 20 }}
+                keyboardShouldPersistTaps="handled"
+              >
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Full Name *</Text>
                 <View style={[styles.inputContainer, { borderColor: colors.border }]}>
                   <User color={COLORS.primary} size={20} style={styles.inputIcon} />
@@ -340,9 +344,9 @@ const MyAccountScreen = () => {
                   {isSaving ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
                 </TouchableOpacity>
               </ScrollView>
-            </KeyboardAvoidingView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
