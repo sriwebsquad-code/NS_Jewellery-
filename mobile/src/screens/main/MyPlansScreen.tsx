@@ -375,10 +375,22 @@ const MyPlansScreen = () => {
         <TouchableOpacity 
           style={[
             styles.proceedBtn, 
-            (!installmentAmount || isNaN(Number(installmentAmount))) && styles.proceedBtnDisabled
+            (!installmentAmount || isNaN(Number(installmentAmount)) || Number(installmentAmount) < 1000) && styles.proceedBtnDisabled
           ]}
-          disabled={!installmentAmount || isNaN(Number(installmentAmount))}
+          disabled={!installmentAmount || isNaN(Number(installmentAmount)) || Number(installmentAmount) < 1000}
           onPress={() => {
+            const numAmount = Number(installmentAmount);
+
+            if (!installmentAmount || isNaN(numAmount) || numAmount <= 0) {
+              Alert.alert('Amount Required', 'Please enter a valid installment amount.');
+              return;
+            }
+
+            if (numAmount < 1000) {
+              Alert.alert('Minimum Amount', 'Minimum installment amount is ₹1,000.');
+              return;
+            }
+
             if (user?.kycStatus !== 'VERIFIED') {
               Alert.alert(
                 "KYC Required",

@@ -19,28 +19,41 @@ const MyAccountScreen = () => {
 
   const [isEditModalVisible, setIsEditModalVisible] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [editForm, setEditForm] = React.useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    dob: user?.dob || '',
-    gender: user?.gender || '',
-    address: user?.address || '',
-    state: user?.state || '',
-    pincode: user?.pincode || '',
-  });
+  const [formName, setFormName] = React.useState(user?.name || '');
+  const [formEmail, setFormEmail] = React.useState(user?.email || '');
+  const [formDob, setFormDob] = React.useState(user?.dob || '');
+  const [formGender, setFormGender] = React.useState(user?.gender || '');
+  const [formAddress, setFormAddress] = React.useState(user?.address || '');
+  const [formState, setFormState] = React.useState(user?.state || '');
+  const [formPincode, setFormPincode] = React.useState(user?.pincode || '');
+
+  // Keep editForm as a derived object for save handler
+  const editForm = { name: formName, email: formEmail, dob: formDob, gender: formGender, address: formAddress, state: formState, pincode: formPincode };
   
   const [showDatePicker, setShowDatePicker] = React.useState(false);
   const [date, setDate] = React.useState(user?.dob ? new Date(user.dob) : new Date());
+
+  const openEditModal = () => {
+    // Reset all individual fields from latest user data when opening
+    setFormName(user?.name || '');
+    setFormEmail(user?.email || '');
+    setFormDob(user?.dob || '');
+    setFormGender(user?.gender || '');
+    setFormAddress(user?.address || '');
+    setFormState(user?.state || '');
+    setFormPincode(user?.pincode || '');
+    setDate(user?.dob ? new Date(user.dob) : new Date());
+    setIsEditModalVisible(true);
+  };
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
       setDate(selectedDate);
-      // Format as YYYY-MM-DD
       const year = selectedDate.getFullYear();
       const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
       const day = String(selectedDate.getDate()).padStart(2, '0');
-      setEditForm({...editForm, dob: `${year}-${month}-${day}`});
+      setFormDob(`${year}-${month}-${day}`);
     }
   };
 
@@ -78,18 +91,7 @@ const MyAccountScreen = () => {
           <Menu color={colors.text} size={28} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>My Account</Text>
-        <TouchableOpacity onPress={() => {
-          setEditForm({
-            name: user?.name || '',
-            email: user?.email || '',
-            dob: user?.dob || '',
-            gender: user?.gender || '',
-            address: user?.address || '',
-            state: user?.state || '',
-            pincode: user?.pincode || '',
-          });
-          setIsEditModalVisible(true);
-        }}>
+        <TouchableOpacity onPress={() => openEditModal()}>
           <Edit2 color={colors.primary} size={24} />
         </TouchableOpacity>
       </View>
@@ -247,20 +249,31 @@ const MyAccountScreen = () => {
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Full Name *</Text>
                 <View style={[styles.inputContainer, { borderColor: colors.border }]}>
                   <User color={COLORS.primary} size={20} style={styles.inputIcon} />
-                  <TextInput style={[styles.inputField, { color: colors.text }]} value={editForm.name} onChangeText={(t) => setEditForm({...editForm, name: t})} />
+                  <TextInput
+                    style={[styles.inputField, { color: colors.text }]}
+                    value={formName}
+                    onChangeText={setFormName}
+                    returnKeyType="next"
+                  />
                 </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Email Address (optional)</Text>
                 <View style={[styles.inputContainer, { borderColor: colors.border }]}>
                   <Mail color={COLORS.primary} size={20} style={styles.inputIcon} />
-                  <TextInput style={[styles.inputField, { color: colors.text }]} value={editForm.email} onChangeText={(t) => setEditForm({...editForm, email: t})} keyboardType="email-address" />
+                  <TextInput
+                    style={[styles.inputField, { color: colors.text }]}
+                    value={formEmail}
+                    onChangeText={setFormEmail}
+                    keyboardType="email-address"
+                    returnKeyType="next"
+                  />
                 </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Date of Birth *</Text>
                 <TouchableOpacity style={[styles.inputContainer, { borderColor: colors.border }]} onPress={() => setShowDatePicker(true)}>
                   <Calendar color={COLORS.primary} size={20} style={styles.inputIcon} />
-                  <Text style={[styles.inputField, { color: editForm.dob ? colors.text : colors.textMuted, paddingTop: Platform.OS === 'ios' ? 0 : 2, textAlignVertical: 'center' }]}>
-                    {editForm.dob || 'YYYY-MM-DD'}
+                  <Text style={[styles.inputField, { color: formDob ? colors.text : colors.textMuted, paddingTop: Platform.OS === 'ios' ? 0 : 2, textAlignVertical: 'center' }]}>
+                    {formDob || 'YYYY-MM-DD'}
                   </Text>
                 </TouchableOpacity>
                 {showDatePicker && (
@@ -275,31 +288,52 @@ const MyAccountScreen = () => {
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Gender *</Text>
                 <View style={styles.genderContainer}>
-                  {['Male', 'Female', 'Other'].map(g => (
+                  {(['Male', 'Female', 'Other'] as string[]).map(g => (
                     <TouchableOpacity 
                       key={g} 
-                      style={[styles.genderBtn, { borderColor: colors.border }, editForm.gender === g && styles.genderBtnSelected]}
-                      onPress={() => setEditForm({...editForm, gender: g})}
+                      style={[styles.genderBtn, { borderColor: colors.border }, formGender === g && styles.genderBtnSelected]}
+                      onPress={() => setFormGender(g)}
                     >
-                      <Text style={[styles.genderText, { color: colors.text }, editForm.gender === g && styles.genderTextSelected]}>{g}</Text>
+                      <Text style={[styles.genderText, { color: colors.text }, formGender === g && styles.genderTextSelected]}>{g}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Address *</Text>
-                <View style={[styles.inputContainer, { borderColor: colors.border, alignItems: 'flex-start' }]}>
-                  <MapPin color={COLORS.primary} size={20} style={[styles.inputIcon, { marginTop: 12 }]} />
-                  <TextInput style={[styles.inputField, { color: colors.text, minHeight: 60, textAlignVertical: 'top', paddingTop: 10 }]} value={editForm.address} onChangeText={(t) => setEditForm({...editForm, address: t})} multiline />
+                <View style={[styles.inputContainer, { borderColor: colors.border, alignItems: 'flex-start', minHeight: 80 }]}>
+                  <MapPin color={COLORS.primary} size={20} style={[styles.inputIcon, { marginTop: 14 }]} />
+                  <TextInput
+                    style={[styles.inputField, { color: colors.text, height: 70, textAlignVertical: 'top', paddingTop: 12 }]}
+                    value={formAddress}
+                    onChangeText={setFormAddress}
+                    multiline={true}
+                    numberOfLines={3}
+                    blurOnSubmit={true}
+                  />
                 </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>State *</Text>
-                <View style={[styles.inputContainer, { borderColor: colors.border }]}>
-                  <TextInput style={[styles.inputField, { color: colors.text, paddingLeft: 12 }]} value={editForm.state} onChangeText={(t) => setEditForm({...editForm, state: t})} />
+                <View style={[styles.inputContainer, { borderColor: colors.border, minHeight: 48 }]}>
+                  <TextInput
+                    style={[styles.inputField, { color: colors.text, paddingLeft: 15, height: 48 }]}
+                    value={formState}
+                    onChangeText={setFormState}
+                    placeholder="Enter state"
+                    placeholderTextColor={colors.textMuted}
+                    returnKeyType="next"
+                    blurOnSubmit={false}
+                  />
                 </View>
                 
                 <Text style={[styles.inputLabel, { color: colors.text }]}>Pincode *</Text>
-                <View style={[styles.inputContainer, { borderColor: colors.border }]}>
-                  <TextInput style={[styles.inputField, { color: colors.text, paddingLeft: 12 }]} value={editForm.pincode} onChangeText={(t) => setEditForm({...editForm, pincode: t})} keyboardType="number-pad" />
+                <View style={[styles.inputContainer, { borderColor: colors.border, minHeight: 48 }]}>
+                  <TextInput
+                    style={[styles.inputField, { color: colors.text, paddingLeft: 15, height: 48 }]}
+                    value={formPincode}
+                    onChangeText={setFormPincode}
+                    keyboardType="number-pad"
+                    returnKeyType="done"
+                  />
                 </View>
                 
                 <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={isSaving}>

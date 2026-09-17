@@ -66,6 +66,11 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Invalid amount' });
     }
 
+    // Enforce minimum installment of ₹1,000 for all scheme types
+    if (finalAmount < 1000) {
+      return res.status(400).json({ success: false, message: 'Minimum installment amount is ₹1,000.' });
+    }
+
     // Fetch user details for Cashfree
     const userDoc = await db.collection('users').doc(userId).get();
     const userData = userDoc.data();
