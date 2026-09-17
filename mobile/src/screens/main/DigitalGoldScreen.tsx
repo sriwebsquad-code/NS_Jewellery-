@@ -21,6 +21,7 @@ const DigitalGoldScreen = () => {
   const [lastEdited, setLastEdited] = useState<'amount'|'weight'>('amount');
   
   const [goldRate, setGoldRate] = useState<number | null>(null);
+  const [rateEffectiveDate, setRateEffectiveDate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,17 +30,20 @@ const DigitalGoldScreen = () => {
 
   const fetchRates = async () => {
     try {
-      const API_URL = ENV.BASE_URL; // local backend
+      const API_URL = ENV.BASE_URL;
       const response = await fetch(`${API_URL}/api/rates`);
       const data = await response.json();
       if (data.success && data.data && data.data.goldRate !== undefined && data.data.goldRate !== null) {
         setGoldRate(data.data.goldRate);
+        setRateEffectiveDate(data.data.effectiveDate || data.data.createdAt || null);
       } else {
         setGoldRate(0);
+        setRateEffectiveDate(null);
       }
     } catch (error) {
       console.log('Failed to fetch rates, using fallback:', error);
       setGoldRate(0);
+      setRateEffectiveDate(null);
     } finally {
       setIsLoading(false);
     }
@@ -114,11 +118,19 @@ const DigitalGoldScreen = () => {
       }
     }
     
-    const currentUTC = new Date();
-    const currentIST = new Date(currentUTC.getTime() + (5.5 * 60 * 60 * 1000));
-    const hours = currentIST.getUTCHours();
-    
-    if (hours < 11 || hours >= 18) {
+    // Check if today's rate has already been published by the admin.
+    // Use the same logic as the backend: effectiveDate must be today's date.
+    let isRateForToday = false;
+    if (rateEffectiveDate) {
+      const nowIST = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+      const rateIST = new Date(new Date(rateEffectiveDate).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+      isRateForToday =
+        rateIST.getFullYear() === nowIST.getFullYear() &&
+        rateIST.getMonth() === nowIST.getMonth() &&
+        rateIST.getDate() === nowIST.getDate();
+    }
+
+    if (!isRateForToday) {
       Alert.alert(
         "Important Notice",
         "THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF GOLD ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED. IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.",
