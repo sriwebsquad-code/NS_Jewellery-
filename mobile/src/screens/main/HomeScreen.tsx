@@ -421,7 +421,6 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
-  },
   rateTitle: {
     fontSize: 15,
     fontWeight: '900',
