@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Menu, Crown, Coins, BellRing, Clock } from 'lucide-react-native';
+import { Menu, Crown, Coins, BellRing, Clock, ChevronRight } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { Colors } from '../../constants/Colors';
@@ -134,7 +134,7 @@ const HomeScreen = () => {
           )}
         </TouchableOpacity>
       </View>
-      <View style={[styles.ratesRow, { marginTop: 10, paddingBottom: 10 }]}>
+      <View style={[styles.ratesRow, { marginTop: 4, paddingBottom: 6 }]}>
         {/* Gold Rate Card */}
         <View style={[styles.rateCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: mode === 'dark' ? 1 : 0 }]}>
           <Text style={[styles.rateTitle, { color: '#C89F7A' }]}>Gold Rate</Text>
@@ -159,7 +159,41 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
-      <Text style={[styles.updateText, { color: mode === 'dark' ? colors.gold : '#D4AF37', marginBottom: 15 }]}>Rate updated on {updatedDate}</Text>
+      <Text style={[styles.updateText, { color: mode === 'dark' ? colors.gold : '#D4AF37', marginBottom: 8 }]}>Rate updated on {updatedDate}</Text>
+
+      {/* My Digital Locker Card */}
+      {token && (
+        <TouchableOpacity
+          style={[styles.lockerCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: mode === 'dark' ? 1 : 0 }]}
+          onPress={() => navigation.navigate('My Locker')}
+          activeOpacity={0.85}
+        >
+          <View style={styles.lockerHeader}>
+            <Text style={[styles.lockerTitle, { color: colors.text }]}>My Digital Locker</Text>
+            <ChevronRight color={colors.textMuted} size={20} />
+          </View>
+          <View style={styles.lockerBalances}>
+            {/* Digi Gold */}
+            <View style={styles.lockerBalanceItem}>
+              <Image source={require('../../../assets/gold_coin.png')} style={{ width: 32, height: 32, resizeMode: 'contain', marginBottom: 4 }} />
+              <Text style={[styles.lockerBalanceLabel, { color: colors.textMuted }]}>Digi Gold</Text>
+              <Text style={[styles.lockerBalanceValue, { color: '#C89F7A' }]}>
+                {lockerData?.goldBalance != null ? Number(lockerData.goldBalance).toFixed(3) : '0.000'} g
+              </Text>
+            </View>
+            {/* Divider */}
+            <View style={[styles.lockerDivider, { backgroundColor: colors.border }]} />
+            {/* Digi Silver */}
+            <View style={styles.lockerBalanceItem}>
+              <Image source={require('../../../assets/silver_coin.png')} style={{ width: 32, height: 32, resizeMode: 'contain', marginBottom: 4 }} />
+              <Text style={[styles.lockerBalanceLabel, { color: colors.textMuted }]}>Digi Silver</Text>
+              <Text style={[styles.lockerBalanceValue, { color: '#8C92AC' }]}>
+                {lockerData?.silverBalance != null ? Number(lockerData.silverBalance).toFixed(3) : '0.000'} g
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      )}
       <ScrollView 
         style={{ flex: 1 }} 
         showsVerticalScrollIndicator={false}
@@ -365,27 +399,28 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 15,
-    marginTop: 35,
+    marginTop: 8,
   },
   rateCard: {
     backgroundColor: '#FFFFFF',
     flex: 1,
     marginHorizontal: 5,
-    borderRadius: 20,
-    padding: 15,
+    borderRadius: 16,
+    padding: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
   },
+  },
   rateTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '900',
     fontFamily: 'serif',
     color: '#333',
     textAlign: 'right',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   rateContent: {
     flexDirection: 'row',
@@ -505,7 +540,53 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     color: '#D4AF37',
     fontWeight: '900',
     fontSize: 14,
-  }
+  },
+  lockerCard: {
+    marginHorizontal: 15,
+    marginBottom: 12,
+    borderRadius: 16,
+    padding: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  lockerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  lockerTitle: {
+    fontSize: 15,
+    fontWeight: '900',
+    fontFamily: 'serif',
+  },
+  lockerBalances: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  lockerBalanceItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  lockerDivider: {
+    width: 1,
+    height: 50,
+    marginHorizontal: 10,
+  },
+  lockerBalanceLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  lockerBalanceValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    fontFamily: 'serif',
+  },
 });
 
 export default HomeScreen;
