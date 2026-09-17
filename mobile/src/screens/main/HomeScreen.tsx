@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Menu, Crown, Coins, BellRing, Clock, ChevronRight } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
@@ -34,6 +34,14 @@ const HomeScreen = () => {
     fetchDashboardData();
     fetchUnreadNotifications();
   }, []);
+
+  // Re-fetch unread count every time this screen comes into focus
+  // (e.g. user returns from the Notifications screen after reading notifications)
+  useFocusEffect(
+    useCallback(() => {
+      fetchUnreadNotifications();
+    }, [token])
+  );
 
   useEffect(() => {
     let index = 0;
