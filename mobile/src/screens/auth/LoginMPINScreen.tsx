@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Dimensions, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { Delete, Lock } from 'lucide-react-native';
@@ -110,7 +110,6 @@ const LoginMPINScreen = () => {
               <Lock color="#FFF" size={16} style={{ marginRight: 6 }} />
               <Text style={styles.buttonText}>{loading ? 'Unlocking...' : 'Unlock'}</Text>
             </View>
-            {loading && <ActivityIndicator color="#fff" size="small" style={{ marginLeft: 8 }} />}
           </LinearGradient>
         </TouchableOpacity>
 
