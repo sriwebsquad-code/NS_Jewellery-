@@ -183,7 +183,7 @@ const HomeScreen = () => {
           <View style={styles.lockerBalances}>
             {/* Digi Gold */}
             <View style={styles.lockerBalanceItem}>
-              <Image source={require('../../../assets/gold_coin.png')} style={{ width: 32, height: 32, resizeMode: 'contain', marginBottom: 4 }} />
+              <Image source={require('../../../assets/gold_coin.png')} style={{ width: 24, height: 24, resizeMode: 'contain', marginBottom: 4 }} />
               <Text style={[styles.lockerBalanceLabel, { color: colors.textMuted }]}>Digi Gold</Text>
               <Text style={[styles.lockerBalanceValue, { color: '#C89F7A' }]}>
                 {lockerData?.goldBalance != null ? Number(lockerData.goldBalance).toFixed(3) : '0.000'} g
@@ -193,7 +193,7 @@ const HomeScreen = () => {
             <View style={[styles.lockerDivider, { backgroundColor: colors.border }]} />
             {/* Digi Silver */}
             <View style={styles.lockerBalanceItem}>
-              <Image source={require('../../../assets/silver_coin.png')} style={{ width: 32, height: 32, resizeMode: 'contain', marginBottom: 4 }} />
+              <Image source={require('../../../assets/silver_coin.png')} style={{ width: 24, height: 24, resizeMode: 'contain', marginBottom: 4 }} />
               <Text style={[styles.lockerBalanceLabel, { color: colors.textMuted }]}>Digi Silver</Text>
               <Text style={[styles.lockerBalanceValue, { color: '#8C92AC' }]}>
                 {lockerData?.silverBalance != null ? Number(lockerData.silverBalance).toFixed(3) : '0.000'} g
@@ -549,10 +549,12 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     fontSize: 14,
   },
   lockerCard: {
-    marginHorizontal: 15,
+    alignSelf: 'center',
+    width: width - 30,
     marginBottom: 12,
     borderRadius: 16,
-    padding: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08,
@@ -563,7 +565,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 6,
   },
   lockerTitle: {
     fontSize: 15,
@@ -581,16 +583,16 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   },
   lockerDivider: {
     width: 1,
-    height: 50,
+    height: 36,
     marginHorizontal: 10,
   },
   lockerBalanceLabel: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
     marginBottom: 2,
   },
   lockerBalanceValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '900',
     fontFamily: 'serif',
   },
