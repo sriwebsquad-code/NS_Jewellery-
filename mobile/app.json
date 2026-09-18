@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "NS MAHAVEER JEWELLERY",
-    "slug": "ns-jewellery",
+    "slug": "ns-jewellery-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/new_logo.png",
@@ -61,9 +61,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "246bb4d2-78a9-4bf3-8377-58bf356e3bd4"
+        "projectId": "9852520a-baf6-4327-bd04-7a29fb027bc5"
       }
     },
-    "owner": "partho015s-team"
+    "owner": "lovelysriram"
   }
 }

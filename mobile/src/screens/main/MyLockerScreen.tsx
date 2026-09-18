@@ -260,6 +260,9 @@ const MyLockerScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  content: {
+    padding: 20,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

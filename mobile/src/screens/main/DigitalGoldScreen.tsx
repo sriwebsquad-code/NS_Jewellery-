@@ -147,7 +147,6 @@ const DigitalGoldScreen = () => {
   };
 
   return (
-  return (
     <SafeAreaView style={[styles.container, { backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8' }]}>
       {/* Custom Header */}
       <View style={[styles.header, { backgroundColor: mode === 'dark' ? colors.background : '#FDFCF8', borderBottomColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}>
