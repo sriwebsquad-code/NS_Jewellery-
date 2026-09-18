@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { Menu, Bell, ChevronRight, Coins, Sparkles } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
@@ -146,83 +147,83 @@ const DigitalSilverScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8' }]}>
       {/* Custom Header */}
-      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { backgroundColor: mode === 'dark' ? colors.background : '#FDFCF8', borderBottomColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Menu color={colors.text} size={28} />
+          <Menu color={mode === 'dark' ? colors.text : '#4A3424'} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerLogo, { color: colors.text }]}>NS Mahaveer DigiSilver</Text>
+        <Text style={[styles.headerLogo, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>NS Mahaveer DigiSilver</Text>
         <TouchableOpacity>
-          <Bell color={colors.text} size={24} />
+          <Bell color={mode === 'dark' ? colors.text : '#4A3424'} size={24} />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         {/* Premium Dark Banner */}
-        <View style={styles.banner}>
-          <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -20, bottom: -20, width: 140, height: 140, opacity: 0.15, resizeMode: 'contain' }} />
+        <LinearGradient
+          colors={['#B0B5B9', '#8C92AC', '#5C6370']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.banner}
+        >
+          <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={[styles.cardBgPattern, { opacity: 0.1 }]} />
           
           <View style={styles.bannerTopRow}>
             <Text style={styles.bannerTitle}>Digital Silver</Text>
             <TouchableOpacity style={styles.lockerBtn} onPress={() => navigation.navigate('AdvanceBookingsScreen')}>
               <Text style={styles.lockerText}>My Locker</Text>
-              <ChevronRight color={COLORS.primary} size={20} />
+              <ChevronRight color={'#4A3424'} size={16} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.metalsRow}>
-            <TouchableOpacity 
-              style={styles.metalOption} 
-              onPress={() => setActiveTab('silver')}
-            >
-              <View style={[styles.metalIconContainer, activeTab === 'silver' && styles.metalIconActive]}>
-                <Image source={require('../../../assets/silver_coin.png')} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
-              </View>
-              <Text style={[styles.metalLabel, activeTab === 'silver' && styles.metalLabelActive]}>999 Silver</Text>
-              <Text style={styles.metalPrice}>{silverRate ? `₹${silverRate}/g` : '₹ ---'}</Text>
-            </TouchableOpacity>
+            <Image source={require('../../../assets/premium_silver_coin_rupee.jpg')} style={styles.heroCoinImage} />
+            <View style={{ marginLeft: 20 }}>
+              <Text style={[styles.metalLabelActive, { fontSize: 16, color: '#FDFCF8' }]}>999 Silver</Text>
+              <Text style={[styles.metalPrice, { color: '#FFF' }]}>{silverRate ? `₹${silverRate}/g` : '₹ ---'}</Text>
+            </View>
           </View>
-        </View>
+        </LinearGradient>
 
         {/* Premium Input Card */}
-        <View style={[styles.inputCard, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
-          <Text style={[styles.calculatorTitle, { color: colors.text }]}>Investment Calculator</Text>
+        <View style={[styles.inputCard, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FDFCF8', shadowColor: '#000', borderColor: mode === 'dark' ? colors.border : '#EAEAEA', borderWidth: 1 }]}>
+          <Text style={[styles.calculatorTitle, { color: mode === 'dark' ? colors.text : '#333' }]}>Investment Calculator</Text>
           <View style={styles.inputRow}>
             <View style={styles.inputWrapper}>
-              <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Enter Amount:</Text>
+              <Text style={[styles.inputLabel, { color: mode === 'dark' ? colors.textMuted : '#888' }]}>ENTER AMOUNT:</Text>
               <View style={styles.inputField}>
-                <Text style={[styles.currencySymbol, { color: colors.text }]}>₹</Text>
+                <Text style={[styles.currencySymbol, { color: mode === 'dark' ? colors.text : '#333' }]}>₹</Text>
                 <TextInput 
-                  style={[styles.textInput, { color: colors.text }]}
+                  style={[styles.textInput, { color: mode === 'dark' ? colors.text : '#333' }]}
                   keyboardType="decimal-pad"
                   value={amount}
                   onChangeText={handleAmountChange}
                   placeholder="0"
-                  placeholderTextColor={colors.textMuted}
+                  placeholderTextColor={mode === 'dark' ? colors.textMuted : '#CCC'}
                 />
               </View>
-              <View style={[styles.dashedLine, { borderBottomColor: colors.border }]} />
+              <View style={[styles.dashedLine, { borderBottomColor: mode === 'dark' ? colors.border : '#EAEAEA' }]} />
             </View>
 
-            <View style={[styles.orBadge, { backgroundColor: mode === 'dark' ? '#333' : '#F0F0F0' }]}>
-              <Text style={[styles.orText, { color: colors.textMuted }]}>OR</Text>
+            <View style={[styles.orBadge, { backgroundColor: mode === 'dark' ? '#333' : '#FDFCF8', borderColor: '#EAEAEA', borderWidth: 1 }]}>
+              <Text style={[styles.orText, { color: mode === 'dark' ? colors.textMuted : '#888' }]}>OR</Text>
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Enter Weight:</Text>
+              <Text style={[styles.inputLabel, { color: mode === 'dark' ? colors.textMuted : '#888', textAlign: 'right' }]}>ENTER WEIGHT:</Text>
               <View style={styles.inputField}>
                 <TextInput 
-                  style={[styles.textInput, {textAlign: 'right', color: colors.text }]}
+                  style={[styles.textInput, {textAlign: 'right', color: mode === 'dark' ? colors.text : '#333' }]}
                   keyboardType="decimal-pad"
                   value={weight}
                   onChangeText={handleWeightChange}
                   placeholder="0"
-                  placeholderTextColor={colors.textMuted}
+                  placeholderTextColor={mode === 'dark' ? colors.textMuted : '#CCC'}
                 />
-                <Text style={[styles.currencySymbol, { color: colors.text }]}>g</Text>
+                <Text style={[styles.currencySymbol, { color: mode === 'dark' ? colors.text : '#333' }]}>g</Text>
               </View>
-              <View style={[styles.dashedLine, { borderBottomColor: colors.border }]} />
+              <View style={[styles.dashedLine, { borderBottomColor: mode === 'dark' ? colors.border : '#EAEAEA' }]} />
             </View>
           </View>
 
@@ -262,18 +263,25 @@ const DigitalSilverScreen = () => {
 
           <View style={styles.buttonRow}>
             <TouchableOpacity 
-              style={[styles.buyBtn, styles.cancelBtn]} 
+              style={[styles.buyBtn, styles.cancelBtn, { borderColor: '#D4AF37', backgroundColor: 'transparent', borderWidth: 1 }]} 
               onPress={() => navigation.goBack()}
             >
-              <Text style={[styles.buyBtnText, { color: COLORS.secondary }]}>Cancel</Text>
+              <Text style={[styles.buyBtnText, { color: '#D4AF37' }]}>Cancel</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={[styles.buyBtn, (!amount || parseFloat(amount) <= 0) && styles.buyBtnDisabled]} 
+              style={[{ flex: 1, marginLeft: 15 }, (!amount || parseFloat(amount) <= 0) && { opacity: 0.5 }]} 
               onPress={handleBuy}
               disabled={!amount || parseFloat(amount) <= 0}
             >
-              <Text style={styles.buyBtnText}>Buy Now</Text>
+              <LinearGradient
+                colors={['#D4AF37', '#A87B4C']}
+                style={[styles.buyBtn, { width: '100%' }]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={[styles.buyBtnText, { color: '#FFF' }]}>Buy Now</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -302,18 +310,35 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     color: COLORS.secondary,
   },
   banner: {
-    backgroundColor: '#34495E', // A slightly different dark color for silver theme
     padding: 24,
     paddingBottom: 40,
     marginHorizontal: 15,
     borderRadius: 24,
     marginTop: 20,
     overflow: 'hidden',
-    shadowColor: '#2C3E50',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 15,
     elevation: 8,
+  },
+  cardBgPattern: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.15,
+    resizeMode: 'cover',
+  },
+  heroCoinImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
   },
   bannerTopRow: {
     flexDirection: 'row',

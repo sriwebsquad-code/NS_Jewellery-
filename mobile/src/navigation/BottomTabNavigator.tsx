@@ -24,13 +24,13 @@ const BottomTabNavigator = () => {
       tabBarPosition="bottom"
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: '#D4AF37',
-        tabBarInactiveTintColor: colors.textMuted,
+        tabBarInactiveTintColor: mode === 'dark' ? colors.textMuted : '#8C7A6B',
         tabBarShowIcon: true,
         tabBarShowLabel: true,
         tabBarStyle: {
-          backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFFFFF',
+          backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8',
           borderTopWidth: 1,
-          borderTopColor: colors.border,
+          borderTopColor: mode === 'dark' ? colors.border : '#EAEAEA',
           height: 65,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
@@ -42,11 +42,13 @@ const BottomTabNavigator = () => {
           fontSize: 10,
           marginTop: 2,
           fontFamily: 'sans-serif',
-          fontWeight: '600',
+          fontWeight: '700',
         },
         tabBarIndicatorStyle: {
           backgroundColor: '#D4AF37',
           height: 3,
+          borderBottomLeftRadius: 3,
+          borderBottomRightRadius: 3,
         },
         tabBarIcon: ({ focused, color, size = 24 }: any) => {
           let IconComponent;

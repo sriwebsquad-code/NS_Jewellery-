@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
-import { Menu, ArrowRight, TrendingUp, ChevronDown, CheckCircle2, Circle } from 'lucide-react-native';
+import { Menu, TrendingUp, ChevronDown, CheckCircle2, Circle, ChevronRight } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { ENV } from '../../config/env';
@@ -61,19 +62,19 @@ const MyLockerScreen = () => {
   const silverBalance = lockerData?.locker?.silverBalance || 0;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8' }]}>
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { backgroundColor: mode === 'dark' ? colors.background : '#FDFCF8', borderBottomColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Menu color={colors.text} size={28} />
+          <Menu color={mode === 'dark' ? colors.text : '#4A3424'} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>My Locker</Text>
+        <Text style={[styles.headerTitle, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>My Locker</Text>
         <View style={{ width: 28 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Tab Switcher */}
-        <View style={[styles.tabContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+        <View style={[styles.tabContainer, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#F3E5D8', borderColor: mode === 'dark' ? colors.border : '#F3E5D8', borderRadius: 25, padding: 4 }]}>
           <TouchableOpacity 
             style={[styles.tabBtn, activeTab === 'COINS' && styles.activeTabBtn]} 
             onPress={() => setActiveTab('COINS')}
@@ -95,25 +96,49 @@ const MyLockerScreen = () => {
         ) : (
           <View style={styles.tabContent}>
             {activeTab === 'COINS' ? (
-              <View style={styles.gridContainer}>
+              <View style={{ gap: 15 }}>
                 <TouchableOpacity 
-                  style={[styles.gridBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
                   onPress={() => navigation.navigate('TransactionsScreen', { type: 'DIGITAL_GOLD', title: 'Digital Gold' })}
+                  activeOpacity={0.9}
                 >
-                  <Image source={require('../../../assets/gold_coin.png')} style={styles.coinImage} />
-                  <Text style={[styles.gridTitle, { color: colors.text }]}>Gold</Text>
-                  <Text style={[styles.gridValue, { color: '#8D6E63' }]}>{goldBalance.toFixed(3)}g</Text>
-                  <Text style={[styles.gridSubtext, { color: colors.textMuted }]}>if click Give transaction history</Text>
+                  <LinearGradient
+                    colors={['#C89F7A', '#A87B4C', '#6A4C25']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.balanceCardGradient}
+                  >
+                    <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={styles.cardBgPattern} />
+                    <View style={styles.balanceCardContent}>
+                      <Image source={require('../../../assets/premium_gold_coin_rupee.jpg')} style={styles.balanceCoinImage} />
+                      <View style={{ flex: 1, marginLeft: 15 }}>
+                        <Text style={styles.balanceLabel}>Gold Balance</Text>
+                        <Text style={styles.balanceValue}>{goldBalance.toFixed(3)} g</Text>
+                      </View>
+                      <ChevronRight size={24} color="#FFF" />
+                    </View>
+                  </LinearGradient>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={[styles.gridBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
                   onPress={() => navigation.navigate('TransactionsScreen', { type: 'DIGITAL_SILVER', title: 'Digital Silver' })}
+                  activeOpacity={0.9}
                 >
-                  <Image source={require('../../../assets/silver_coin.png')} style={styles.coinImage} />
-                  <Text style={[styles.gridTitle, { color: colors.text }]}>Silver</Text>
-                  <Text style={[styles.gridValue, { color: '#8D6E63' }]}>{silverBalance.toFixed(3)}g</Text>
-                  <Text style={[styles.gridSubtext, { color: colors.textMuted }]}>if click Give transaction history</Text>
+                  <LinearGradient
+                    colors={['#B0B5B9', '#8C92AC', '#5C6370']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.balanceCardGradient}
+                  >
+                    <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={[styles.cardBgPattern, { opacity: 0.1 }]} />
+                    <View style={styles.balanceCardContent}>
+                      <Image source={require('../../../assets/premium_silver_coin_rupee.jpg')} style={styles.balanceCoinImage} />
+                      <View style={{ flex: 1, marginLeft: 15 }}>
+                        <Text style={styles.balanceLabel}>Silver Balance</Text>
+                        <Text style={styles.balanceValue}>{silverBalance.toFixed(3)} g</Text>
+                      </View>
+                      <ChevronRight size={24} color="#FFF" />
+                    </View>
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -122,10 +147,10 @@ const MyLockerScreen = () => {
                   <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 15 }}>
                     <TouchableOpacity 
                       onPress={() => setShowFilterModal(true)}
-                      style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cardBackground, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: colors.border }}
+                      style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFF', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: mode === 'dark' ? colors.border : '#EAEAEA', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 }}
                     >
-                      <Text style={{ color: colors.text, marginRight: 6, fontWeight: '500' }}>{filterStatus}</Text>
-                      <ChevronDown size={16} color={colors.text} />
+                      <Text style={{ color: mode === 'dark' ? colors.text : '#333', marginRight: 6, fontWeight: '500' }}>{filterStatus}</Text>
+                      <ChevronDown size={16} color={mode === 'dark' ? colors.text : '#333'} />
                     </TouchableOpacity>
                   </View>
                 )}
@@ -159,35 +184,35 @@ const MyLockerScreen = () => {
                         <TouchableOpacity 
                           style={[
                             styles.assetCard, 
-                            { backgroundColor: colors.cardBackground, borderColor: colors.border },
+                            { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FDFCF8', borderColor: mode === 'dark' ? colors.border : '#EAEAEA', shadowColor: '#D4AF37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
                             up.status === 'ACTIVE' ? { marginBottom: 0, borderBottomWidth: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 } : {}
                           ]}
                           onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER'), schemeType: up.plan?.schemeType, monthlyAmount: up.monthlyAmount, createdAt: up.createdAt, basePlanId: up.plan?.id, status: up.status })}
                         >
                           <View style={styles.assetLeft}>
-                            <View style={styles.assetIconWrapper}>
-                              <TrendingUp size={20} color={isValueBased ? "#48C9B0" : "#F5B041"} />
+                            <View style={[styles.assetIconWrapper, { backgroundColor: 'transparent', padding: 0 }]}>
+                              <Image source={isValueBased ? require('../../../assets/scheme_value_icon.jpg') : require('../../../assets/scheme_weight_icon.jpg')} style={{ width: 44, height: 44, borderRadius: 12 }} />
                             </View>
                             <View>
-                              <Text style={[styles.assetName, { color: colors.text }]}>{up.plan?.name}</Text>
-                              <Text style={[styles.assetDate, { color: colors.textMuted }]}>View Installments</Text>
+                              <Text style={[styles.assetName, { color: mode === 'dark' ? colors.text : '#333', fontFamily: 'serif' }]}>{up.plan?.name}</Text>
+                              <Text style={[styles.assetDate, { color: mode === 'dark' ? colors.textMuted : '#888' }]}>View Installments</Text>
                             </View>
                           </View>
                           <View style={styles.assetRight}>
                             {isValueBased ? (
-                              <Text style={[styles.assetValue, { color: '#8D6E63' }]}>Rs.{up.totalPaid}</Text>
+                              <Text style={[styles.assetValue, { color: mode === 'dark' ? colors.text : '#333' }]}>Rs.{up.totalPaid}</Text>
                             ) : (
-                              <Text style={[styles.assetValue, { color: '#8D6E63' }]}>{((up.accumulatedWeight || up.totalWeight || 0).toFixed(3))}g</Text>
+                              <Text style={[styles.assetValue, { color: mode === 'dark' ? colors.text : '#333' }]}>{((up.accumulatedWeight || up.totalWeight || 0).toFixed(3))}g</Text>
                             )}
-                            <ArrowRight size={16} color={colors.textMuted} />
+                            <ChevronRight size={16} color={'#D4AF37'} />
                           </View>
                         </TouchableOpacity>
                         {up.status === 'ACTIVE' && (
                           <TouchableOpacity 
-                            style={[styles.payInstallmentBtn, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+                            style={[styles.payInstallmentBtn, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FDFCF8', borderColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}
                             onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { enrollmentId: up.id, defaultCategory: up.plan?.name?.toUpperCase().includes('GOLD') ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: up.plan?.id, defaultAmount: up.monthlyAmount?.toString() } })}
                           >
-                            <Text style={[styles.payInstallmentBtnText, { color: colors.primary }]}>Pay Monthly Installment</Text>
+                            <Text style={[styles.payInstallmentBtnText, { color: '#C19A5B' }]}>Pay Monthly Installment</Text>
                           </TouchableOpacity>
                         )}
                       </View>
@@ -247,40 +272,49 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'serif',
   },
-  content: { padding: 20 },
-  gridContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  gridBox: {
-    width: '48%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    borderWidth: 1,
+  balanceCardGradient: {
+    borderRadius: 16,
     padding: 20,
-    justifyContent: 'center',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  cardBgPattern: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.15,
+    resizeMode: 'cover',
+  },
+  balanceCardContent: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  coinImage: {
-    width: 44,
-    height: 44,
-    marginBottom: 8,
-    resizeMode: 'contain',
+  balanceCoinImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
-  gridTitle: {
-    fontSize: 22,
+  balanceLabel: {
+    fontSize: 14,
+    color: '#FFF',
+    fontFamily: 'serif',
+    marginBottom: 4,
+  },
+  balanceValue: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  gridValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  gridSubtext: {
-    fontSize: 10,
-    textAlign: 'center',
+    color: '#FFF',
   },
   tabContainer: {
     flexDirection: 'row',

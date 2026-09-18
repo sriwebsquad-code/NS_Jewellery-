@@ -3,7 +3,8 @@ import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIn
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
-import { Menu, ChevronDown, Calendar, Check } from 'lucide-react-native';
+import { Menu, ChevronDown, Calendar, Check, Shield, ChevronRight } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { ENV } from '../../config/env';
@@ -219,34 +220,34 @@ const MyPlansScreen = () => {
   const isLocked = (activeJoin && activeJoin.monthlyAmount > 0) || (route.params?.defaultAmount && Number(route.params.defaultAmount) > 0) || isEnrolledContext;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8' }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: mode === 'dark' ? colors.background : '#FDFCF8', borderBottomColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}>
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.iconBtn}>
-          <Menu color={colors.text} size={28} />
+          <Menu color={mode === 'dark' ? colors.text : '#4A3424'} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerLogo, { color: colors.text }]}>NS Mahaveer Schemes</Text>
+        <Text style={[styles.headerLogo, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>NS Mahaveer Schemes</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           
-          <Text style={[styles.pageTitle, { color: titleColor }]}>
+          <Text style={[styles.pageTitle, { color: mode === 'dark' ? titleColor : '#4A3424' }]}>
             {isGold ? 'Gold Saving Scheme' : (isSilver ? 'Silver Saving Scheme' : 'Standard Saving Scheme')}
           </Text>
 
           {/* Scheme Category Dropdown */}
-          <Text style={[styles.label, { color: colors.text }]}>Select Scheme Category</Text>
+          <Text style={[styles.label, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>SELECT SCHEME CATEGORY</Text>
           <TouchableOpacity 
-            style={[styles.dropdownField, { backgroundColor: isEnrolledContext ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border }]}
+            style={[styles.dropdownField, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFF', borderColor: mode === 'dark' ? colors.border : '#EAEAEA', opacity: isEnrolledContext ? 0.7 : 1 }]}
             activeOpacity={0.8}
             onPress={() => {
                if (!isEnrolledContext) setShowCategoryDropdown(!showCategoryDropdown);
             }}
           >
-            <Text style={[styles.dropdownText, { color: colors.text }]}>{selectedCategory}</Text>
-            <ChevronDown color={colors.icon} size={24} />
+            <Text style={[styles.dropdownText, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>{selectedCategory}</Text>
+            <ChevronDown color={mode === 'dark' ? colors.icon : '#C89F7A'} size={24} />
           </TouchableOpacity>
           
           {showCategoryDropdown && (
@@ -264,16 +265,16 @@ const MyPlansScreen = () => {
           )}
 
           {/* Scheme Name Dropdown */}
-          <Text style={[styles.label, { color: colors.text }]}>Select Scheme Name</Text>
+          <Text style={[styles.label, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>SELECT SCHEME NAME</Text>
           <TouchableOpacity 
-            style={[styles.dropdownField, { backgroundColor: isEnrolledContext ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border }]}
+            style={[styles.dropdownField, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFF', borderColor: mode === 'dark' ? colors.border : '#EAEAEA', opacity: isEnrolledContext ? 0.7 : 1 }]}
             activeOpacity={0.8}
             onPress={() => {
                if (!isEnrolledContext) setShowPlanDropdown(!showPlanDropdown);
             }}
           >
-            <Text style={[styles.dropdownText, { color: colors.text }]}>{selectedPlan ? formatPlanName(selectedPlan.name, selectedPlan.schemeType, selectedPlan.metalType) : 'No Plans Found'}</Text>
-            <ChevronDown color={colors.icon} size={24} />
+            <Text style={[styles.dropdownText, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>{selectedPlan ? formatPlanName(selectedPlan.name, selectedPlan.schemeType, selectedPlan.metalType) : 'No Plans Found'}</Text>
+            <ChevronDown color={mode === 'dark' ? colors.icon : '#C89F7A'} size={24} />
           </TouchableOpacity>
 
           {showPlanDropdown && (
@@ -297,15 +298,15 @@ const MyPlansScreen = () => {
             </View>
           )}
 
-          <Text style={[styles.label, { color: colors.text }]}>Monthly Installment Amount (₹)</Text>
-          <View style={[styles.dropdownField, { backgroundColor: isLocked ? colors.backgroundSecondary : colors.cardBackground, borderColor: colors.border, paddingVertical: 4 }]}>
-            <Text style={{ color: isLocked ? colors.textMuted : colors.text, fontSize: 16, marginRight: 8 }}>₹</Text>
+          <Text style={[styles.label, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>MONTHLY INSTALLMENT AMOUNT (₹)</Text>
+          <View style={[styles.dropdownField, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFF', borderColor: mode === 'dark' ? colors.border : '#EAEAEA', paddingVertical: 4, opacity: isLocked ? 0.7 : 1 }]}>
+            <Text style={{ color: mode === 'dark' ? colors.text : '#333', fontSize: 18, marginRight: 8, fontWeight: 'bold' }}>₹</Text>
             <TextInput
-              style={{ flex: 1, color: isLocked ? colors.textMuted : colors.text, fontSize: 16, paddingVertical: 8 }}
+              style={{ flex: 1, color: mode === 'dark' ? colors.text : '#333', fontSize: 18, paddingVertical: 12, fontWeight: 'bold' }}
               value={installmentAmount}
               onChangeText={setInstallmentAmount}
               placeholder="Enter amount"
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={mode === 'dark' ? colors.textMuted : '#CCC'}
               keyboardType="numeric"
               returnKeyType="done"
               editable={!isLocked}
@@ -344,22 +345,27 @@ const MyPlansScreen = () => {
           {/* Duration Indicator */}
           {selectedPlan && (
             <View style={styles.durationContainer}>
-              <Calendar color={colors.icon} size={18} style={{ marginRight: 6 }} />
-              <Text style={[styles.durationText, { color: colors.textMuted }]}>Plan Duration <Text style={[styles.durationTextBold, { color: colors.text }]}>{selectedPlan.durationMonths} months</Text></Text>
+              <View style={[styles.durationPill, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFF' }]}>
+                <Calendar color={'#D4AF37'} size={18} style={{ marginRight: 8 }} />
+                <Text style={[styles.durationText, { color: mode === 'dark' ? colors.textMuted : '#888' }]}>Plan Duration <Text style={[styles.durationTextBold, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>{selectedPlan.durationMonths} months</Text></Text>
+              </View>
             </View>
           )}
 
           {/* Benefits Card */}
           {selectedPlan && (
-            <View style={[styles.benefitsCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-              <View style={[styles.benefitsAccent, { backgroundColor: titleColor }]} />
-              <Text style={[styles.benefitsTitle, { color: colors.text }]}>Benefits</Text>
+            <View style={[styles.benefitsCard, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFF', borderColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}>
+              <View style={[styles.benefitsAccent, { backgroundColor: '#D4AF37' }]} />
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15, marginLeft: 10 }}>
+                <Shield color="#D4AF37" size={22} style={{ marginRight: 8 }} />
+                <Text style={[styles.benefitsTitle, { color: mode === 'dark' ? colors.text : '#4A3424', marginBottom: 0, marginLeft: 0 }]}>Benefits</Text>
+              </View>
               
               <View style={styles.benefitsList}>
                 {parsedBenefits.map((benefit, idx) => (
                   <View key={idx} style={styles.benefitRow}>
-                    <Check color={titleColor} size={20} style={{ marginRight: 8, marginTop: 2 }} strokeWidth={3} />
-                    <Text style={[styles.benefitText, { color: colors.textMuted }]}>{benefit.toUpperCase()}</Text>
+                    <Check color={'#D4AF37'} size={18} style={{ marginRight: 8, marginTop: 2 }} strokeWidth={3} />
+                    <Text style={[styles.benefitText, { color: mode === 'dark' ? colors.textMuted : '#6A4C25' }]}>{benefit.toUpperCase()}</Text>
                   </View>
                 ))}
               </View>
@@ -371,12 +377,9 @@ const MyPlansScreen = () => {
       </KeyboardAvoidingView>
 
       {/* Proceed Button Fixed at Bottom */}
-      <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+      <View style={[styles.bottomBar, { backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8', borderTopColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}>
         <TouchableOpacity 
-          style={[
-            styles.proceedBtn, 
-            (!installmentAmount || isNaN(Number(installmentAmount)) || Number(installmentAmount) < 1000) && styles.proceedBtnDisabled
-          ]}
+          style={[{ opacity: (!installmentAmount || isNaN(Number(installmentAmount)) || Number(installmentAmount) < 1000) ? 0.5 : 1 }]}
           disabled={!installmentAmount || isNaN(Number(installmentAmount)) || Number(installmentAmount) < 1000}
           onPress={() => {
             const numAmount = Number(installmentAmount);
@@ -449,7 +452,15 @@ const MyPlansScreen = () => {
             }
           }}
         >
-          <Text style={styles.proceedBtnText}>Proceed</Text>
+          <LinearGradient
+            colors={['#D4AF37', '#A87B4C']}
+            style={styles.proceedBtn}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={styles.proceedBtnText}>Proceed</Text>
+            <ChevronRight color={'#FFF'} size={20} />
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -494,34 +505,36 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     letterSpacing: 0.5,
   },
   label: {
-    fontSize: 14,
-    color: '#333',
+    fontSize: 12,
     fontWeight: '600',
     marginBottom: 8,
     marginLeft: 5,
+    letterSpacing: 0.5,
   },
   dropdownField: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F5F6F8',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   dropdownText: {
     fontSize: 16,
-    color: '#000',
     fontWeight: '500',
   },
   dropdownList: {
     backgroundColor: '#FFF',
     borderWidth: 1,
     borderColor: '#E8E8E8',
-    borderRadius: 12,
+    borderRadius: 20,
     marginTop: -15,
     marginBottom: 20,
     padding: 5,
@@ -563,22 +576,35 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     alignItems: 'center',
     marginBottom: 25,
   },
+  durationPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   durationText: {
     fontSize: 15,
-    color: '#4A4A4A',
   },
   durationTextBold: {
     fontWeight: 'bold',
-    color: '#2C3E50',
   },
   benefitsCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#E1F0FF', // light blue border like screenshot
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   benefitsAccent: {
     position: 'absolute',
@@ -592,9 +618,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   benefitsTitle: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#2B1B3D',
-    marginBottom: 15,
-    marginLeft: 10,
+    fontFamily: 'serif',
   },
   benefitsList: {
     marginLeft: 5,
@@ -607,7 +631,6 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   benefitText: {
     flex: 1,
     fontSize: 12,
-    color: '#7F8C8D',
     fontWeight: '600',
     lineHeight: 18,
     letterSpacing: 0.5,
@@ -615,31 +638,26 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   bottomBar: {
     padding: 20,
     paddingBottom: Platform.OS === 'ios' ? 30 : 20,
-    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   proceedBtn: {
-    backgroundColor: mode === 'dark' ? colors.primary : '#F1C40F', // vibrant yellow
+    flexDirection: 'row',
     borderRadius: 30,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: mode === 'dark' ? colors.primary : '#F1C40F',
+    justifyContent: 'center',
+    shadowColor: '#D4AF37',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
-  proceedBtnDisabled: {
-    backgroundColor: mode === 'dark' ? colors.border : '#E5E7E9',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
   proceedBtnText: {
-    color: mode === 'dark' ? '#000000' : '#FFFFFF',
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
     letterSpacing: 1,
+    marginRight: 8,
   }
 });
 

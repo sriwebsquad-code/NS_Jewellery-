@@ -154,7 +154,7 @@ const CatalogueScreen = () => {
 
         {loading ? (
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
+            <ActivityIndicator size="large" color={'#D4AF37'} />
           </View>
         ) : (
           <FlatList
@@ -169,6 +169,19 @@ const CatalogueScreen = () => {
             contentContainerStyle={styles.listContainer}
             columnWrapperStyle={styles.row}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyStateContainer}>
+                <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={[styles.cardBgPattern, { opacity: 0.2 }]} />
+                <Image 
+                  source={require('../../../assets/empty_state_bust.jpg')} 
+                  style={styles.emptyStateImage}
+                />
+                <Text style={styles.emptyStateTitle}>No Collections Found</Text>
+                <Text style={styles.emptyStateSubtitle}>
+                  Start exploring our beautiful collections and find your perfect piece.
+                </Text>
+              </View>
+            )}
           />
         )}
       </View>
@@ -318,6 +331,43 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   },
   jewelleryPurity: {
     display: 'none',
+  },
+  emptyStateContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 50,
+    paddingHorizontal: 20,
+    position: 'relative',
+  },
+  cardBgPattern: {
+    position: 'absolute',
+    bottom: -100,
+    right: -50,
+    width: 250,
+    height: 250,
+    resizeMode: 'contain',
+  },
+  emptyStateImage: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 20,
+  },
+  emptyStateTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#4A3424',
+    fontFamily: 'serif',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  emptyStateSubtitle: {
+    fontSize: 14,
+    color: '#6A4C25',
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 30,
   }
 });
 

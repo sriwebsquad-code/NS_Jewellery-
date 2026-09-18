@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
-import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, Image } from 'react-native';
+import { DrawerContentScrollView } from '@react-navigation/drawer';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
-import { COLORS, SIZES } from '../constants/theme';
-import { LogOut, Home, User, Calendar, BookOpen, FileText, Phone, RotateCcw, Lock, TrendingUp, Moon, Sun } from 'lucide-react-native';
+import { COLORS } from '../constants/theme';
+import { LogOut, Home, User, BookOpen, FileText, Phone, RotateCcw, Lock, Moon, Sun, ChevronRight } from 'lucide-react-native';
 
 const CustomDrawer = (props: any) => {
   const { user, logout } = useAuthStore();
@@ -12,14 +13,24 @@ const CustomDrawer = (props: any) => {
 
   return (
     <View style={styles.container}>
-      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 40 }}>
+      <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={styles.cardBgPattern} />
+      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 20 }}>
         {/* Header / Brand Area */}
         <View style={styles.header}>
-          <View style={styles.avatar}>
+          <LinearGradient
+            colors={['#D4AF37', '#A87B4C']}
+            style={styles.avatar}
+          >
             <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'U'}</Text>
-          </View>
+          </LinearGradient>
           <Text style={styles.userName}>{user?.name || 'Customer'}</Text>
           <Text style={styles.userPhone}>{user?.phone}</Text>
+          
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerIcon}>🪷</Text>
+            <View style={styles.dividerLine} />
+          </View>
         </View>
 
         {/* Custom Navigation Items */}
@@ -40,40 +51,67 @@ const CustomDrawer = (props: any) => {
 
       </DrawerContentScrollView>
 
-      <View style={styles.developerContainer}>
-        <Text style={styles.developerText}>
-          developed by : <Text style={styles.textBlack}>Sri Web Squad</Text>
-        </Text>
-      </View>
-
-      <View style={styles.themeToggleContainer}>
-        <View style={styles.themeToggleLeft}>
-          {mode === 'dark' ? <Moon color={'#8B6508'} size={20} /> : <Sun color={'#8B6508'} size={20} />}
-          <Text style={styles.themeToggleText}>Dark Mode</Text>
+      <View style={{ paddingHorizontal: 15, paddingBottom: 20 }}>
+        <View style={styles.developerContainer}>
+          <Text style={styles.developerText}>
+            developed by : <Text style={styles.textBlack}>Sri Web Squad</Text>
+          </Text>
         </View>
-        <Switch 
-          value={mode === 'dark'}
-          onValueChange={toggleTheme}
-          trackColor={{ false: '#767577', true: COLORS.primary }}
-          thumbColor={mode === 'dark' ? '#FFF' : '#f4f3f4'}
-        />
-      </View>
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-        <LogOut color={'#8B6508'} size={20} />
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+        <View style={[styles.drawerItem, { backgroundColor: '#FDFCF8', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 }]}>
+          <View style={styles.drawerItemContent}>
+            {mode === 'dark' ? <Moon color={'#C89F7A'} size={20} /> : <Sun color={'#C89F7A'} size={20} />}
+            <Text style={[styles.drawerItemText, { flex: 1 }]}>Dark Mode</Text>
+            <Switch 
+              value={mode === 'dark'}
+              onValueChange={toggleTheme}
+              trackColor={{ false: '#EAEAEA', true: '#D4AF37' }}
+              thumbColor={mode === 'dark' ? '#FFF' : '#FFF'}
+            />
+          </View>
+        </View>
+
+        <TouchableOpacity 
+          style={[styles.drawerItem, { backgroundColor: '#FDFCF8', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 }]} 
+          onPress={logout}
+        >
+          <View style={styles.drawerItemContent}>
+            <LogOut color={'#C89F7A'} size={20} />
+            <Text style={[styles.drawerItemText, { flex: 1 }]}>Logout</Text>
+            <ChevronRight color={'#C89F7A'} size={16} />
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const DrawerItem = ({ label, icon: Icon, isFocused, onPress }: any) => {
+  if (isFocused) {
+    return (
+      <TouchableOpacity onPress={onPress}>
+        <LinearGradient
+          colors={['#D4AF37', '#A87B4C']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.drawerItemActive}
+        >
+          <View style={styles.drawerItemContent}>
+            <Icon color={'#FFF'} size={20} />
+            <Text style={[styles.drawerItemText, { color: '#FFF', flex: 1 }]}>{label}</Text>
+            <ChevronRight color={'#FFF'} size={16} />
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  }
+
   return (
-    <TouchableOpacity style={[styles.drawerItem, isFocused && styles.drawerItemFocused]} onPress={onPress}>
-      <View style={[styles.activeIndicator, isFocused && styles.activeIndicatorVisible]} />
+    <TouchableOpacity style={styles.drawerItem} onPress={onPress}>
       <View style={styles.drawerItemContent}>
-        <Icon color={'#8B6508'} size={20} />
-        <Text style={styles.drawerItemText}>{label}</Text>
+        <Icon color={'#C89F7A'} size={20} />
+        <Text style={[styles.drawerItemText, { flex: 1 }]}>{label}</Text>
+        <ChevronRight color={'#C89F7A'} size={16} />
       </View>
     </TouchableOpacity>
   );
@@ -82,116 +120,119 @@ const DrawerItem = ({ label, icon: Icon, isFocused, onPress }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4E7CE', // Light sandal color
+    backgroundColor: '#FDFCF8', // Premium warm cream
+  },
+  cardBgPattern: {
+    position: 'absolute',
+    top: -50,
+    right: -50,
+    width: 250,
+    height: 250,
+    opacity: 0.1,
+    resizeMode: 'contain',
   },
   header: {
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(139,101,8,0.2)',
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: COLORS.primary,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
   },
   avatarText: {
-    color: COLORS.white,
-    fontSize: 24,
+    color: '#FFF',
+    fontSize: 28,
     fontWeight: 'bold',
+    fontFamily: 'serif',
   },
   userName: {
-    color: '#8B6508',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#4A3424',
+    fontSize: 22,
+    fontWeight: '900',
     marginBottom: 4,
+    fontFamily: 'serif',
   },
   userPhone: {
-    color: '#AA771C',
+    color: '#6A4C25',
     fontSize: 14,
   },
-  navSection: {
-    marginTop: 10,
-  },
-  drawerItem: {
+  dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
-    marginBottom: 5,
+    width: '80%',
+    marginTop: 20,
   },
-  drawerItemFocused: {
-    backgroundColor: 'rgba(139,101,8,0.1)',
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#D4AF37',
+    opacity: 0.5,
   },
-  activeIndicator: {
-    width: 4,
-    height: '100%',
-    backgroundColor: 'transparent',
-    borderTopRightRadius: 4,
-    borderBottomRightRadius: 4,
+  dividerIcon: {
+    marginHorizontal: 10,
+    fontSize: 16,
   },
-  activeIndicatorVisible: {
-    backgroundColor: '#8B6508',
+  navSection: {
+    paddingHorizontal: 15,
+  },
+  drawerItem: {
+    backgroundColor: '#FDFCF8',
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EAEAEA',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  drawerItemActive: {
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    marginBottom: 12,
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   drawerItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 20,
   },
   drawerItemText: {
-    color: '#8B6508',
+    color: '#4A3424',
     fontSize: 16,
     marginLeft: 15,
-    fontWeight: '500',
-  },
-  logoutBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(139,101,8,0.2)',
-  },
-  logoutText: {
-    color: '#8B6508',
-    fontSize: 16,
-    marginLeft: 15,
-    fontWeight: '500',
-  },
-  themeToggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(139,101,8,0.2)',
-  },
-  themeToggleLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  themeToggleText: {
-    color: '#8B6508',
-    fontSize: 16,
-    marginLeft: 15,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   developerContainer: {
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 15,
   },
   developerText: {
-    fontSize: 10,
-    color: '#8B6508',
+    fontSize: 11,
+    color: '#888',
     fontWeight: '500',
   },
   textBlack: {
-    color: '#000000',
+    color: '#4A3424',
     fontWeight: 'bold',
-    fontSize: 10,
+    fontSize: 11,
   }
 });
 
