@@ -13,7 +13,7 @@ const CustomDrawer = (props: any) => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={styles.cardBgPattern} />
+      <Image source={require('../../assets/floral_mandala_bg.jpg')} style={styles.cardBgPattern} />
       <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 20 }}>
         {/* Header / Brand Area */}
         <View style={styles.header}>
