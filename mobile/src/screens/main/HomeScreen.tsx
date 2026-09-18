@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, Image } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, Image, ImageBackground } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Menu, Crown, Coins, BellRing, Clock, ChevronRight } from 'lucide-react-native';
@@ -12,7 +13,7 @@ const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
-  const { token, updateActivity } = useAuthStore();
+  const { token, updateActivity, user } = useAuthStore();
   const { mode } = useThemeStore();
   const colors = mode === 'dark' ? Colors.dark : Colors.light;
   const styles = getStyles(colors, mode);
@@ -116,90 +117,133 @@ const HomeScreen = () => {
   });
 
   return (
-    <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
-      {/* Top Yellow Background (Banner) */}
-      <View style={[styles.topYellowBg, { backgroundColor: mode === 'dark' ? '#3A3633' : colors.gold, overflow: 'hidden' }]}>
-        <Image source={{ uri: 'https://img.icons8.com/color/150/gold-coin.png' }} style={{ position: 'absolute', top: 40, left: -20, opacity: 0.3, width: 120, height: 120, transform: [{ rotate: '15deg' }] }} />
-        <Image source={{ uri: 'https://img.icons8.com/color/150/silver-coin.png' }} style={{ position: 'absolute', top: 100, right: -20, opacity: 0.3, width: 100, height: 100, transform: [{ rotate: '-15deg' }] }} />
-      </View>
+    <View style={[styles.mainContainer, { backgroundColor: mode === 'dark' ? colors.background : '#FDFCF8' }]}>
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.menuIcon}>
-          <Menu color={mode === 'dark' ? colors.gold : '#D4AF37'} size={32} />
+          <Menu color={'#D4AF37'} size={32} />
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
-          <Text style={{ fontFamily: 'serif', fontSize: 22, fontWeight: 'bold', color: '#D4AF37' }}>
+          <Crown color={'#D4AF37'} size={24} style={{ alignSelf: 'center', marginBottom: 2 }} />
+          <Text style={{ fontFamily: 'serif', fontSize: 24, fontWeight: 'bold', color: '#D4AF37' }}>
             NS Mahaveer
+          </Text>
+          <Text style={{ fontFamily: 'sans-serif', fontSize: 7, fontWeight: 'bold', color: '#888', letterSpacing: 3, textAlign: 'center', marginTop: 2 }}>
+            TRUST • TRADITION • WEALTH
           </Text>
         </View>
         
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuIcon}>
-          <BellRing color={mode === 'dark' ? colors.gold : '#D4AF37'} size={28} />
+          <BellRing color={'#D4AF37'} size={28} />
           {/* Unread badge indicator */}
           {unreadCount > 0 && (
-            <View style={{ position: 'absolute', right: 4, top: 4, width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, borderWidth: 1, borderColor: colors.background }} />
+            <View style={{ position: 'absolute', right: 4, top: 4, width: 10, height: 10, backgroundColor: 'red', borderRadius: 5, borderWidth: 1, borderColor: '#FDFCF8' }} />
           )}
         </TouchableOpacity>
       </View>
+
+      <View style={{ paddingHorizontal: 20, marginBottom: 15, marginTop: 10 }}>
+        <Text style={{ fontSize: 24, fontWeight: 'bold', fontFamily: 'serif', color: '#333' }}>
+          Hello, {user?.name || 'Guest'} 👋
+        </Text>
+        <Text style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
+          Your dreams are our priority ♡
+        </Text>
+      </View>
       <View style={[styles.ratesRow, { marginTop: 4, paddingBottom: 6 }]}>
         {/* Gold Rate Card */}
-        <View style={[styles.rateCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: mode === 'dark' ? 1 : 0 }]}>
-          <Text style={[styles.rateTitle, { color: '#C89F7A' }]}>Gold Rate</Text>
+        <LinearGradient
+          colors={['#FDF2D0', '#D4AF37']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.rateCardGradient}
+        >
+          <Text style={[styles.rateTitle, { color: '#6A4C25' }]}>Gold Rate</Text>
           <View style={styles.rateContent}>
-            <Image source={require('../../../assets/gold_coin.png')} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
+            <Image source={require('../../../assets/premium_gold_coin_3d.jpg')} style={styles.premiumCoinStyle} />
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={[styles.rateValue, { color: '#C89F7A' }]}>₹{rates.goldRate}</Text>
-              <Text style={[styles.rateSubtitle, { color: colors.textMuted }]}>22KT Per gram</Text>
+              <Text style={[styles.rateValue, { color: '#4A3424' }]}>₹{rates.goldRate}</Text>
+              <Text style={[styles.rateSubtitle, { color: '#6A4C25' }]}>22KT Per gram</Text>
             </View>
           </View>
-        </View>
+        </LinearGradient>
 
         {/* Silver Rate Card */}
-        <View style={[styles.rateCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: mode === 'dark' ? 1 : 0 }]}>
-          <Text style={[styles.rateTitle, { color: '#8C92AC' }]}>Silver Rate</Text>
+        <LinearGradient
+          colors={['#F0F0F0', '#B0B5B9']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.rateCardGradient}
+        >
+          <Text style={[styles.rateTitle, { color: '#4A5056' }]}>Silver Rate</Text>
           <View style={styles.rateContent}>
-            <Image source={require('../../../assets/silver_coin.png')} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
+            <Image source={require('../../../assets/premium_silver_coin_3d.jpg')} style={styles.premiumCoinStyle} />
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={[styles.rateValue, { color: '#8C92AC' }]}>₹{rates.silverRate}</Text>
-              <Text style={[styles.rateSubtitle, { color: colors.textMuted }]}>Per gram</Text>
+              <Text style={[styles.rateValue, { color: '#2C3E50' }]}>₹{rates.silverRate}</Text>
+              <Text style={[styles.rateSubtitle, { color: '#4A5056' }]}>Per gram</Text>
             </View>
           </View>
-        </View>
+        </LinearGradient>
       </View>
-      <Text style={[styles.updateText, { color: mode === 'dark' ? colors.gold : '#D4AF37', marginBottom: 8 }]}>Rate updated on {updatedDate}</Text>
+      
+      <View style={{ alignSelf: 'center', backgroundColor: '#F3E5D8', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20, flexDirection: 'row', alignItems: 'center', marginBottom: 20, marginTop: 10 }}>
+        <Clock color="#A88151" size={14} style={{ marginRight: 6 }} />
+        <Text style={{ color: '#A88151', fontSize: 12, fontWeight: '500' }}>Rate updated on {updatedDate}</Text>
+      </View>
 
-      {/* My Digital Locker Card */}
+      {/* My Savings Card */}
       {token && (
         <TouchableOpacity
-          style={[styles.lockerCard, { backgroundColor: colors.cardBackground, borderColor: colors.border, borderWidth: mode === 'dark' ? 1 : 0 }]}
+          style={styles.savingsCardContainer}
           onPress={() => navigation.navigate('My Locker')}
           activeOpacity={0.85}
         >
-          <View style={styles.lockerHeader}>
-            <Text style={[styles.lockerTitle, { color: colors.text }]}>My Digital Locker</Text>
-            <ChevronRight color={colors.textMuted} size={20} />
-          </View>
-          <View style={styles.lockerBalances}>
-            {/* Digi Gold */}
-            <View style={styles.lockerBalanceItem}>
-              <Image source={require('../../../assets/gold_coin.png')} style={{ width: 24, height: 24, resizeMode: 'contain', marginBottom: 4 }} />
-              <Text style={[styles.lockerBalanceLabel, { color: colors.textMuted }]}>Digi Gold</Text>
-              <Text style={[styles.lockerBalanceValue, { color: '#C89F7A' }]}>
-                {lockerData?.goldBalance != null ? Number(lockerData.goldBalance).toFixed(3) : '0.000'} g
-              </Text>
+          <LinearGradient
+            colors={['#4A3424', '#2C1E14']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.savingsGradient}
+          >
+            <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={styles.savingsBgImage} />
+            <View style={styles.savingsHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={styles.walletIconContainer}>
+                  <Coins color="#4A3424" size={24} />
+                </View>
+                <View style={{ marginLeft: 12 }}>
+                  <Text style={styles.savingsTitle}>My Savings</Text>
+                  <Text style={styles.savingsSubtitle}>Secure your gold & silver digitally</Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Image source={require('../../../assets/premium_gold_coin_3d.jpg')} style={{ width: 16, height: 16, opacity: 0, marginRight: 8 }} />
+                <ChevronRight color="#D4AF37" size={24} />
+              </View>
             </View>
-            {/* Divider */}
-            <View style={[styles.lockerDivider, { backgroundColor: colors.border }]} />
-            {/* Digi Silver */}
-            <View style={styles.lockerBalanceItem}>
-              <Image source={require('../../../assets/silver_coin.png')} style={{ width: 24, height: 24, resizeMode: 'contain', marginBottom: 4 }} />
-              <Text style={[styles.lockerBalanceLabel, { color: colors.textMuted }]}>Digi Silver</Text>
-              <Text style={[styles.lockerBalanceValue, { color: '#8C92AC' }]}>
-                {lockerData?.silverBalance != null ? Number(lockerData.silverBalance).toFixed(3) : '0.000'} g
-              </Text>
+            
+            <View style={styles.savingsBalances}>
+              {/* Gold Balance */}
+              <View style={styles.savingsBalanceItem}>
+                <Image source={require('../../../assets/premium_gold_coin_3d.jpg')} style={styles.savingsCoin} />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.savingsBalanceLabel}>Gold Balance</Text>
+                  <Text style={styles.savingsBalanceValue}>{lockerData?.goldBalance != null ? Number(lockerData.goldBalance).toFixed(3) : '0.000'} g</Text>
+                </View>
+              </View>
+              
+              <View style={styles.savingsDivider} />
+              
+              {/* Silver Balance */}
+              <View style={styles.savingsBalanceItem}>
+                <Image source={require('../../../assets/premium_silver_coin_3d.jpg')} style={styles.savingsCoin} />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.savingsBalanceLabel}>Silver Balance</Text>
+                  <Text style={styles.savingsBalanceValue}>{lockerData?.silverBalance != null ? Number(lockerData.silverBalance).toFixed(3) : '0.000'} g</Text>
+                </View>
+              </View>
             </View>
-          </View>
+          </LinearGradient>
         </TouchableOpacity>
       )}
       <ScrollView 
@@ -214,12 +258,18 @@ const HomeScreen = () => {
             {/* Vertical Schemes/Wallets Stack */}
             <View style={styles.schemesContainer}>
               
-              <View style={{ width: '100%', paddingHorizontal: 25, marginBottom: 15 }}>
-                <Text style={[styles.sectionHeading, { color: colors.text, marginLeft: 0, marginBottom: 5 }]}>Exclusive Offerings</Text>
-                <Text style={{ color: colors.textMuted, fontSize: 14 }}>Benefit from our 4 unique schemes designed for your savings.</Text>
+              <View style={{ width: '100%', paddingHorizontal: 25, marginBottom: 5, flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={[styles.sectionHeading, { color: '#333', marginLeft: 0, marginBottom: 0 }]}>Exclusive Offerings</Text>
+                <View style={{ width: 20, height: 2, backgroundColor: '#D4AF37', marginLeft: 10 }} />
               </View>
+              <Text style={{ color: '#888', fontSize: 13, paddingHorizontal: 25, marginBottom: 20, alignSelf: 'flex-start' }}>Benefit from our 4 unique schemes designed for your savings.</Text>
 
-              <Text style={[styles.sectionHeading, { color: colors.text, marginTop: 5 }]}>Gold Plans</Text>
+              <View style={{ width: '100%', paddingHorizontal: 25, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <Text style={[styles.sectionHeading, { color: '#333', marginLeft: 0, marginBottom: 0 }]}>Gold Plans</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
+                  <Text style={{ color: '#D4AF37', fontWeight: 'bold' }}>View All →</Text>
+                </TouchableOpacity>
+              </View>
 
               {/* Gold Carousel */}
               <ScrollView
@@ -231,63 +281,52 @@ const HomeScreen = () => {
               >
                 {/* Card 1: 11 Month Gold Scheme */}
                 <View style={styles.carouselItem}>
-                  <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
-                    <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
-                    <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#4A3424' }]}>NS MAHAVEER JEWELLERY</Text>
-                    </View>
-                    <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>11 Month</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>Value based Gold Scheme</Text>
-                      <Text style={[styles.cardHighlight, { color: '#4A3424' }]} numberOfLines={2}>Save cash, buy gold at end</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
-                    <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
-                  </TouchableOpacity>
+                  <LinearGradient colors={['#4A3424', '#2C1E14']} style={styles.planCard}>
+                    <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={styles.savingsBgImage} />
+                    <Image source={require('../../../assets/premium_gold_bangles.jpg')} style={{ position: 'absolute', right: -30, bottom: -10, width: 170, height: 170, borderRadius: 85 }} />
+                    <Text style={styles.planCardLogo}>NS MAHAVEER</Text>
+                    <Text style={styles.planCardLogoBold}>Jewellery</Text>
+                    <Text style={styles.planCardSubtitle}>11 Month Value based Gold Scheme</Text>
+                    <TouchableOpacity style={styles.planExploreBtn} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
+                      <Text style={styles.planExploreBtnText}>EXPLORE PLAN →</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
                 </View>
 
                 {/* Card 2: Gold 11 Scheme */}
                 <View style={styles.carouselItem}>
-                  <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
-                    <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
-                    <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#4A3424' }]}>NS MAHAVEER JEWELLERY</Text>
-                    </View>
-                    <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>11 Month</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>Weight based Gold Scheme</Text>
-                      <Text style={[styles.cardHighlight, { color: '#4A3424' }]} numberOfLines={2}>Instant monthly gold weight</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
-                    <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
-                  </TouchableOpacity>
+                  <LinearGradient colors={['#FDF2D0', '#F8E1A0']} style={styles.planCard}>
+                    <Image source={require('../../../assets/premium_gold_coin_3d.jpg')} style={{ position: 'absolute', right: -20, bottom: -20, width: 150, height: 150, borderRadius: 75, opacity: 0.5 }} />
+                    <Text style={[styles.planCardLogo, { color: '#6A4C25' }]}>NS MAHAVEER</Text>
+                    <Text style={[styles.planCardLogoBold, { color: '#4A3424' }]}>Savings Scheme</Text>
+                    <Text style={[styles.planCardSubtitle, { color: '#6A4C25' }]}>11 Month Weight based Gold Scheme</Text>
+                    <TouchableOpacity style={[styles.planExploreBtn, { backgroundColor: '#FDFCF8' }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Gold Schemes' })}>
+                      <Text style={[styles.planExploreBtnText, { color: '#4A3424' }]}>KNOW MORE →</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
                 </View>
 
                 {/* Card 3: Gold Wallet */}
                 <View style={styles.carouselItem}>
-                  <View style={[styles.maroonCard, { backgroundColor: '#C89F7A', overflow: 'hidden' }]}>
-                    <Image source={require('../../../assets/gold_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
-                    <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#4A3424' }]}>NS MAHAVEER JEWELLERY</Text>
-                    </View>
-                    <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>Digital</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#4A3424' }]}>Gold Wallet</Text>
-                      <Text style={[styles.cardHighlight, { color: '#4A3424' }]} numberOfLines={2}>Balance: {lockerData?.goldBalance.toFixed(3) || '0.000'} g</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('Digi Gold')}>
-                    <Text style={[styles.exploreBtnText, { color: colors.text }]}>BUY GOLD</Text>
-                  </TouchableOpacity>
+                  <LinearGradient colors={['#4A3424', '#2C1E14']} style={styles.planCard}>
+                    <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={styles.savingsBgImage} />
+                    <Image source={require('../../../assets/premium_gold_coin_3d.jpg')} style={{ position: 'absolute', right: -10, bottom: 10, width: 120, height: 120, borderRadius: 60 }} />
+                    <Text style={styles.planCardLogo}>Digital</Text>
+                    <Text style={styles.planCardLogoBold}>Gold Wallet</Text>
+                    <Text style={styles.planCardSubtitle}>Balance: {lockerData?.goldBalance?.toFixed(3) || '0.000'} g</Text>
+                    <TouchableOpacity style={styles.planExploreBtn} onPress={() => navigation.navigate('Digi Gold')}>
+                      <Text style={styles.planExploreBtnText}>BUY GOLD →</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
                 </View>
               </ScrollView>
 
-              <Text style={[styles.sectionHeading, { marginTop: 20, color: colors.text }]}>Silver Plans</Text>
+              <View style={{ width: '100%', paddingHorizontal: 25, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15, marginBottom: 10 }}>
+                <Text style={[styles.sectionHeading, { color: '#333', marginLeft: 0, marginBottom: 0 }]}>Silver Plans</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
+                  <Text style={{ color: '#D4AF37', fontWeight: 'bold' }}>View All →</Text>
+                </TouchableOpacity>
+              </View>
 
               {/* Silver Carousel */}
               <ScrollView
@@ -299,59 +338,41 @@ const HomeScreen = () => {
               >
                 {/* Card 4: 11 Month Silver Scheme */}
                 <View style={styles.carouselItem}>
-                  <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
-                    <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
-                    <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS MAHAVEER JEWELLERY</Text>
-                    </View>
-                    <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>11 Month</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>Value based Silver Scheme</Text>
-                      <Text style={[styles.cardHighlight, { color: '#2C3E50' }]} numberOfLines={2}>Save cash, buy silver at end</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
-                    <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
-                  </TouchableOpacity>
+                  <LinearGradient colors={['#E5E5E5', '#F5F5F5']} style={styles.planCard}>
+                    <Image source={require('../../../assets/premium_silver_bars.jpg')} style={{ position: 'absolute', right: -20, bottom: 0, width: 170, height: 170, borderRadius: 85 }} />
+                    <Text style={[styles.planCardLogo, { color: '#2C3E50' }]}>NS MAHAVEER</Text>
+                    <Text style={[styles.planCardLogoBold, { color: '#2C3E50' }]}>Silver Savings Scheme</Text>
+                    <Text style={[styles.planCardSubtitle, { color: '#4A5056' }]}>11 Month Value based Silver Scheme</Text>
+                    <TouchableOpacity style={[styles.planExploreBtn, { backgroundColor: '#FDFCF8' }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
+                      <Text style={[styles.planExploreBtnText, { color: '#2C3E50' }]}>EXPLORE PLAN →</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
                 </View>
 
                 {/* Card 5: Silver 11 Scheme */}
                 <View style={styles.carouselItem}>
-                  <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
-                    <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
-                    <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS MAHAVEER JEWELLERY</Text>
-                    </View>
-                    <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>11 Month</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>Weight based Silver Scheme</Text>
-                      <Text style={[styles.cardHighlight, { color: '#2C3E50' }]} numberOfLines={2}>Instant monthly silver weight</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
-                    <Text style={[styles.exploreBtnText, { color: colors.text }]}>EXPLORE PLAN</Text>
-                  </TouchableOpacity>
+                  <LinearGradient colors={['#E5E5E5', '#F5F5F5']} style={styles.planCard}>
+                    <Image source={require('../../../assets/premium_silver_coin_3d.jpg')} style={{ position: 'absolute', right: -20, bottom: -20, width: 150, height: 150, borderRadius: 75, opacity: 0.8 }} />
+                    <Text style={[styles.planCardLogo, { color: '#2C3E50' }]}>NS MAHAVEER</Text>
+                    <Text style={[styles.planCardLogoBold, { color: '#2C3E50' }]}>Silver Gift Plans</Text>
+                    <Text style={[styles.planCardSubtitle, { color: '#4A5056' }]}>11 Month Weight based Silver Scheme</Text>
+                    <TouchableOpacity style={[styles.planExploreBtn, { backgroundColor: '#FDFCF8' }]} onPress={() => navigation.navigate('My Plans', { defaultCategory: 'Silver Schemes' })}>
+                      <Text style={[styles.planExploreBtnText, { color: '#2C3E50' }]}>KNOW MORE →</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
                 </View>
 
                 {/* Card 6: Silver Wallet */}
                 <View style={styles.carouselItem}>
-                  <View style={[styles.maroonCard, { backgroundColor: '#E0E0E0', overflow: 'hidden' }]}>
-                    <Image source={require('../../../assets/silver_coin.png')} style={{ position: 'absolute', right: -10, bottom: -10, width: 140, height: 140, opacity: 0.25, resizeMode: 'contain' }} />
-                    <View style={styles.cardTopRight}>
-                      <Image source={require('../../../assets/rn_logo.png')} style={{ width: 24, height: 24, borderRadius: 12, resizeMode: 'cover', marginRight: 6 }} />
-                      <Text style={[styles.cardLogoText, { color: '#2C3E50' }]}>NS MAHAVEER JEWELLERY</Text>
-                    </View>
-                    <View style={styles.cardContent}>
-                      <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>Digital</Text>
-                      <Text style={[styles.cardMainTitle, { color: '#2C3E50' }]}>Silver Wallet</Text>
-                      <Text style={[styles.cardHighlight, { color: '#2C3E50' }]} numberOfLines={2}>Balance: {lockerData?.silverBalance.toFixed(3) || '0.000'} g</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={[styles.exploreBtn, { backgroundColor: colors.background }]} onPress={() => navigation.navigate('Digi Silver')}>
-                    <Text style={[styles.exploreBtnText, { color: colors.text }]}>BUY SILVER</Text>
-                  </TouchableOpacity>
+                  <LinearGradient colors={['#E5E5E5', '#F5F5F5']} style={styles.planCard}>
+                    <Image source={require('../../../assets/premium_silver_bars.jpg')} style={{ position: 'absolute', right: -20, bottom: -20, width: 150, height: 150, borderRadius: 75, opacity: 0.8 }} />
+                    <Text style={[styles.planCardLogo, { color: '#2C3E50' }]}>Digital</Text>
+                    <Text style={[styles.planCardLogoBold, { color: '#2C3E50' }]}>Silver Wallet</Text>
+                    <Text style={[styles.planCardSubtitle, { color: '#4A5056' }]}>Balance: {lockerData?.silverBalance?.toFixed(3) || '0.000'} g</Text>
+                    <TouchableOpacity style={[styles.planExploreBtn, { backgroundColor: '#FDFCF8' }]} onPress={() => navigation.navigate('Digi Silver')}>
+                      <Text style={[styles.planExploreBtnText, { color: '#2C3E50' }]}>BUY SILVER →</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
                 </View>
               </ScrollView>
 
@@ -491,110 +512,161 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
   },
-  maroonCard: {
-    backgroundColor: '#D4AF37',
-    width: width * 0.9,
+  planCard: {
+    width: width * 0.85,
     borderRadius: 20,
     padding: 25,
     minHeight: 180,
-    shadowColor: '#D4AF37',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.15,
     shadowRadius: 15,
     elevation: 8,
+    marginHorizontal: 10,
+    overflow: 'hidden',
   },
-  cardTopRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-end',
-    marginBottom: 20,
+  planCardLogo: {
+    color: '#D4AF37',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 2,
+    marginBottom: 2,
   },
-  cardLogoText: {
-    color: '#FFFFFF',
+  planCardLogoBold: {
+    color: '#FFF',
+    fontSize: 26,
     fontWeight: '900',
     fontFamily: 'serif',
-    fontSize: 16,
+    marginBottom: 10,
   },
-  cardContent: {
-    marginTop: 10,
+  planCardSubtitle: {
+    color: '#E0E0E0',
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 25,
+    maxWidth: '70%',
   },
-  cardMainTitle: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
-    lineHeight: 32,
-    flexWrap: 'wrap',
-  },
-  cardHighlight: {
-    color: colors.gold,
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginTop: 15,
-  },
-  exploreBtn: {
-    backgroundColor: '#FAFAFA',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 25,
-    marginTop: -25, // Overlap the card
+  planExploreBtn: {
+    backgroundColor: '#D4AF37',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
   },
-  exploreBtnText: {
-    color: '#D4AF37',
-    fontWeight: '900',
-    fontSize: 14,
+  planExploreBtnText: {
+    color: '#4A3424',
+    fontWeight: 'bold',
+    fontSize: 12,
   },
-  lockerCard: {
-    alignSelf: 'center',
-    width: width - 30,
-    marginBottom: 12,
+  rateCardGradient: {
+    flex: 1,
     borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    padding: 16,
+    marginHorizontal: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
     elevation: 4,
   },
-  lockerHeader: {
+  premiumCoinStyle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  savingsCardContainer: {
+    alignSelf: 'center',
+    width: width - 30,
+    marginBottom: 20,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  savingsGradient: {
+    borderRadius: 20,
+    padding: 20,
+    overflow: 'hidden',
+  },
+  savingsBgImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.15,
+    resizeMode: 'cover',
+  },
+  savingsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 20,
   },
-  lockerTitle: {
-    fontSize: 15,
-    fontWeight: '900',
+  walletIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#D4AF37',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  savingsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
     fontFamily: 'serif',
+    color: '#FFF',
   },
-  lockerBalances: {
+  savingsSubtitle: {
+    fontSize: 12,
+    color: '#E0E0E0',
+    marginTop: 2,
+  },
+  savingsBalances: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  lockerBalanceItem: {
+  savingsBalanceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
-    alignItems: 'center',
   },
-  lockerDivider: {
-    width: 1,
+  savingsCoin: {
+    width: 36,
     height: 36,
-    marginHorizontal: 10,
+    borderRadius: 18,
   },
-  lockerBalanceLabel: {
-    fontSize: 10,
-    fontWeight: '600',
+  savingsBalanceLabel: {
+    fontSize: 11,
+    color: '#E0E0E0',
     marginBottom: 2,
   },
-  lockerBalanceValue: {
-    fontSize: 14,
-    fontWeight: '900',
-    fontFamily: 'serif',
+  savingsBalanceValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  savingsDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginHorizontal: 15,
   },
 });
 

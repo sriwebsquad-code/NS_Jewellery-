@@ -23,23 +23,30 @@ const BottomTabNavigator = () => {
     <Tab.Navigator
       tabBarPosition="bottom"
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: '#D4AF37',
         tabBarInactiveTintColor: colors.textMuted,
         tabBarShowIcon: true,
         tabBarShowLabel: true,
         tabBarStyle: {
-          backgroundColor: colors.cardBackground,
+          backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: colors.border,
           height: 65,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 5,
+          elevation: 5,
         },
         tabBarLabelStyle: {
           fontSize: 10,
           marginTop: 2,
+          fontFamily: 'sans-serif',
+          fontWeight: '600',
         },
         tabBarIndicatorStyle: {
-          backgroundColor: colors.primary,
-          top: 0,
+          backgroundColor: '#D4AF37',
+          height: 3,
         },
         tabBarIcon: ({ focused, color, size = 24 }: any) => {
           let IconComponent;
@@ -48,16 +55,16 @@ const BottomTabNavigator = () => {
           else if (route.name === 'Digi Gold') {
             return (
               <Image 
-                source={require('../../assets/gold_coin.png')} 
-                style={{ width: size, height: size, resizeMode: 'contain', opacity: focused ? 1 : 0.6 }} 
+                source={require('../../assets/premium_gold_coin_3d.jpg')} 
+                style={{ width: size, height: size, borderRadius: size/2, opacity: focused ? 1 : 0.6 }} 
               />
             );
           }
           else if (route.name === 'Digi Silver') {
             return (
               <Image 
-                source={require('../../assets/silver_coin.png')} 
-                style={{ width: size, height: size, resizeMode: 'contain', opacity: focused ? 1 : 0.6 }} 
+                source={require('../../assets/premium_silver_coin_3d.jpg')} 
+                style={{ width: size, height: size, borderRadius: size/2, opacity: focused ? 1 : 0.6 }} 
               />
             );
           }
