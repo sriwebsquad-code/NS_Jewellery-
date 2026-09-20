@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
@@ -74,10 +74,11 @@ const CreateMPINScreen = () => {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Secure Your Account</Text>
-          <Text style={styles.subtitle}>Create a 4-digit MPIN for quick access</Text>
-        </View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Secure Your Account</Text>
+            <Text style={styles.subtitle}>Create a 4-digit MPIN for quick access</Text>
+          </View>
 
         <View style={styles.formContainer}>
           <Text style={styles.label}>Enter 4-Digit MPIN</Text>
@@ -135,6 +136,7 @@ const CreateMPINScreen = () => {
             )}
           </TouchableOpacity>
         </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

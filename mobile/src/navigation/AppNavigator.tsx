@@ -108,6 +108,7 @@ const AppNavigator = () => {
             <Stack.Screen name="LoginMPIN" component={LoginMPINScreen} />
             <Stack.Screen name="Main" component={DrawerNavigator} />
             <Stack.Screen name="JewelleryDetail" component={JewelleryDetailScreen} />
+            <Stack.Screen name="TermsPrivacy" component={TermsPrivacyScreen} />
             <Stack.Screen name="TransactionsScreen" component={TransactionsScreen} />
             <Stack.Screen name="ForgotMpin" component={ForgotMpinScreen} />
             <Stack.Screen name="Payment" component={PaymentScreen} />

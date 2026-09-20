@@ -104,7 +104,7 @@ const TransactionsScreen = () => {
             <View style={{ backgroundColor: colors.cardBackground, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20 }}>
                <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 12 }}>Next Installment</Text>
                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                 <View>
+                 <View style={{ flex: 1, paddingRight: 10 }}>
                    <Text style={{ color: colors.textMuted, fontSize: 14 }}>Month {transactions.length + 1}</Text>
                    <Text style={{ color: colors.text, fontSize: 14, marginTop: 4 }}>Monthly Installment: ₹{route.params.monthlyAmount}</Text>
                    <Text style={{ color: '#E74C3C', fontSize: 14, fontWeight: 'bold', marginTop: 4 }}>PAYMENT DUE</Text>
@@ -137,7 +137,7 @@ const TransactionsScreen = () => {
                         <TrendingDown size={20} color="#E74C3C" />
                       )}
                     </View>
-                    <View>
+                    <View style={{ flex: 1 }}>
                       <Text style={[styles.txTitle, { color: colors.text }]}>
                         {t.type === 'REDEEM' ? 'Redemption' : (t.type === 'SELL' ? 'Sold' : (t.type === 'BUY' ? 'Purchased' : 'Installment Paid'))}
                         {t.monthNumber ? ` (Month ${t.monthNumber})` : ''}
@@ -217,8 +217,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   txLeft: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 10,
   },
   txIconWrapper: {
     width: 40,

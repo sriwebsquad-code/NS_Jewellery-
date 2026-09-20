@@ -153,10 +153,8 @@ const DigitalSilverScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Menu color={mode === 'dark' ? colors.text : '#4A3424'} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerLogo, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>NS Mahaveer DigiSilver</Text>
-        <TouchableOpacity>
-          <Bell color={mode === 'dark' ? colors.text : '#4A3424'} size={24} />
-        </TouchableOpacity>
+        <Text style={[styles.headerLogo, { color: mode === 'dark' ? colors.text : '#4A3424' }]} numberOfLines={1}>NS Mahaveer DigiSilver</Text>
+        <View style={{ width: 28 }} />
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
@@ -167,19 +165,18 @@ const DigitalSilverScreen = () => {
           end={{ x: 1, y: 1 }}
           style={styles.banner}
         >
-          <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={[styles.cardBgPattern, { opacity: 0.1 }]} />
           
           <View style={styles.bannerTopRow}>
             <Text style={styles.bannerTitle}>Digital Silver</Text>
-            <TouchableOpacity style={styles.lockerBtn} onPress={() => navigation.navigate('AdvanceBookingsScreen')}>
-              <Text style={styles.lockerText}>My Locker</Text>
+            <TouchableOpacity style={styles.lockerBtn} onPress={() => navigation.navigate('MyLockerScreen')}>
+              <Text style={styles.lockerText}>My Savings</Text>
               <ChevronRight color={'#4A3424'} size={16} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.metalsRow}>
             <Image source={require('../../../assets/premium_silver_coin_rupee.jpg')} style={styles.heroCoinImage} />
-            <View style={{ marginLeft: 20 }}>
+            <View style={{ alignItems: 'flex-end' }}>
               <Text style={[styles.metalLabelActive, { fontSize: 16, color: '#FDFCF8' }]}>999 Silver</Text>
               <Text style={[styles.metalPrice, { color: '#FFF' }]}>{silverRate ? `₹${silverRate}/g` : '₹ ---'}</Text>
             </View>
@@ -304,10 +301,13 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     backgroundColor: colors.cardBackground,
   },
   headerLogo: {
-    fontSize: 22,
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 19,
     fontWeight: '900',
     fontFamily: 'serif',
     color: COLORS.secondary,
+    marginHorizontal: 10,
   },
   banner: {
     padding: 24,
@@ -368,7 +368,9 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   },
   metalsRow: {
     flexDirection: 'row',
-    justifyContent: 'center', // Centered since there's only one item
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
   },
   metalOption: {
     alignItems: 'center',

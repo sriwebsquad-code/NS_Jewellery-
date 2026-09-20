@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image } from 'react-native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Colors } from '../constants/Colors';
 import { useThemeStore } from '../store/themeStore';
 
@@ -13,7 +13,7 @@ import MyPlansScreen from '../screens/main/MyPlansScreen';
 
 import { Home, BookOpen, Coins, Calendar, CircleDollarSign } from 'lucide-react-native';
 
-const Tab = createMaterialTopTabNavigator();
+const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
   const { mode } = useThemeStore();
@@ -21,11 +21,10 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
-      tabBarPosition="bottom"
       screenOptions={({ route }) => ({
+        headerShown: false,
         tabBarActiveTintColor: '#D4AF37',
         tabBarInactiveTintColor: mode === 'dark' ? colors.textMuted : '#8C7A6B',
-        tabBarShowIcon: true,
         tabBarShowLabel: true,
         tabBarStyle: {
           backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8',
@@ -40,15 +39,8 @@ const BottomTabNavigator = () => {
         },
         tabBarLabelStyle: {
           fontSize: 10,
-          marginTop: 2,
           fontFamily: 'sans-serif',
           fontWeight: '700',
-        },
-        tabBarIndicatorStyle: {
-          backgroundColor: '#D4AF37',
-          height: 3,
-          borderBottomLeftRadius: 3,
-          borderBottomRightRadius: 3,
         },
         tabBarIcon: ({ focused, color, size = 24 }: any) => {
           let IconComponent;

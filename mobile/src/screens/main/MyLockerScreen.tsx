@@ -68,7 +68,7 @@ const MyLockerScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Menu color={mode === 'dark' ? colors.text : '#4A3424'} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>My Locker</Text>
+        <Text style={[styles.headerTitle, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>My Savings</Text>
         <View style={{ width: 28 }} />
       </View>
 
@@ -107,12 +107,11 @@ const MyLockerScreen = () => {
                     end={{ x: 1, y: 1 }}
                     style={styles.balanceCardGradient}
                   >
-                    <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={styles.cardBgPattern} />
                     <View style={styles.balanceCardContent}>
                       <Image source={require('../../../assets/premium_gold_coin_rupee.jpg')} style={styles.balanceCoinImage} />
                       <View style={{ flex: 1, marginLeft: 15 }}>
                         <Text style={styles.balanceLabel}>Gold Balance</Text>
-                        <Text style={styles.balanceValue}>{goldBalance.toFixed(3)} g</Text>
+                        <Text style={styles.balanceValue}>{goldBalance.toFixed(3)} Grams</Text>
                       </View>
                       <ChevronRight size={24} color="#FFF" />
                     </View>
@@ -129,12 +128,11 @@ const MyLockerScreen = () => {
                     end={{ x: 1, y: 1 }}
                     style={styles.balanceCardGradient}
                   >
-                    <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={[styles.cardBgPattern, { opacity: 0.1 }]} />
                     <View style={styles.balanceCardContent}>
                       <Image source={require('../../../assets/premium_silver_coin_rupee.jpg')} style={styles.balanceCoinImage} />
                       <View style={{ flex: 1, marginLeft: 15 }}>
                         <Text style={styles.balanceLabel}>Silver Balance</Text>
-                        <Text style={styles.balanceValue}>{silverBalance.toFixed(3)} g</Text>
+                        <Text style={styles.balanceValue}>{silverBalance.toFixed(3)} Grams</Text>
                       </View>
                       <ChevronRight size={24} color="#FFF" />
                     </View>
@@ -177,47 +175,77 @@ const MyLockerScreen = () => {
                     );
                   }
 
-                  return filteredPlans.map((up) => {
+                  const renderPlanCard = (up: any) => {
                     const isValueBased = up.plan?.schemeType === 'VALUE_BASED';
                     return (
-                      <View key={up.id} style={{ marginBottom: 12 }}>
+                      <View key={up.id} style={[styles.newSchemeCard, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FFF', borderColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}>
                         <TouchableOpacity 
-                          style={[
-                            styles.assetCard, 
-                            { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FDFCF8', borderColor: mode === 'dark' ? colors.border : '#EAEAEA', shadowColor: '#D4AF37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
-                            up.status === 'ACTIVE' ? { marginBottom: 0, borderBottomWidth: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 } : {}
-                          ]}
                           onPress={() => navigation.navigate('TransactionsScreen', { type: 'PLAN', planId: up.id, title: up.plan?.name || 'Scheme', accumulatedWeight: up.accumulatedWeight || up.totalWeight || 0, totalPaid: up.totalPaid || 0, metalType: up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER'), schemeType: up.plan?.schemeType, monthlyAmount: up.monthlyAmount, createdAt: up.createdAt, basePlanId: up.plan?.id, status: up.status })}
+                          activeOpacity={0.7}
                         >
-                          <View style={styles.assetLeft}>
-                            <View style={[styles.assetIconWrapper, { backgroundColor: 'transparent', padding: 0 }]}>
-                              <Image source={isValueBased ? require('../../../assets/scheme_value_icon.jpg') : require('../../../assets/scheme_weight_icon.jpg')} style={{ width: 44, height: 44, borderRadius: 12 }} />
-                            </View>
-                            <View>
-                              <Text style={[styles.assetName, { color: mode === 'dark' ? colors.text : '#333', fontFamily: 'serif' }]}>{up.plan?.name}</Text>
-                              <Text style={[styles.assetDate, { color: mode === 'dark' ? colors.textMuted : '#888' }]}>View Installments</Text>
-                            </View>
-                          </View>
-                          <View style={styles.assetRight}>
-                            {isValueBased ? (
-                              <Text style={[styles.assetValue, { color: mode === 'dark' ? colors.text : '#333' }]}>Rs.{up.totalPaid}</Text>
-                            ) : (
-                              <Text style={[styles.assetValue, { color: mode === 'dark' ? colors.text : '#333' }]}>{((up.accumulatedWeight || up.totalWeight || 0).toFixed(3))}g</Text>
+                          <Text style={[styles.newSchemeTitle, { color: mode === 'dark' ? colors.text : '#333' }]}>{up.plan?.name}</Text>
+                          
+                          <View style={styles.newSchemeSubHeader}>
+                            <Text style={[styles.newSchemeSavedText, { color: mode === 'dark' ? colors.textMuted : '#555' }]}>
+                              {isValueBased ? `₹${up.totalPaid} saved` : `₹${up.totalPaid} paid`}
+                            </Text>
+                            {!isValueBased && (
+                              <Text style={styles.newSchemeWeightText}>
+                                {((up.accumulatedWeight || up.totalWeight || 0).toFixed(3))} Grams {up.plan?.name?.toUpperCase().includes('SILVER') ? 'Silver' : 'Gold'}
+                              </Text>
                             )}
-                            <ChevronRight size={16} color={'#D4AF37'} />
+                          </View>
+                          
+                          <View style={[styles.newSchemeInstallmentBox, { backgroundColor: mode === 'dark' ? '#333' : '#F9F9F9' }]}>
+                            <Text style={[styles.newSchemeInstallmentLabel, { color: mode === 'dark' ? colors.textMuted : '#555' }]}>Next installment:</Text>
+                            <Text style={[styles.newSchemeInstallmentValue, { color: mode === 'dark' ? colors.text : '#333' }]}>₹{up.monthlyAmount || (up.completedMonths > 0 ? Math.round(up.totalPaid / up.completedMonths) : 0)}</Text>
                           </View>
                         </TouchableOpacity>
+
                         {up.status === 'ACTIVE' && (
-                          <TouchableOpacity 
-                            style={[styles.payInstallmentBtn, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#FDFCF8', borderColor: mode === 'dark' ? colors.border : '#EAEAEA' }]}
-                            onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { enrollmentId: up.id, defaultCategory: up.plan?.name?.toUpperCase().includes('GOLD') ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: up.plan?.id, defaultAmount: up.monthlyAmount?.toString() } })}
-                          >
-                            <Text style={[styles.payInstallmentBtnText, { color: '#C19A5B' }]}>Pay Monthly Installment</Text>
-                          </TouchableOpacity>
+                          <View style={styles.newSchemeActionRow}>
+                            <View style={styles.paymentDueBadge}>
+                              <Text style={styles.paymentDueText}>PAYMENT DUE</Text>
+                            </View>
+                            <TouchableOpacity 
+                              style={styles.newPayBtn}
+                              onPress={() => navigation.navigate('MainTab', { screen: 'My Plans', params: { enrollmentId: up.id, defaultCategory: up.plan?.name?.toUpperCase().includes('GOLD') ? 'Gold Schemes' : 'Silver Schemes', defaultPlanId: up.plan?.id, defaultAmount: (up.monthlyAmount || (up.completedMonths > 0 ? Math.round(up.totalPaid / up.completedMonths) : 0)).toString() } })}
+                            >
+                              <Text style={styles.newPayBtnText}>Pay Monthly Installment</Text>
+                            </TouchableOpacity>
+                          </View>
                         )}
                       </View>
                     );
+                  };
+
+                  const goldPlans = filteredPlans.filter((up: any) => {
+                    const metal = up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER');
+                    return metal === 'GOLD';
                   });
+
+                  const silverPlans = filteredPlans.filter((up: any) => {
+                    const metal = up.metalType || (up.plan?.name?.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER');
+                    return metal === 'SILVER';
+                  });
+
+                  return (
+                    <View>
+                      {goldPlans.length > 0 && (
+                        <View style={{ marginBottom: silverPlans.length > 0 ? 20 : 0 }}>
+                          <Text style={[styles.sectionHeading, { color: mode === 'dark' ? colors.text : '#333', textTransform: 'uppercase' }]}>Gold Schemes</Text>
+                          {goldPlans.map(renderPlanCard)}
+                        </View>
+                      )}
+                      
+                      {silverPlans.length > 0 && (
+                        <View>
+                          <Text style={[styles.sectionHeading, { color: mode === 'dark' ? colors.text : '#333', textTransform: 'uppercase' }]}>Silver Schemes</Text>
+                          {silverPlans.map(renderPlanCard)}
+                        </View>
+                      )}
+                    </View>
+                  );
                 })()}
               </View>
             )}
@@ -274,6 +302,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     fontFamily: 'serif',
+  },
+  sectionHeading: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'serif',
+    marginBottom: 12,
+    marginLeft: 4,
   },
   balanceCardGradient: {
     borderRadius: 16,
@@ -438,6 +473,82 @@ const styles = StyleSheet.create({
   modalOptionText: {
     fontSize: 18,
     fontWeight: '500',
+  },
+  newSchemeCard: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  newSchemeTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    fontFamily: 'serif',
+    marginBottom: 8,
+  },
+  newSchemeSubHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  newSchemeSavedText: {
+    fontSize: 14,
+    fontFamily: 'sans-serif',
+  },
+  newSchemeWeightText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#D4AF37',
+  },
+  newSchemeInstallmentBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  newSchemeInstallmentLabel: {
+    fontSize: 13,
+  },
+  newSchemeInstallmentValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  newSchemeActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  paymentDueBadge: {
+    backgroundColor: '#FFF8E1',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 4,
+  },
+  paymentDueText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#B8860B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  newPayBtn: {
+    backgroundColor: '#D4B855',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  newPayBtnText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
   }
 });
 

@@ -1,15 +1,57 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, Linking } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import {
-  CFErrorResponse,
-  CFPaymentGatewayService,
-} from 'react-native-cashfree-pg-sdk';
-import {
-  CFEnvironment,
-  CFSession,
-  CFThemeBuilder,
-} from 'cashfree-pg-api-contract';
+
+
+let CFPaymentGatewayService: any;
+let CFEnvironment: any;
+let CFSession: any;
+let CFThemeBuilder: any;
+
+try {
+  const sdk = require('react-native-cashfree-pg-sdk');
+  CFPaymentGatewayService = sdk.CFPaymentGatewayService;
+  
+  const contract = require('cashfree-pg-api-contract');
+  CFEnvironment = contract.CFEnvironment;
+  CFSession = contract.CFSession;
+  CFThemeBuilder = contract.CFThemeBuilder;
+} catch (e) {
+  console.warn("Cashfree Native SDK is not available in Expo Go.");
+  let _cb: any = {};
+  CFPaymentGatewayService = {
+    setCallback: (cb: any) => { _cb = cb; },
+    removeCallback: () => { _cb = {}; },
+    doPayment: (session: any) => { 
+      Alert.alert('Test Mode', 'Simulate successful payment?', [
+        { text: 'Fail', onPress: () => { if(_cb.onError) _cb.onError({ getMessage: () => 'Mock payment failed' }, session.order_id); } },
+        { text: 'Success', onPress: () => { if(_cb.onVerify) _cb.onVerify(session.order_id); } }
+      ]);
+    },
+    doWebPayment: (session: any) => { 
+      Alert.alert('Test Mode', 'Simulate successful payment?', [
+        { text: 'Fail', onPress: () => { if(_cb.onError) _cb.onError({ getMessage: () => 'Mock payment failed' }, session.order_id); } },
+        { text: 'Success', onPress: () => { if(_cb.onVerify) _cb.onVerify(session.order_id); } }
+      ]);
+    }
+  };
+  CFThemeBuilder = class {
+    setPrimaryTextColor() { return this; }
+    setPrimaryFont() { return this; }
+    setButtonTextColor() { return this; }
+    setButtonColor() { return this; }
+    setNavigationBarTextColor() { return this; }
+    setNavigationBarBackgroundColor() { return this; }
+    build() { return {}; }
+  };
+  CFSession = class { 
+    order_id: string;
+    constructor(sessionId: string, orderId: string, env: string) {
+      this.order_id = orderId;
+    } 
+  };
+  CFEnvironment = { SANDBOX: 'SANDBOX', PRODUCTION: 'PRODUCTION' };
+}
 import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
@@ -90,7 +132,7 @@ const PaymentScreen = () => {
       }
     };
 
-    const onError = (error: CFErrorResponse, orderID: string) => {
+    const onError = (error: any, orderID: string) => {
       console.log('[CASHFREE] onError:', error.getMessage());
       Alert.alert('Payment Cancelled or Failed', error.getMessage() || 'Transaction failed.');
       setLoading(false);

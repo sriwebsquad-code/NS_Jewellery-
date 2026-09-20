@@ -107,7 +107,7 @@ const CatalogueScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.iconBtn}>
           <Menu color={colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={[styles.headerLogo, { color: colors.text }]}>NS Mahaveer Collection</Text>
+        <Text style={[styles.headerLogo, { color: colors.text }]} numberOfLines={1}>NS Mahaveer Collection</Text>
         <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Favorites')}>
           <View>
             <Heart color={colors.text} size={24} />
@@ -171,7 +171,6 @@ const CatalogueScreen = () => {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={() => (
               <View style={styles.emptyStateContainer}>
-                <Image source={require('../../../assets/floral_mandala_bg.jpg')} style={[styles.cardBgPattern, { opacity: 0.2 }]} />
                 <Image 
                   source={require('../../../assets/empty_state_bust.jpg')} 
                   style={styles.emptyStateImage}
@@ -209,11 +208,14 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     alignItems: 'center',
   },
   headerLogo: {
-    fontSize: 20,
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 19,
     fontWeight: '900',
     fontFamily: 'serif',
     color: COLORS.secondary,
     letterSpacing: 0.5,
+    marginHorizontal: 10,
   },
   content: {
     flex: 1,
@@ -339,14 +341,6 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     paddingVertical: 50,
     paddingHorizontal: 20,
     position: 'relative',
-  },
-  cardBgPattern: {
-    position: 'absolute',
-    bottom: -100,
-    right: -50,
-    width: 250,
-    height: 250,
-    resizeMode: 'contain',
   },
   emptyStateImage: {
     width: 200,

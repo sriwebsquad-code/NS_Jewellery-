@@ -57,15 +57,25 @@ const MyPlansScreen = () => {
   }, [route.params?.defaultCategory, route.params?.defaultPlanId]);
 
   useEffect(() => {
-    const activeJoin = userPlans.find(up => up.planId === selectedPlanId);
-    if (activeJoin && activeJoin.monthlyAmount > 0) {
-      setInstallmentAmount(activeJoin.monthlyAmount.toString());
+    const activeJoin = route.params?.enrollmentId 
+      ? userPlans.find(up => up.id === route.params.enrollmentId)
+      : userPlans.find(up => up.planId === selectedPlanId);
+
+    if (activeJoin) {
+      const savedAmount = activeJoin.monthlyAmount || (activeJoin.completedMonths > 0 ? Math.round(activeJoin.totalPaid / activeJoin.completedMonths) : 0);
+      if (savedAmount > 0) {
+        setInstallmentAmount(savedAmount.toString());
+      } else if (route.params?.defaultAmount && Number(route.params.defaultAmount) > 0) {
+        setInstallmentAmount(route.params.defaultAmount.toString());
+      } else {
+        setInstallmentAmount('');
+      }
     } else if (route.params?.defaultAmount && Number(route.params.defaultAmount) > 0) {
       setInstallmentAmount(route.params.defaultAmount.toString());
     } else {
       setInstallmentAmount('');
     }
-  }, [selectedPlanId, userPlans, route.params?.defaultAmount]);
+  }, [selectedPlanId, userPlans, route.params?.defaultAmount, route.params?.enrollmentId]);
 
   useEffect(() => {
     fetchPlans();

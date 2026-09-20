@@ -177,8 +177,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 15,
-    width: width * 0.45,
-    height: width * 0.45,
+    width: width * 0.5,
+    height: width * 0.5,
   },
   logo: {
     width: '100%',

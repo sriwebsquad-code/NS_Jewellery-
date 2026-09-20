@@ -1,7 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Alert, ActivityIndicator } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
-import Share, { Social } from 'react-native-share';
+let Share: any;
+let Social: any;
+try {
+  const RNShare = require('react-native-share');
+  Share = RNShare.default;
+  Social = RNShare.Social;
+} catch (e) {
+  console.warn("react-native-share is not available in Expo Go.");
+  Share = {
+    open: async () => { /* no-op in Expo Go */ },
+    shareSingle: async () => { /* no-op in Expo Go */ }
+  };
+  Social = { WHATSAPP: 'whatsapp', INSTAGRAM: 'instagram', FACEBOOK: 'facebook' };
+}
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';

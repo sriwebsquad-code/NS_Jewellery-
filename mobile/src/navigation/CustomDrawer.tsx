@@ -13,7 +13,6 @@ const CustomDrawer = (props: any) => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/floral_mandala_bg.jpg')} style={styles.cardBgPattern} />
       <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 20 }}>
         {/* Header / Brand Area */}
         <View style={styles.header}>
@@ -38,7 +37,7 @@ const CustomDrawer = (props: any) => {
           <DrawerItem label="Home" icon={Home} isFocused={props.state.index === 0} onPress={() => props.navigation.navigate('MainTab')} />
 
           <DrawerItem label="My Account" icon={User} isFocused={false} onPress={() => props.navigation.navigate('MyAccountScreen')} />
-          <DrawerItem label="My Digital Locker" icon={Lock} isFocused={false} onPress={() => props.navigation.navigate('MyLockerScreen')} />
+          <DrawerItem label="My Savings" icon={Lock} isFocused={false} onPress={() => props.navigation.navigate('MyLockerScreen')} />
           <DrawerItem label="Jewellery" icon={BookOpen} isFocused={props.state.index === 1} onPress={() => props.navigation.navigate('CatalogueScreen')} />
           <DrawerItem label="Terms & Privacy" icon={FileText} isFocused={false} onPress={() => props.navigation.navigate('TermsPrivacyScreen')} />
           <DrawerItem label="About us" icon={Phone} isFocused={false} onPress={() => props.navigation.navigate('AboutUsScreen')} />
@@ -54,7 +53,7 @@ const CustomDrawer = (props: any) => {
       <View style={{ paddingHorizontal: 15, paddingBottom: 20 }}>
         <View style={styles.developerContainer}>
           <Text style={styles.developerText}>
-            developed by : <Text style={styles.textBlack}>Sri Web Squad</Text>
+            Developed By: <Text style={styles.textBlack}>Sri Web Squad</Text>
           </Text>
         </View>
 
