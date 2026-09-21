@@ -26,7 +26,7 @@ const AboutUsScreen = () => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           <Image 
-            source={require('../../../assets/app_logo.jpg')} 
+            source={require('../../../assets/rn_transparent_logo.png')} 
             style={{ width: 140, height: 140, alignSelf: 'center', marginBottom: 10, resizeMode: 'contain' }} 
           />
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>Since 1962</Text>

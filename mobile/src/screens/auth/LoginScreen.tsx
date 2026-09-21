@@ -76,7 +76,7 @@ const LoginScreen = () => {
           {/* Logo Section */}
           <View style={styles.logoSection}>
             <Image 
-              source={require('../../../assets/new_logo.png')} 
+              source={require('../../../assets/rn_transparent_logo.png')} 
               style={styles.logo} 
             />
           </View>
