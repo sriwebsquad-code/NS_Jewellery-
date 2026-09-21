@@ -227,7 +227,11 @@ const MyPlansScreen = () => {
 
   const activeJoin = userPlans.find(up => up.planId === selectedPlanId);
   const isEnrolledContext = !!route.params?.enrollmentId;
-  const isLocked = (activeJoin && activeJoin.monthlyAmount > 0) || (route.params?.defaultAmount && Number(route.params.defaultAmount) > 0) || isEnrolledContext;
+  
+  const isGoldWeightScheme = selectedPlan?.type === 'GOLD' || (selectedPlan?.name || '').toLowerCase().includes('gold weight');
+  const isLocked = isGoldWeightScheme 
+    ? (!!activeJoin || isEnrolledContext)
+    : ((activeJoin && activeJoin.monthlyAmount > 0) || (route.params?.defaultAmount && Number(route.params.defaultAmount) > 0) || isEnrolledContext);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8' }]}>
