@@ -7,6 +7,7 @@ import { smsService } from '../services/sms.service';
 import axios from 'axios';
 import nodemailer from 'nodemailer';
 import { getNextSequence } from '../utils/counter';
+import { OAuth2Client } from 'google-auth-library';
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
@@ -448,6 +449,59 @@ export const adminLogin = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Admin Login Error:', error);
     res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+};
+
+const googleClient = new OAuth2Client();
+
+export const adminGoogleLogin = async (req: Request, res: Response) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Google ID token is required' });
+    }
+
+    // Verify the Google ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      // audience: process.env.GOOGLE_CLIENT_ID // Optional: restrict to specific client ID
+    });
+    
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(401).json({ success: false, message: 'Invalid Google token' });
+    }
+
+    const email = payload.email.toLowerCase();
+
+    // Check against authorized emails
+    const authorizedEmails = [
+      (process.env.ADMIN_EMAIL_1 || '').toLowerCase(),
+      (process.env.ADMIN_EMAIL_2 || '').toLowerCase(),
+      (process.env.ADMIN_EMAIL_3 || '').toLowerCase()
+    ].filter(e => e !== '');
+
+    if (!authorizedEmails.includes(email)) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Access Denied. This Google account is not authorized.' 
+      });
+    }
+
+    // Generate Admin JWT
+    const token = generateToken({ userId: email, role: 'ADMIN' });
+    
+    return res.status(200).json({
+      success: true,
+      data: {
+        token,
+        user: { id: email, name: payload.name || 'Admin', email, role: 'ADMIN' }
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Admin Google Login Error:', error);
+    res.status(401).json({ success: false, message: 'Google authentication failed', error: error.message });
   }
 };
 

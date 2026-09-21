@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendOTP, verifyOTP, verifyOtpOnly, sendEmailOTP, createMPIN, loginWithMPIN, requestMpinReset, resetMpin, adminLogin, adminResetPassword } from '../controllers/auth.controller';
+import { sendOTP, verifyOTP, verifyOtpOnly, sendEmailOTP, createMPIN, loginWithMPIN, requestMpinReset, resetMpin, adminLogin, adminGoogleLogin, adminResetPassword } from '../controllers/auth.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -12,6 +12,7 @@ router.post('/verify-otp-only', verifyOtpOnly);
 
 // Admin Routes
 router.post('/admin/login', adminLogin);
+router.post('/admin/google', adminGoogleLogin);
 router.post('/admin/reset-password', adminResetPassword);
 
 // MPIN Routes

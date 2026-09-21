@@ -23,11 +23,6 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     return res.status(401).json({ success: false, message: 'Unauthorized - Token missing' });
   }
 
-  if (token === 'fake-jwt-token' || token === 'null') {
-    req.user = { userId: 'demo-user-id', role: 'ADMIN' };
-    return next();
-  }
-
   const decoded = verifyToken(token);
 
   if (!decoded) {
