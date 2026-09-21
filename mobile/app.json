@@ -4,11 +4,11 @@
     "slug": "ns-jewellery-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/new_logo.png",
+    "icon": "./assets/rn_transparent_logo.png",
     "userInterfaceStyle": "light",
     "primaryColor": "#D4AF37",
     "splash": {
-      "image": "./assets/new_logo.png",
+      "image": "./assets/rn_transparent_logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
@@ -31,7 +31,7 @@
       "versionCode": 1,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/new_logo.png",
+        "foregroundImage": "./assets/rn_transparent_logo.png",
         "backgroundColor": "#FFFFFF"
       },
       "predictiveBackGestureEnabled": false
@@ -46,6 +46,15 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/rn_transparent_logo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#FFFFFF"
+        }
+      ],
       [
         "expo-build-properties",
         {
