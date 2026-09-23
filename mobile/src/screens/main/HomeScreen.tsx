@@ -126,8 +126,12 @@ const HomeScreen = () => {
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
-          <Text style={{ fontFamily: 'serif', fontSize: 20, fontWeight: 'bold', color: '#D4AF37', textAlign: 'center' }}>
-            NS Mahaveer
+          <Text 
+            numberOfLines={1} 
+            adjustsFontSizeToFit 
+            style={{ fontFamily: 'serif', fontSize: 20, fontWeight: 'bold', color: '#D4AF37', textAlign: 'center', width: '100%' }}
+          >
+            NS Mahaveer Jewellery
           </Text>
           <Text style={{ fontFamily: 'sans-serif', fontSize: 7, fontWeight: 'bold', color: '#888', letterSpacing: 2, textAlign: 'center', marginTop: 2 }}>
             TRUST • TRADITION • WEALTH

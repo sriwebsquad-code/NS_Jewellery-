@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -20,6 +20,7 @@ const DigitalGoldScreen = () => {
   const [amount, setAmount] = useState('');
   const [weight, setWeight] = useState('');
   const [lastEdited, setLastEdited] = useState<'amount'|'weight'>('amount');
+  const [showImportantNotice, setShowImportantNotice] = useState(false);
   
   const [goldRate, setGoldRate] = useState<number | null>(null);
   const [rateEffectiveDate, setRateEffectiveDate] = useState<string | null>(null);
@@ -123,23 +124,20 @@ const DigitalGoldScreen = () => {
     // Use the same logic as the backend: effectiveDate must be today's date.
     let isRateForToday = false;
     if (rateEffectiveDate) {
-      const nowIST = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-      const rateIST = new Date(new Date(rateEffectiveDate).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+      const rateDate = new Date(rateEffectiveDate);
+      const today = new Date();
+      const istOffset = 5.5 * 60 * 60 * 1000;
+      const rateIST = new Date(rateDate.getTime() + istOffset);
+      const nowIST = new Date(today.getTime() + istOffset);
+      
       isRateForToday =
-        rateIST.getFullYear() === nowIST.getFullYear() &&
-        rateIST.getMonth() === nowIST.getMonth() &&
-        rateIST.getDate() === nowIST.getDate();
+        rateIST.getUTCFullYear() === nowIST.getUTCFullYear() &&
+        rateIST.getUTCMonth() === nowIST.getUTCMonth() &&
+        rateIST.getUTCDate() === nowIST.getUTCDate();
     }
 
     if (!isRateForToday) {
-      Alert.alert(
-        "Important Notice",
-        "THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF GOLD ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED. IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.",
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Proceed", onPress: () => navigation.navigate('Payment', { amount: parseFloat(amount), planName: 'Digital Gold', planType: 'GOLD' }) }
-        ]
-      );
+      setShowImportantNotice(true);
       return;
     }
 
@@ -283,6 +281,34 @@ const DigitalGoldScreen = () => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Important Notice Modal */}
+      <Modal
+        visible={showImportantNotice}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowImportantNotice(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: '#D4AF37' }]}>
+            <Text style={styles.modalTitle}>Important Notice</Text>
+            <Text style={styles.modalBody}>
+              THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF GOLD ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED. IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setShowImportantNotice(false)} style={styles.modalBtn}>
+                <Text style={styles.modalBtnText}>CANCEL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                setShowImportantNotice(false);
+                navigation.navigate('Payment', { amount: parseFloat(amount), planName: 'Digital Gold', planType: 'GOLD' });
+              }} style={styles.modalBtn}>
+                <Text style={styles.modalBtnText}>PROCEED</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -291,6 +317,50 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    borderRadius: 16,
+    padding: 24,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: 16,
+    fontFamily: 'serif',
+  },
+  modalBody: {
+    fontSize: 14,
+    color: '#FFF',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 20,
+  },
+  modalBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  modalBtnText: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   header: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
@@ -43,9 +43,11 @@ const MyPlansScreen = () => {
   const [installmentAmount, setInstallmentAmount] = useState<string>('');
   const [liveRates, setLiveRates] = useState<{gold: number, silver: number}>({ gold: 0, silver: 0 });
   
-  // Show dropdown toggles
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showPlanDropdown, setShowPlanDropdown] = useState(false);
+  const [rateEffectiveDate, setRateEffectiveDate] = useState<string | null>(null);
+  const [showImportantNotice, setShowImportantNotice] = useState(false);
+  const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
 
   useEffect(() => {
     if (route.params?.defaultCategory) {
@@ -91,6 +93,7 @@ const MyPlansScreen = () => {
           gold: data.data.goldRate || 0,
           silver: data.data.silverRate || 0
         });
+        setRateEffectiveDate(data.data.effectiveDate || data.data.createdAt || null);
       }
     } catch (err) {
       console.error('Failed to fetch rates for plans:', err);
@@ -421,6 +424,26 @@ const MyPlansScreen = () => {
             }
 
             const navigateToPayment = (finalPlanId: string) => {
+              let isRateForToday = false;
+              if (rateEffectiveDate) {
+                const rateDate = new Date(rateEffectiveDate);
+                const today = new Date();
+                const istOffset = 5.5 * 60 * 60 * 1000;
+                const rateIST = new Date(rateDate.getTime() + istOffset);
+                const nowIST = new Date(today.getTime() + istOffset);
+                
+                isRateForToday =
+                  rateIST.getUTCFullYear() === nowIST.getUTCFullYear() &&
+                  rateIST.getUTCMonth() === nowIST.getUTCMonth() &&
+                  rateIST.getUTCDate() === nowIST.getUTCDate();
+              }
+
+              if (!isRateForToday) {
+                setPendingPlanId(finalPlanId);
+                setShowImportantNotice(true);
+                return;
+              }
+
               navigation.navigate('Payment', { 
                 amount: Number(installmentAmount),
                 planId: finalPlanId,
@@ -477,6 +500,41 @@ const MyPlansScreen = () => {
           </LinearGradient>
         </TouchableOpacity>
       </View>
+
+      {/* Important Notice Modal */}
+      <Modal
+        visible={showImportantNotice}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowImportantNotice(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: '#D4AF37' }]}>
+            <Text style={styles.modalTitle}>Important Notice</Text>
+            <Text style={styles.modalBody}>
+              THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER THE RATE ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED. IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setShowImportantNotice(false)} style={styles.modalBtn}>
+                <Text style={styles.modalBtnText}>CANCEL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                setShowImportantNotice(false);
+                if (pendingPlanId) {
+                  navigation.navigate('Payment', { 
+                    amount: Number(installmentAmount),
+                    planId: pendingPlanId,
+                    planName: selectedPlan?.name,
+                    planType: selectedPlan?.type
+                  });
+                }
+              }} style={styles.modalBtn}>
+                <Text style={styles.modalBtnText}>PROCEED</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -506,6 +564,53 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     fontFamily: 'serif',
     color: mode === 'dark' ? colors.primary : '#6C1B1B',
     letterSpacing: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    borderRadius: 16,
+    padding: 24,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: 16,
+    fontFamily: 'serif',
+  },
+  modalBody: {
+    fontSize: 14,
+    color: '#FFF',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 20,
+  },
+  modalBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  modalBtnText: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  emptyState: {
+    padding: 20,
   },
   content: {
     padding: 20,
