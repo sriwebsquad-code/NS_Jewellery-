@@ -1,6 +1,6 @@
 import React from 'react';
-import { Image } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Image, Platform } from 'react-native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Colors } from '../constants/Colors';
 import { useThemeStore } from '../store/themeStore';
 
@@ -13,7 +13,7 @@ import MyPlansScreen from '../screens/main/MyPlansScreen';
 
 import { Home, BookOpen, Coins, Calendar, CircleDollarSign } from 'lucide-react-native';
 
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialTopTabNavigator();
 
 const BottomTabNavigator = () => {
   const { mode } = useThemeStore();
@@ -21,28 +21,35 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
+      tabBarPosition="bottom"
       screenOptions={({ route }) => ({
-        headerShown: false,
         tabBarActiveTintColor: '#D4AF37',
         tabBarInactiveTintColor: mode === 'dark' ? colors.textMuted : '#8C7A6B',
         tabBarShowLabel: true,
+        swipeEnabled: true,
+        tabBarIndicatorStyle: { height: 0 },
         tabBarStyle: {
           backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8',
           borderTopWidth: 1,
           borderTopColor: mode === 'dark' ? colors.border : '#EAEAEA',
-          height: 65,
+          height: Platform.OS === 'ios' ? 85 : 65,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.05,
           shadowRadius: 5,
           elevation: 5,
+          justifyContent: 'center'
         },
         tabBarLabelStyle: {
           fontSize: 10,
           fontFamily: 'sans-serif',
           fontWeight: '700',
+          textTransform: 'none',
+          marginTop: 4,
         },
-        tabBarIcon: ({ focused, color, size = 24 }: any) => {
+        tabBarIcon: ({ focused, color }: any) => {
+          const size = 24;
           let IconComponent;
           if (route.name === 'Home') IconComponent = Home;
           else if (route.name === 'Jewellery') IconComponent = BookOpen;
@@ -64,7 +71,7 @@ const BottomTabNavigator = () => {
           }
           else if (route.name === 'My Plans') IconComponent = Calendar;
           
-          return IconComponent ? <IconComponent color={color} size={24} /> : <></>;
+          return IconComponent ? <IconComponent color={color} size={size} /> : <></>;
         }
       })}
     >

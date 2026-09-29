@@ -59,9 +59,9 @@ const LoginMPINScreen = () => {
   };
 
   const pad = [
-    { num: '1', letters: '' }, { num: '2', letters: 'ABC' }, { num: '3', letters: 'DEF' },
-    { num: '4', letters: 'GHI' }, { num: '5', letters: 'JKL' }, { num: '6', letters: 'MNO' },
-    { num: '7', letters: 'PQRS' }, { num: '8', letters: 'TUV' }, { num: '9', letters: 'WXYZ' },
+    { num: '1', letters: '' }, { num: '2', letters: '' }, { num: '3', letters: '' },
+    { num: '4', letters: '' }, { num: '5', letters: '' }, { num: '6', letters: '' },
+    { num: '7', letters: '' }, { num: '8', letters: '' }, { num: '9', letters: '' },
     { num: '', letters: '' }, { num: '0', letters: '' }, { num: 'backspace', letters: '' }
   ];
 

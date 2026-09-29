@@ -27,7 +27,7 @@ const CustomDrawer = (props: any) => {
           
           <View style={styles.dividerContainer}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerIcon}>🪷</Text>
+            <Text style={styles.brandText}>NS Mahaveer Jewellery</Text>
             <View style={styles.dividerLine} />
           </View>
         </View>
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%',
+    width: '90%',
     marginTop: 20,
   },
   dividerLine: {
@@ -177,9 +177,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#D4AF37',
     opacity: 0.5,
   },
-  dividerIcon: {
+  brandText: {
     marginHorizontal: 10,
-    fontSize: 16,
+    fontSize: 12,
+    color: '#D4AF37',
+    fontFamily: 'serif',
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   navSection: {
     paddingHorizontal: 15,

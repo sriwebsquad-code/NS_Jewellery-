@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS, SIZES } from '../../constants/theme';
-import { Menu } from 'lucide-react-native';
+import { ChevronLeft } from 'lucide-react-native';
 
 const TermsPrivacyScreen = () => {
   const navigation = useNavigation<any>();
@@ -16,8 +16,8 @@ const TermsPrivacyScreen = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Menu color={colors.text} size={28} />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <ChevronLeft color={colors.text} size={28} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Terms & Privacy</Text>
         <View style={{ width: 28 }} />

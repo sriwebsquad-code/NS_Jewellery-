@@ -102,9 +102,9 @@ const MyLockerScreen = () => {
                   activeOpacity={0.9}
                 >
                   <LinearGradient
-                    colors={['#C89F7A', '#A87B4C', '#6A4C25']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                    colors={['#CE9B68', '#73471C']}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
                     style={styles.balanceCardGradient}
                   >
                     <View style={styles.balanceCardContent}>
@@ -123,9 +123,9 @@ const MyLockerScreen = () => {
                   activeOpacity={0.9}
                 >
                   <LinearGradient
-                    colors={['#B0B5B9', '#8C92AC', '#5C6370']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                    colors={['#A3ABB4', '#4A5362']}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
                     style={styles.balanceCardGradient}
                   >
                     <View style={styles.balanceCardContent}>

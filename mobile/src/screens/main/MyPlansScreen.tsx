@@ -243,7 +243,7 @@ const MyPlansScreen = () => {
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.iconBtn}>
           <Menu color={mode === 'dark' ? colors.text : '#4A3424'} size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerLogo, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>NS Mahaveer Schemes</Text>
+        <Text style={[styles.headerLogo, { color: mode === 'dark' ? colors.text : '#4A3424' }]}>NS MAHAVEER SCHEMES</Text>
         <View style={{ width: 40 }} />
       </View>
 

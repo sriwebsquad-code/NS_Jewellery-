@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/html2canvas": "^0.5.35",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
@@ -23,6 +24,7 @@
     "@tailwindcss/postcss": "^4.3.3",
     "axios": "^1.18.1",
     "date-fns": "^4.4.0",
+    "html2canvas": "^1.4.1",
     "idb-keyval": "^6.3.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
