@@ -73,7 +73,7 @@ const NotificationScreen = () => {
       </View>
       <View style={styles.textContainer}>
         <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
-        <Text style={[styles.message, { color: colors.textMuted }]}>{item.message}</Text>
+        <Text style={[styles.message, { color: colors.textMuted }]}>{item.message || item.body}</Text>
         <Text style={[styles.time, { color: colors.textMuted }]}>
           {item.createdAt ? formatDistanceToNow(new Date(item.createdAt), { addSuffix: true }) : 'Recently'}
         </Text>

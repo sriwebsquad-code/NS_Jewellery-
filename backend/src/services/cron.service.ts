@@ -74,7 +74,25 @@ export const initRemindersCron = () => {
         if (reminderDays.includes(diffDays)) {
           // It's a reminder day! Generate a notification
           const planSnapshot = await db.collection('plans').doc(userPlan.planId).get();
-          const planName = planSnapshot.exists ? planSnapshot.data()!.name : 'your plan';
+          const planData = planSnapshot.exists ? planSnapshot.data()! : null;
+          let planName = planData ? planData.name : 'your plan';
+          
+          if (planData) {
+            const st = planData.schemeType || userPlan.schemeType;
+            const mt = planData.metalType || userPlan.metalType;
+            if (st && mt) {
+              if (mt === 'GOLD' && st === 'VALUE_BASED') planName = 'Gold Value Schemes';
+              else if (mt === 'GOLD' && st === 'WEIGHT_BASED') planName = 'Gold Weight Schemes';
+              else if (mt === 'SILVER' && st === 'VALUE_BASED') planName = 'Silver Value Schemes';
+              else if (mt === 'SILVER' && st === 'WEIGHT_BASED') planName = 'Silver Weight Schemes';
+            } else {
+              const n = planName.toLowerCase().trim();
+              if (n.includes('gold') && (n.includes('weight') || n === 'gold 11 scheme')) planName = 'Gold Weight Schemes';
+              else if (n.includes('gold') && (n.includes('value') || n === '11 month gold scheme')) planName = 'Gold Value Schemes';
+              else if (n.includes('silver') && (n.includes('weight') || n === 'silver 11 scheme')) planName = 'Silver Weight Schemes';
+              else if (n.includes('silver') && (n.includes('value') || n === '11 month silver scheme')) planName = 'Silver Value Schemes';
+            }
+          }
 
           const docRef = db.collection('notifications').doc();
           await docRef.set({

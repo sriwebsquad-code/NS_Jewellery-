@@ -85,7 +85,7 @@ const RegistrationScreen = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#FDF8F0" />
       <LinearGradient
         colors={['#F9F1E2', '#FCF9F2', '#FDF8F0']}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       <KeyboardAvoidingView 
         style={styles.keyboardView}
