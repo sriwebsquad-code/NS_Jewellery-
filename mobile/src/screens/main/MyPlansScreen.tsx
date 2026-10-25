@@ -26,6 +26,51 @@ const formatPlanName = (name: string, schemeType?: string, metalType?: string) =
   return name;
 };
 
+const formatBenefitSentenceCase = (text: string): string => {
+  if (!text) return '';
+  const upper = text.toUpperCase().trim();
+
+  if (upper.includes('VALUE-BASED PLAN:')) {
+    return "Value-based plan: Your monthly installment accumulates as cash value in your wallet. At the end of 11 months, your total saved cash is used to purchase jewellery based on the live rate on that final maturity day.";
+  }
+
+  if (upper.includes('WEIGHT-BASED PLAN:')) {
+    const isSilver = upper.includes('SILVER');
+    const metal = isSilver ? 'silver' : 'gold';
+    return `Weight-based plan: Your monthly installment is instantly converted into grams of ${metal} based on the live rate on the day of payment. You accumulate physical weight, protecting you against future price increases!`;
+  }
+
+  if (upper.includes('NO WASTAGE NO MAKING CHARGES')) {
+    const isSilver = upper.includes('SILVER');
+    return `No wastage no making charges for the ${isSilver ? 'silver' : 'gold'} weight accumulated only after 11 months.`;
+  }
+
+  if (upper.includes('PLAN CANNOT BE CLOSED')) {
+    return "The plan cannot be closed in between. No benefits will be given.";
+  }
+
+  if (upper.includes('THE AMOUNT WILL BE CONVERTED TO WEIGHT')) {
+    const isSilver = upper.includes('SILVER');
+    return `The amount will be converted to weight as per rate of ${isSilver ? 'silver' : 'gold'} on the payment date if paid between 12.00am to the next morning when the rate is updated, it will calculate on the next morning rate. Not on previous date rate.`;
+  }
+
+  if (upper.includes('NO ORDERS ACCEPTED FOR JEWELLERY PLANS')) {
+    return "Note: No orders accepted for jewellery plans, ready items can be purchased whatever its wastage may be.";
+  }
+
+  if (upper.includes('DIAMOND ORNAMENTS')) {
+    const isSilverPlan = upper.includes('GOLD ITEMS');
+    const excludedItems = isSilverPlan ? 'gold items, & gifts' : 'silver items, & gifts';
+    return `Note: Diamond ornaments, ${excludedItems} cannot be purchased in this plans.`;
+  }
+
+  return text
+    .toLowerCase()
+    .replace(/(^\s*|\.\s*|:\s*)([a-z])/g, (_, p1, p2) => p1 + p2.toUpperCase())
+    .replace(/\b(note)\b/gi, 'Note')
+    .replace(/\b(12\.00am|12:00am)\b/gi, '12.00am');
+};
+
 const MyPlansScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
@@ -139,18 +184,18 @@ const MyPlansScreen = () => {
       console.error('Failed to fetch plans, using local fallback:', error);
       // Hard fallback so UI never breaks during dev if backend fails/token expires
       const goldBenefits = [
-        "NO WASTAGE NO MAKING CHARGES FOR THE GOLD WEIGHT ACCUMULATED ONLY AFTER 11MONTHS.",
-        "THE PLAN CANNOT BE CLOSED IN BETWEEN. NO BENEFITS WILL BE GIVEN.",
-        "THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF GOLD ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED, IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.",
-        "NOTE: NO ORDERS ACCEPTED FOR JEWELLERY PLANS, READY ITEMS CAN BE PURCHASED WHATEVER ITS WASTAGE MAY BE.",
-        "NOTE : DIAMOND ORNAMENTS, SILVER ITEMS,& GIFTS CANNOT BE PURCHASED IN THIS PLANS"
+        "No wastage no making charges for the gold weight accumulated only after 11 months.",
+        "The plan cannot be closed in between. No benefits will be given.",
+        "The amount will be converted to weight as per rate of gold on the payment date if paid between 12.00am to the next morning when the rate is updated, it will calculate on the next morning rate. Not on previous date rate.",
+        "Note: No orders accepted for jewellery plans, ready items can be purchased whatever its wastage may be.",
+        "Note: Diamond ornaments, silver items, & gifts cannot be purchased in this plans."
       ];
       const silverBenefits = [
-        "NO WASTAGE NO MAKING CHARGES FOR THE SILVER WEIGHT ACCUMULATED ONLY AFTER 11MONTHS.",
-        "THE PLAN CANNOT BE CLOSED IN BETWEEN. NO BENEFITS WILL BE GIVEN.",
-        "THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF SILVER ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED, IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.",
-        "NOTE: NO ORDERS ACCEPTED FOR JEWELLERY PLANS, READY ITEMS CAN BE PURCHASED WHATEVER ITS WASTAGE MAY BE.",
-        "NOTE : DIAMOND ORNAMENTS, GOLD ITEMS,& GIFTS CANNOT BE PURCHASED IN THIS PLANS"
+        "No wastage no making charges for the silver weight accumulated only after 11 months.",
+        "The plan cannot be closed in between. No benefits will be given.",
+        "The amount will be converted to weight as per rate of silver on the payment date if paid between 12.00am to the next morning when the rate is updated, it will calculate on the next morning rate. Not on previous date rate.",
+        "Note: No orders accepted for jewellery plans, ready items can be purchased whatever its wastage may be.",
+        "Note: Diamond ornaments, gold items, & gifts cannot be purchased in this plans."
       ];
 
       const fallbackPlans = [
@@ -193,9 +238,9 @@ const MyPlansScreen = () => {
     }
     
     if (selectedPlan.type === 'GOLD' || selectedPlan.type === 'SILVER') {
-      parsedBenefits.unshift(`WEIGHT-BASED PLAN: Your monthly installment is instantly converted into grams of ${selectedPlan.type.toLowerCase()} based on the live rate on the day of payment. You accumulate physical weight, protecting you against future price increases!`);
+      parsedBenefits.unshift(`Weight-based plan: Your monthly installment is instantly converted into grams of ${selectedPlan.type.toLowerCase()} based on the live rate on the day of payment. You accumulate physical weight, protecting you against future price increases!`);
     } else if (selectedPlan.type === 'AMOUNT') {
-      parsedBenefits.unshift(`VALUE-BASED PLAN: Your monthly installment accumulates as cash value in your wallet. At the end of 11 months, your total saved cash is used to purchase jewellery based on the live rate on that final maturity day.`);
+      parsedBenefits.unshift(`Value-based plan: Your monthly installment accumulates as cash value in your wallet. At the end of 11 months, your total saved cash is used to purchase jewellery based on the live rate on that final maturity day.`);
     }
   }
 
@@ -382,7 +427,7 @@ const MyPlansScreen = () => {
                 {parsedBenefits.map((benefit, idx) => (
                   <View key={idx} style={styles.benefitRow}>
                     <Check color={'#D4AF37'} size={18} style={{ marginRight: 8, marginTop: 2 }} strokeWidth={3} />
-                    <Text style={[styles.benefitText, { color: mode === 'dark' ? colors.textMuted : '#6A4C25' }]}>{benefit.toUpperCase()}</Text>
+                    <Text style={[styles.benefitText, { color: mode === 'dark' ? colors.textMuted : '#6A4C25' }]}>{formatBenefitSentenceCase(benefit)}</Text>
                   </View>
                 ))}
               </View>
@@ -512,23 +557,31 @@ const MyPlansScreen = () => {
           <View style={[styles.modalContent, { backgroundColor: '#D4AF37' }]}>
             <Text style={styles.modalTitle}>Important Notice</Text>
             <Text style={styles.modalBody}>
-              THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER THE RATE ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED. IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.
+              The amount will be converted to weight as per the rate on the payment date. If paid between 12:00 AM and the next morning, when the rate is updated, it will be calculated using the next morning's rate, not the previous day's rate.
             </Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity onPress={() => setShowImportantNotice(false)} style={styles.modalBtn}>
+              <TouchableOpacity 
+                onPress={() => setShowImportantNotice(false)} 
+                style={styles.modalBtn}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.modalBtnText}>CANCEL</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => {
-                setShowImportantNotice(false);
-                if (pendingPlanId) {
-                  navigation.navigate('Payment', { 
-                    amount: Number(installmentAmount),
-                    planId: pendingPlanId,
-                    planName: selectedPlan?.name,
-                    planType: selectedPlan?.type
-                  });
-                }
-              }} style={styles.modalBtn}>
+              <TouchableOpacity 
+                onPress={() => {
+                  setShowImportantNotice(false);
+                  if (pendingPlanId) {
+                    navigation.navigate('Payment', { 
+                      amount: Number(installmentAmount),
+                      planId: pendingPlanId,
+                      planName: selectedPlan?.name,
+                      planType: selectedPlan?.type
+                    });
+                  }
+                }} 
+                style={styles.modalBtn}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.modalBtnText}>PROCEED</Text>
               </TouchableOpacity>
             </View>
@@ -570,38 +623,46 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   modalContent: {
-    width: '85%',
+    width: '100%',
+    maxWidth: 360,
     borderRadius: 16,
     padding: 24,
-    elevation: 5,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: 5,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#FFF',
     marginBottom: 16,
-    fontFamily: 'serif',
+    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+    letterSpacing: 0.5,
   },
   modalBody: {
-    fontSize: 14,
+    fontSize: 14.5,
     color: '#FFF',
     lineHeight: 22,
     marginBottom: 24,
+    fontWeight: '500',
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    alignItems: 'center',
     gap: 20,
   },
   modalBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalBtnText: {
     color: '#FFF',
