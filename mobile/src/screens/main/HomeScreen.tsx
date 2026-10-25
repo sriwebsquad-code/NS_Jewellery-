@@ -130,13 +130,16 @@ const HomeScreen = () => {
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
-          <Text 
-            numberOfLines={1} 
-            adjustsFontSizeToFit 
-            style={{ fontFamily: 'serif', fontSize: 20, fontWeight: 'bold', color: '#D4AF37', textAlign: 'center', width: '100%' }}
-          >
-            NS Mahaveer Jewellery
-          </Text>
+          <View style={styles.titleWrapper}>
+            <Text 
+              numberOfLines={1} 
+              adjustsFontSizeToFit 
+              style={{ fontFamily: 'serif', fontSize: 20, fontWeight: 'bold', color: '#D4AF37', textAlign: 'center' }}
+            >
+              NS Mahaveer Jewellery
+            </Text>
+            <View style={styles.titleUnderline} />
+          </View>
         </View>
         
         <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuIcon}>
@@ -465,6 +468,17 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     fontWeight: '900',
     fontFamily: 'serif',
     color: '#D4AF37',
+  },
+  titleWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleUnderline: {
+    height: 1.5,
+    backgroundColor: '#D4AF37',
+    width: '100%',
+    marginTop: 4,
+    borderRadius: 1,
   },
   ratesRow: {
     flexDirection: 'row',
