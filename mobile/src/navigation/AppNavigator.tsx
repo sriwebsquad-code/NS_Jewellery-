@@ -70,7 +70,10 @@ const AppNavigator = () => {
     colors: {
       ...DefaultTheme.colors,
       background: Colors.light.background,
+      card: Colors.light.cardBackground,
       text: Colors.light.text,
+      border: Colors.light.border,
+      primary: Colors.light.primary,
     },
   };
 
@@ -79,7 +82,10 @@ const AppNavigator = () => {
     colors: {
       ...DarkTheme.colors,
       background: Colors.dark.background,
+      card: Colors.dark.cardBackground,
       text: Colors.dark.text,
+      border: Colors.dark.border,
+      primary: Colors.dark.primary,
     },
   };
 

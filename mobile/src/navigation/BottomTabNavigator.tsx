@@ -23,20 +23,20 @@ const BottomTabNavigator = () => {
     <Tab.Navigator
       tabBarPosition="bottom"
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: '#D4AF37',
-        tabBarInactiveTintColor: mode === 'dark' ? colors.textMuted : '#8C7A6B',
+        tabBarActiveTintColor: colors.tabIconSelected,
+        tabBarInactiveTintColor: colors.tabIconDefault,
         tabBarShowLabel: true,
         swipeEnabled: true,
         tabBarIndicatorStyle: { height: 0 },
         tabBarStyle: {
-          backgroundColor: mode === 'dark' ? colors.backgroundSecondary : '#FDFCF8',
+          backgroundColor: colors.tabBarBackground,
           borderTopWidth: 1,
-          borderTopColor: mode === 'dark' ? colors.border : '#EAEAEA',
+          borderTopColor: colors.tabBarBorder,
           height: Platform.OS === 'ios' ? 85 : 65,
           paddingBottom: Platform.OS === 'ios' ? 20 : 0,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
+          shadowOpacity: mode === 'dark' ? 0.3 : 0.05,
           shadowRadius: 5,
           elevation: 5,
           justifyContent: 'center'

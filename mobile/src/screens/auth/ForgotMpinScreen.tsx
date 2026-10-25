@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { useThemeStore } from '../../store/themeStore';
-import { COLORS, SIZES } from '../../constants/theme';
 import { ArrowLeft, Lock, Phone } from 'lucide-react-native';
 import { ENV } from '../../config/env';
 
@@ -226,7 +225,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     marginTop: 10,
   },
   submitButtonText: {
-    color: colors.cardBackground,
+    color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 0.5,

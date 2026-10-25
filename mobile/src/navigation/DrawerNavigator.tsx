@@ -11,9 +11,15 @@ import ReturnPoliciesScreen from '../screens/main/ReturnPoliciesScreen';
 import AdvanceBookingsScreen from '../screens/main/AdvanceBookingsScreen';
 import MyLockerScreen from '../screens/main/MyLockerScreen';
 
+import { useThemeStore } from '../store/themeStore';
+import { Colors } from '../constants/Colors';
+
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
+  const { mode } = useThemeStore();
+  const colors = mode === 'dark' ? Colors.dark : Colors.light;
+
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawer {...props} />}
@@ -21,6 +27,7 @@ const DrawerNavigator = () => {
         headerShown: false,
         drawerStyle: {
           width: '80%',
+          backgroundColor: colors.background,
         },
       }}
     >

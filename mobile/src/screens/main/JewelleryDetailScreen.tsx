@@ -265,7 +265,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     elevation: 4,
   },
   btnText: {
-    color: colors.cardBackground,
+    color: '#FFF',
     fontSize: 15,
     fontWeight: '700',
     letterSpacing: 1,

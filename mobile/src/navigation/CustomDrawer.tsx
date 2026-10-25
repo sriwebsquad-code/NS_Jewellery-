@@ -1,15 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
-import { COLORS } from '../constants/theme';
+import { Colors } from '../constants/Colors';
 import { LogOut, Home, User, BookOpen, FileText, Phone, RotateCcw, Lock, Moon, Sun, ChevronRight } from 'lucide-react-native';
 
 const CustomDrawer = (props: any) => {
   const { user, logout } = useAuthStore();
   const { mode, toggleTheme } = useThemeStore();
+  const colors = mode === 'dark' ? Colors.dark : Colors.light;
+  const styles = getStyles(colors, mode);
 
   return (
     <View style={styles.container}>
@@ -34,17 +36,16 @@ const CustomDrawer = (props: any) => {
 
         {/* Custom Navigation Items */}
         <View style={styles.navSection}>
-          <DrawerItem label="Home" icon={Home} isFocused={props.state.index === 0} onPress={() => props.navigation.navigate('MainTab')} />
-
-          <DrawerItem label="My Account" icon={User} isFocused={false} onPress={() => props.navigation.navigate('MyAccountScreen')} />
-          <DrawerItem label="My Savings" icon={Lock} isFocused={false} onPress={() => props.navigation.navigate('MyLockerScreen')} />
-          <DrawerItem label="Jewellery" icon={BookOpen} isFocused={props.state.index === 1} onPress={() => props.navigation.navigate('CatalogueScreen')} />
-          <DrawerItem label="Terms & Privacy" icon={FileText} isFocused={false} onPress={() => props.navigation.navigate('TermsPrivacyScreen')} />
-          <DrawerItem label="About us" icon={Phone} isFocused={false} onPress={() => props.navigation.navigate('AboutUsScreen')} />
-          <DrawerItem label="Return Policies" icon={RotateCcw} isFocused={false} onPress={() => props.navigation.navigate('ReturnPoliciesScreen')} />
-          <DrawerItem label="Change MPIN" icon={Lock} isFocused={false} onPress={() => props.navigation.navigate('ChangeMpinScreen')} />
+          <DrawerItem styles={styles} label="Home" icon={Home} isFocused={props.state.index === 0} onPress={() => props.navigation.navigate('MainTab')} />
+          <DrawerItem styles={styles} label="My Account" icon={User} isFocused={false} onPress={() => props.navigation.navigate('MyAccountScreen')} />
+          <DrawerItem styles={styles} label="My Savings" icon={Lock} isFocused={false} onPress={() => props.navigation.navigate('MyLockerScreen')} />
+          <DrawerItem styles={styles} label="Jewellery" icon={BookOpen} isFocused={props.state.index === 1} onPress={() => props.navigation.navigate('CatalogueScreen')} />
+          <DrawerItem styles={styles} label="Terms & Privacy" icon={FileText} isFocused={false} onPress={() => props.navigation.navigate('TermsPrivacyScreen')} />
+          <DrawerItem styles={styles} label="About us" icon={Phone} isFocused={false} onPress={() => props.navigation.navigate('AboutUsScreen')} />
+          <DrawerItem styles={styles} label="Return Policies" icon={RotateCcw} isFocused={false} onPress={() => props.navigation.navigate('ReturnPoliciesScreen')} />
+          <DrawerItem styles={styles} label="Change MPIN" icon={Lock} isFocused={false} onPress={() => props.navigation.navigate('ChangeMpinScreen')} />
           {((user as any)?.role === 'ADMIN') && (
-            <DrawerItem label="Admin Panel" icon={User} isFocused={false} onPress={() => props.navigation.navigate('AdminDashboard')} />
+            <DrawerItem styles={styles} label="Admin Panel" icon={User} isFocused={false} onPress={() => props.navigation.navigate('AdminDashboard')} />
           )}
         </View>
 
@@ -57,27 +58,27 @@ const CustomDrawer = (props: any) => {
           </Text>
         </View>
 
-        <View style={[styles.drawerItem, { backgroundColor: '#FDFCF8', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 }]}>
+        <View style={styles.drawerItem}>
           <View style={styles.drawerItemContent}>
-            {mode === 'dark' ? <Moon color={'#C89F7A'} size={20} /> : <Sun color={'#C89F7A'} size={20} />}
+            {mode === 'dark' ? <Moon color={'#D4AF37'} size={20} /> : <Sun color={'#C89F7A'} size={20} />}
             <Text style={[styles.drawerItemText, { flex: 1 }]}>Dark Mode</Text>
             <Switch 
               value={mode === 'dark'}
               onValueChange={toggleTheme}
               trackColor={{ false: '#EAEAEA', true: '#D4AF37' }}
-              thumbColor={mode === 'dark' ? '#FFF' : '#FFF'}
+              thumbColor={'#FFF'}
             />
           </View>
         </View>
 
         <TouchableOpacity 
-          style={[styles.drawerItem, { backgroundColor: '#FDFCF8', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 }]} 
+          style={styles.drawerItem} 
           onPress={logout}
         >
           <View style={styles.drawerItemContent}>
-            <LogOut color={'#C89F7A'} size={20} />
+            <LogOut color={colors.primary} size={20} />
             <Text style={[styles.drawerItemText, { flex: 1 }]}>Logout</Text>
-            <ChevronRight color={'#C89F7A'} size={16} />
+            <ChevronRight color={colors.icon} size={16} />
           </View>
         </TouchableOpacity>
       </View>
@@ -85,7 +86,7 @@ const CustomDrawer = (props: any) => {
   );
 };
 
-const DrawerItem = ({ label, icon: Icon, isFocused, onPress }: any) => {
+const DrawerItem = ({ label, icon: Icon, isFocused, onPress, styles }: any) => {
   if (isFocused) {
     return (
       <TouchableOpacity onPress={onPress}>
@@ -108,27 +109,18 @@ const DrawerItem = ({ label, icon: Icon, isFocused, onPress }: any) => {
   return (
     <TouchableOpacity style={styles.drawerItem} onPress={onPress}>
       <View style={styles.drawerItemContent}>
-        <Icon color={'#C89F7A'} size={20} />
+        <Icon color={'#D4AF37'} size={20} />
         <Text style={[styles.drawerItemText, { flex: 1 }]}>{label}</Text>
         <ChevronRight color={'#C89F7A'} size={16} />
       </View>
     </TouchableOpacity>
   );
-}
+};
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FDFCF8', // Premium warm cream
-  },
-  cardBgPattern: {
-    position: 'absolute',
-    top: -50,
-    right: -50,
-    width: 250,
-    height: 250,
-    opacity: 0.1,
-    resizeMode: 'contain',
+    backgroundColor: colors.background,
   },
   header: {
     padding: 20,
@@ -155,14 +147,14 @@ const styles = StyleSheet.create({
     fontFamily: 'serif',
   },
   userName: {
-    color: '#4A3424',
+    color: colors.text,
     fontSize: 22,
     fontWeight: '900',
     marginBottom: 4,
     fontFamily: 'serif',
   },
   userPhone: {
-    color: '#6A4C25',
+    color: colors.textMuted,
     fontSize: 14,
   },
   dividerContainer: {
@@ -189,16 +181,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   drawerItem: {
-    backgroundColor: '#FDFCF8',
+    backgroundColor: colors.cardBackground,
     borderRadius: 20,
     paddingVertical: 16,
     paddingHorizontal: 20,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#EAEAEA',
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
+    shadowOpacity: mode === 'dark' ? 0.2 : 0.03,
     shadowRadius: 4,
     elevation: 1,
   },
@@ -218,7 +210,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   drawerItemText: {
-    color: '#4A3424',
+    color: colors.text,
     fontSize: 16,
     marginLeft: 15,
     fontWeight: '600',
@@ -229,11 +221,11 @@ const styles = StyleSheet.create({
   },
   developerText: {
     fontSize: 11,
-    color: '#888',
+    color: colors.textMuted,
     fontWeight: '500',
   },
   textBlack: {
-    color: '#4A3424',
+    color: colors.text,
     fontWeight: 'bold',
     fontSize: 11,
   }

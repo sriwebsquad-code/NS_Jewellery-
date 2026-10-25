@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { ArrowLeft, Heart, HeartOff } from 'lucide-react-native';
 import { useThemeStore } from '../../store/themeStore';
-import { COLORS } from '../../constants/theme';
 import { useFavoritesStore, FavoriteItem } from '../../store/favoritesStore';
 import { ENV } from '../../config/env';
 
@@ -29,7 +28,7 @@ const FavoritesScreen = () => {
           style={styles.jewelleryImage} 
         />
         <TouchableOpacity style={styles.wishlistBtn} onPress={() => toggleFavorite(item)}>
-          <Heart color={isFav ? COLORS.error : colors.primary} size={16} fill={isFav ? COLORS.error : 'transparent'} />
+          <Heart color={isFav ? '#E63946' : colors.primary} size={16} fill={isFav ? '#E63946' : 'transparent'} />
         </TouchableOpacity>
         
         <View style={styles.jewelleryInfo}>
@@ -122,7 +121,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     backgroundColor: colors.cardBackground,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: mode === 'dark' ? '#000' : COLORS.black,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -145,7 +144,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     height: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: mode === 'dark' ? '#000' : COLORS.black,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -190,14 +189,14 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 25,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   exploreBtnText: {
-    color: COLORS.white,
+    color: '#FFF',
     fontWeight: 'bold',
     fontSize: 15,
   }

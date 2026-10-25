@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, FlatList } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, ArrowUpRight, ArrowDownRight, ShoppingBag, Gift } from 'lucide-react-native';
-import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
@@ -118,7 +117,7 @@ const WalletScreen = () => {
             <Text style={[styles.emptyText, { color: colors.textMuted }]}>No purchases yet.</Text>
           ) : (
             transactions.map((tx, idx) => (
-              <View key={idx} style={[styles.txCard, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
+              <View key={idx} style={[styles.txCard, { backgroundColor: colors.cardBackground, shadowColor: '#000' }]}>
                 <View style={styles.txLeft}>
                   <Text style={[styles.txType, { color: colors.text }]}>{tx.type}</Text>
                   <Text style={[styles.txDate, { color: colors.textMuted }]}>{new Date(tx.createdAt).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}</Text>

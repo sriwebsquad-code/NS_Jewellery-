@@ -11,12 +11,20 @@ import * as SplashScreen from 'expo-splash-screen';
 
 // Removed artificial splash screen delay for faster startup
 
+import { useThemeStore } from './src/store/themeStore';
+
 export default function App() {
+  const { mode } = useThemeStore();
+
   return (
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-          <StatusBar hidden={true} translucent={true} backgroundColor="transparent" barStyle="dark-content" />
+          <StatusBar 
+            translucent={true} 
+            backgroundColor="transparent" 
+            barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} 
+          />
           <SecurityBoundary>
             <NetworkBoundary>
               <AppNavigator />

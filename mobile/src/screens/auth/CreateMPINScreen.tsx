@@ -57,11 +57,11 @@ const CreateMPINScreen = () => {
       boxes.push(
         <TouchableOpacity 
           key={i} 
-          style={[styles.box, hasValue ? styles.boxFilled : null]}
+          style={[styles.box, { backgroundColor: colors.inputBackground, borderColor: colors.primary }]}
           onPress={onPress}
           activeOpacity={1}
         >
-          {hasValue && <View style={styles.dot} />}
+          {hasValue && <View style={[styles.dot, { backgroundColor: colors.primary }]} />}
         </TouchableOpacity>
       );
     }
@@ -69,7 +69,7 @@ const CreateMPINScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: '#FDFDFD' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView 
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -77,11 +77,11 @@ const CreateMPINScreen = () => {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Text style={styles.title}>Secure Your Account</Text>
-            <Text style={styles.subtitle}>Create a 4-digit MPIN for quick access</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Create a 4-digit MPIN for quick access</Text>
           </View>
 
         <View style={styles.formContainer}>
-          <Text style={styles.label}>Enter 4-Digit MPIN</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Enter 4-Digit MPIN</Text>
           {renderBoxes(mpin, () => mpinInputRef.current?.focus())}
           <TextInput
             ref={mpinInputRef}
@@ -95,7 +95,7 @@ const CreateMPINScreen = () => {
             }}
           />
 
-          <Text style={styles.label}>Confirm MPIN</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Confirm MPIN</Text>
           {renderBoxes(confirmMpin, () => confirmMpinInputRef.current?.focus())}
           <TextInput
             ref={confirmMpinInputRef}
@@ -106,9 +106,9 @@ const CreateMPINScreen = () => {
             onChangeText={setConfirmMpin}
           />
 
-          <View style={styles.infoBox}>
-            <ShieldCheck color="#555" size={24} style={{ marginRight: 12 }} />
-            <Text style={styles.infoText}>
+          <View style={[styles.infoBox, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#F9F4EB', borderColor: colors.border, borderWidth: mode === 'dark' ? 1 : 0 }]}>
+            <ShieldCheck color={colors.primary} size={24} style={{ marginRight: 12 }} />
+            <Text style={[styles.infoText, { color: colors.textMuted }]}>
               Your MPIN keeps your account safe and secure.{'\n'}Do not share your MPIN with anyone.
             </Text>
           </View>
@@ -130,7 +130,7 @@ const CreateMPINScreen = () => {
                 <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Set MPIN & Continue'}</Text>
               </LinearGradient>
             ) : (
-              <View style={[styles.gradientButton, { backgroundColor: '#E0E0E0' }]}>
+              <View style={[styles.gradientButton, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#E0E0E0' }]}>
                 <Text style={styles.buttonTextDisabled}>Set MPIN & Continue</Text>
               </View>
             )}

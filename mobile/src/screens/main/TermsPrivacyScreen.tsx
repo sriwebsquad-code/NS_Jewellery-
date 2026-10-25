@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { useThemeStore } from '../../store/themeStore';
-import { COLORS, SIZES } from '../../constants/theme';
 import { ChevronLeft } from 'lucide-react-native';
 
 const TermsPrivacyScreen = () => {
@@ -102,7 +101,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.secondary,
+    color: colors.primary,
     marginTop: 15,
     marginBottom: 8,
   },

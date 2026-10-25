@@ -417,7 +417,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     marginBottom: 35,
   },
   bannerTitle: {
-    color: colors.cardBackground,
+    color: '#FFF',
     fontSize: 22,
     fontWeight: '900',
     letterSpacing: 0.5,
@@ -470,11 +470,11 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     fontWeight: '500',
   },
   metalLabelActive: {
-    color: colors.cardBackground,
+    color: '#FFF',
     fontWeight: 'bold',
   },
   metalPrice: {
-    color: colors.cardBackground,
+    color: '#FFF',
     fontSize: 14,
     fontWeight: '900',
     textAlign: 'center',
@@ -494,7 +494,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   calculatorTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.secondary,
+    color: colors.text,
     marginBottom: 20,
   },
   inputRow: {
@@ -519,14 +519,14 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   currencySymbol: {
     fontSize: 28,
     fontWeight: '900',
-    color: COLORS.secondary,
+    color: colors.primary,
     marginRight: 8,
   },
   textInput: {
     flex: 1,
     fontSize: 28,
     fontWeight: '900',
-    color: COLORS.secondary,
+    color: colors.text,
     padding: 0,
   },
   dashedLine: {

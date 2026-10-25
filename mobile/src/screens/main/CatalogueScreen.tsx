@@ -329,7 +329,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   jewelleryWeight: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.secondaryDark,
+    color: colors.text,
   },
   jewelleryPurity: {
     display: 'none',
@@ -351,14 +351,14 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   emptyStateTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#4A3424',
+    color: colors.text,
     fontFamily: 'serif',
     marginBottom: 10,
     textAlign: 'center',
   },
   emptyStateSubtitle: {
     fontSize: 14,
-    color: '#6A4C25',
+    color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 22,
     paddingHorizontal: 30,

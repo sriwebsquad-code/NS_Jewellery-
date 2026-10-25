@@ -155,7 +155,7 @@ const HomeScreen = () => {
         <Text style={{ fontSize: 16, fontWeight: 'bold', fontFamily: 'serif', color: mode === 'dark' ? colors.text : '#333' }}>
           Hello, {user?.name || 'Guest'} 👋
         </Text>
-        <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>
+        <Text style={{ fontSize: 10, color: mode === 'dark' ? colors.textMuted : '#888', marginTop: 2 }}>
           Your dreams are our priority ♡
         </Text>
       </View>
@@ -434,7 +434,7 @@ const HomeScreen = () => {
 const getStyles = (colors: any, mode: string) => StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background,
   },
   topYellowBg: {
     position: 'absolute',

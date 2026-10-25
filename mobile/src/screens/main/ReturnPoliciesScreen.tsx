@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
 import { useThemeStore } from '../../store/themeStore';
-import { COLORS } from '../../constants/theme';
 import { Menu } from 'lucide-react-native';
 
 const ReturnPoliciesScreen = () => {

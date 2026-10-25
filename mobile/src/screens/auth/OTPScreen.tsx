@@ -4,6 +4,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { ChevronLeft, Delete } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from '../../constants/Colors';
+import { useThemeStore } from '../../store/themeStore';
 import { ENV } from '../../config/env';
 
 const { width } = Dimensions.get('window');
@@ -15,6 +17,8 @@ const OTPScreen = () => {
   const route = useRoute<any>();
   const { phone } = route.params || { phone: '9876543210' };
   const { setLogin, setUser } = useAuthStore();
+  const { mode } = useThemeStore();
+  const colors = mode === 'dark' ? Colors.dark : Colors.light;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -83,11 +87,12 @@ const OTPScreen = () => {
           key={i} 
           style={[
             styles.otpBox, 
-            isFocused && styles.otpBoxFocused,
-            char ? styles.otpBoxFilled : null
+            { backgroundColor: colors.inputBackground, borderColor: colors.border },
+            isFocused && { borderColor: colors.primary },
+            char ? { borderColor: colors.primary } : null
           ]}
         >
-          <Text style={styles.otpText}>{char}</Text>
+          <Text style={[styles.otpText, { color: colors.text }]}>{char}</Text>
         </View>
       );
     }
@@ -102,29 +107,27 @@ const OTPScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: colors.cardBackground, borderColor: colors.primary }]}
           onPress={() => navigation.goBack()}
         >
-          <ChevronLeft color="#D5A539" size={24} />
+          <ChevronLeft color={colors.primary} size={24} />
         </TouchableOpacity>
       </View>
       
       <View style={styles.contentContainer}>
-        {/* Logo Removed */}
-
         {/* Text Section */}
         <View style={styles.textSection}>
           <Text style={styles.heading}>Enter OTP</Text>
-          <Text style={styles.subheading}>We have sent a 6-digit code to</Text>
+          <Text style={[styles.subheading, { color: colors.textSecondary }]}>We have sent a 6-digit code to</Text>
           
-          <View style={styles.phonePill}>
-            <Text style={styles.phoneText}>📞 +91 {phone}</Text>
+          <View style={[styles.phonePill, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+            <Text style={[styles.phoneText, { color: colors.text }]}>📞 +91 {phone}</Text>
             <TouchableOpacity style={styles.editBtn} onPress={() => navigation.goBack()}>
               <Text style={styles.editText}>Edit ✎</Text>
             </TouchableOpacity>
@@ -137,12 +140,12 @@ const OTPScreen = () => {
         </View>
 
         {timer > 0 ? (
-          <Text style={styles.resendText}>
+          <Text style={[styles.resendText, { color: colors.textMuted }]}>
             Resend OTP in <Text style={styles.timerText}>{Math.floor(timer / 60).toString().padStart(2, '0')}:{(timer % 60).toString().padStart(2, '0')}</Text>
           </Text>
         ) : (
           <TouchableOpacity onPress={handleResend}>
-            <Text style={[styles.resendText, { color: '#D5A539', fontWeight: 'bold' }]}>Resend OTP</Text>
+            <Text style={[styles.resendText, { color: colors.primary, fontWeight: 'bold' }]}>Resend OTP</Text>
           </TouchableOpacity>
         )}
 
@@ -178,17 +181,17 @@ const OTPScreen = () => {
           if (item.num === 'backspace') {
             return (
               <TouchableOpacity key={index} style={styles.keypadButton} onPress={handleBackspace}>
-                <View style={styles.keypadButtonInner}>
-                  <Delete color="#333" size={24} />
+                <View style={[styles.keypadButtonInner, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+                  <Delete color={colors.text} size={24} />
                 </View>
               </TouchableOpacity>
             );
           }
           return (
             <TouchableOpacity key={index} style={styles.keypadButton} onPress={() => handleKeyPress(item.num)}>
-              <View style={styles.keypadButtonInner}>
-                <Text style={styles.keyNum}>{item.num}</Text>
-                {item.letters ? <Text style={styles.keyLetters}>{item.letters}</Text> : null}
+              <View style={[styles.keypadButtonInner, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+                <Text style={[styles.keyNum, { color: colors.text }]}>{item.num}</Text>
+                {item.letters ? <Text style={[styles.keyLetters, { color: colors.textMuted }]}>{item.letters}</Text> : null}
               </View>
             </TouchableOpacity>
           );

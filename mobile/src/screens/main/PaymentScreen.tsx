@@ -52,7 +52,6 @@ try {
   };
   CFEnvironment = { SANDBOX: 'SANDBOX', PRODUCTION: 'PRODUCTION' };
 }
-import { COLORS } from '../../constants/theme';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
@@ -212,7 +211,7 @@ const PaymentScreen = () => {
       </View>
 
       <View style={styles.content}>
-        <View style={[styles.summaryCard, { backgroundColor: colors.cardBackground, shadowColor: mode === 'dark' ? '#000' : COLORS.black }]}>
+        <View style={[styles.summaryCard, { backgroundColor: colors.cardBackground, shadowColor: '#000' }]}>
           <Text style={[styles.summaryTitle, { color: colors.text }]}>Order Summary</Text>
           <View style={styles.row}>
             <Text style={[styles.label, { color: colors.textMuted }]}>{planName}</Text>
@@ -276,7 +275,7 @@ const PaymentScreen = () => {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color={COLORS.white} />
+            <ActivityIndicator color="#FFF" />
           ) : (
             <Text style={styles.payBtnText}>Pay ₹{amount.toLocaleString('en-IN')}</Text>
           )}
@@ -288,28 +287,28 @@ const PaymentScreen = () => {
 
 const getStyles = (colors: any, mode: string) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  header: { padding: 20, paddingTop: 60, backgroundColor: colors.cardBackground },
-  headerTitle: { fontSize: 24, fontWeight: '900', color: COLORS.secondary, fontFamily: 'serif' },
+  header: { padding: 20, paddingTop: 60, backgroundColor: colors.background, borderBottomWidth: 1, borderBottomColor: colors.border },
+  headerTitle: { fontSize: 24, fontWeight: '900', color: colors.text, fontFamily: 'serif' },
   content: { padding: 20, flex: 1 },
-  summaryCard: { backgroundColor: colors.cardBackground, padding: 20, borderRadius: 16, marginBottom: 30, shadowColor: colors.text, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 },
-  summaryTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.secondary, marginBottom: 15 },
+  summaryCard: { backgroundColor: colors.cardBackground, padding: 20, borderRadius: 16, marginBottom: 30, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 },
+  summaryTitle: { fontSize: 18, fontWeight: 'bold', color: colors.text, marginBottom: 15 },
   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
   label: { color: colors.textMuted, fontSize: 15 },
-  value: { color: COLORS.secondary, fontWeight: '600', fontSize: 15 },
-  divider: { height: 1, backgroundColor: '#EEE', marginVertical: 15 },
-  totalLabel: { fontSize: 16, fontWeight: 'bold', color: COLORS.secondary },
-  totalValue: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary },
+  value: { color: colors.text, fontWeight: '600', fontSize: 15 },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: 15 },
+  totalLabel: { fontSize: 16, fontWeight: 'bold', color: colors.text },
+  totalValue: { fontSize: 20, fontWeight: 'bold', color: colors.primary },
   metalInfoBox: { marginTop: 15, padding: 12, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 8 },
   metalInfoText: { color: '#B8860B', fontSize: 12, textAlign: 'center', lineHeight: 18 },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: colors.textMuted, marginBottom: 15, marginLeft: 5 },
-  paymentMethod: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.cardBackground, padding: 18, borderRadius: 12, marginBottom: 10 },
-  methodText: { fontSize: 16, color: COLORS.secondary, fontWeight: '500' },
-  radioSelected: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
-  radioSelectedInner: { width: 12, height: 12, borderRadius: 6, backgroundColor: COLORS.primary },
-  radioUnselected: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: '#DDD' },
-  payBtn: { backgroundColor: COLORS.primary, padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 'auto', marginBottom: 20 },
+  paymentMethod: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.cardBackground, padding: 18, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: colors.border },
+  methodText: { fontSize: 16, color: colors.text, fontWeight: '500' },
+  radioSelected: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  radioSelectedInner: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.primary },
+  radioUnselected: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.border },
+  payBtn: { backgroundColor: colors.primary, padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 'auto', marginBottom: 20 },
   payBtnDisabled: { opacity: 0.7 },
-  payBtnText: { color: colors.cardBackground, fontSize: 18, fontWeight: 'bold' },
+  payBtnText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
   webviewHeader: { padding: 15, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cardBackground, borderBottomWidth: 1, borderBottomColor: colors.border },
   backBtn: { flexDirection: 'row', alignItems: 'center' },
   backText: { fontSize: 16, fontWeight: 'bold', marginLeft: 10 },

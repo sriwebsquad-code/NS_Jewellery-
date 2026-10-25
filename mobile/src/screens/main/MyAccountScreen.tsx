@@ -397,7 +397,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     marginBottom: 15,
   },
   avatarText: {
-    color: colors.cardBackground,
+    color: '#FFF',
     fontSize: 32,
     fontWeight: 'bold',
   },
@@ -545,7 +545,7 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     marginTop: 25,
   },
   saveBtnText: {
-    color: colors.cardBackground,
+    color: '#FFF',
     fontWeight: 'bold',
     fontSize: 16,
   }

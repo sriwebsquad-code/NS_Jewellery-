@@ -17,6 +17,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { ChevronDown, ArrowRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from '../../constants/Colors';
+import { useThemeStore } from '../../store/themeStore';
 import { ENV } from '../../config/env';
 
 const { width, height } = Dimensions.get('window');
@@ -24,6 +26,8 @@ const { width, height } = Dimensions.get('window');
 const LoginScreen = () => {
   const [phone, setPhone] = useState('');
   const navigation = useNavigation<any>();
+  const { mode } = useThemeStore();
+  const colors = mode === 'dark' ? Colors.dark : Colors.light;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -66,7 +70,7 @@ const LoginScreen = () => {
         style={styles.container}
         resizeMode="cover"
       > */}
-      <View style={[styles.container, { backgroundColor: '#FDFCF8' }]}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
@@ -84,7 +88,7 @@ const LoginScreen = () => {
           {/* Text Section */}
           <View style={styles.textSection}>
             <Text style={styles.heading}>Welcome!</Text>
-            <Text style={styles.subheading}>Login to continue</Text>
+            <Text style={[styles.subheading, { color: colors.textSecondary }]}>Login to continue</Text>
             
             {/* Small decorative diamond */}
             <View style={styles.decorativeLineContainer}>
@@ -96,18 +100,18 @@ const LoginScreen = () => {
 
           {/* Form */}
           <View style={styles.formContainer}>
-            <Text style={styles.inputLabel}>Mobile Number</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Mobile Number</Text>
             
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, { backgroundColor: colors.inputBackground, borderColor: colors.primary }]}>
               <View style={styles.prefixContainer}>
-                <Text style={styles.prefixText}>+91</Text>
-                <ChevronDown color="#999" size={16} style={{ marginLeft: 4 }} />
+                <Text style={[styles.prefixText, { color: colors.text }]}>+91</Text>
+                <ChevronDown color={colors.textMuted} size={16} style={{ marginLeft: 4 }} />
               </View>
-              <View style={styles.separator} />
+              <View style={[styles.separator, { backgroundColor: colors.border }]} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Enter mobile number"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textMuted}
                 keyboardType="numeric"
                 maxLength={10}
                 value={phone}
@@ -142,21 +146,21 @@ const LoginScreen = () => {
           <View style={styles.trustSection}>
             <View style={styles.dividerContainer}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>Certified & Trusted By</Text>
+              <Text style={[styles.dividerText, { color: colors.textMuted }]}>Certified & Trusted By</Text>
               <View style={styles.dividerLine} />
             </View>
 
             <View style={styles.badgesRow}>
               <View style={styles.badgeContainer}>
-                <Text style={styles.badgeTitle}>BIS</Text>
-                <Text style={styles.badgeSub}>Hallmark</Text>
+                <Text style={[styles.badgeTitle, { color: colors.text }]}>BIS</Text>
+                <Text style={[styles.badgeSub, { color: colors.textMuted }]}>Hallmark</Text>
               </View>
             </View>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>
+            <Text style={[styles.footerText, { color: colors.textMuted }]}>
               By continuing, you agree to our{' '}
               <Text style={styles.footerLink} onPress={() => navigation.navigate('TermsPrivacy')}>Terms & Conditions</Text>
               {' '}and{' '}

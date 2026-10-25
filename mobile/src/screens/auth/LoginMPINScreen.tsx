@@ -5,6 +5,8 @@ import { useAuthStore } from '../../store/authStore';
 import { Delete, Lock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ENV } from '../../config/env';
+import { Colors } from '../../constants/Colors';
+import { useThemeStore } from '../../store/themeStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
@@ -15,6 +17,8 @@ const LoginMPINScreen = () => {
   const { logout, updateActivity, setLogin, user } = useAuthStore();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
+  const { mode } = useThemeStore();
+  const colors = mode === 'dark' ? Colors.dark : Colors.light;
 
   const handleLogin = async (code: string) => {
     setLoading(true);
@@ -66,8 +70,8 @@ const LoginMPINScreen = () => {
   ];
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FDFCF8" translucent={false} />
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+      <StatusBar barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} translucent={false} />
       
       <View style={styles.contentContainer}>
         {/* Logo Section */}
@@ -81,7 +85,7 @@ const LoginMPINScreen = () => {
         {/* Text Section */}
         <View style={styles.textSection}>
           <Text style={styles.heading}>Welcome Back!</Text>
-          <Text style={styles.subheading}>Enter your MPIN to unlock</Text>
+          <Text style={[styles.subheading, { color: colors.textSecondary }]}>Enter your MPIN to unlock</Text>
         </View>
 
         {/* MPIN Dots Indicator */}
@@ -89,8 +93,8 @@ const LoginMPINScreen = () => {
           {[0, 1, 2, 3].map((index) => {
             const isFilled = mpin.length > index;
             return (
-              <View key={index} style={styles.dotOuter}>
-                {isFilled && <View style={styles.dotInner} />}
+              <View key={index} style={[styles.dotOuter, { backgroundColor: colors.inputBackground, borderColor: colors.primary }]}>
+                {isFilled && <View style={[styles.dotInner, { backgroundColor: colors.primary }]} />}
               </View>
             );
           })}
@@ -127,7 +131,7 @@ const LoginMPINScreen = () => {
         
         {/* Subtle Logout Option */}
         <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-          <Text style={styles.logoutText}>Logout / Use different account</Text>
+          <Text style={[styles.logoutText, { color: colors.textMuted }]}>Logout / Use different account</Text>
         </TouchableOpacity>
       </View>
 
@@ -140,17 +144,17 @@ const LoginMPINScreen = () => {
           if (item.num === 'backspace') {
             return (
               <TouchableOpacity key={index} style={styles.keypadButton} onPress={handleBackspace}>
-                <View style={styles.keypadButtonInner}>
-                  <Delete color="#333" size={20} />
+                <View style={[styles.keypadButtonInner, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+                  <Delete color={colors.text} size={20} />
                 </View>
               </TouchableOpacity>
             );
           }
           return (
             <TouchableOpacity key={index} style={styles.keypadButton} onPress={() => handleKeyPress(item.num)}>
-              <View style={styles.keypadButtonInner}>
-                <Text style={styles.keyNum}>{item.num}</Text>
-                {item.letters ? <Text style={styles.keyLetters}>{item.letters}</Text> : null}
+              <View style={[styles.keypadButtonInner, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+                <Text style={[styles.keyNum, { color: colors.text }]}>{item.num}</Text>
+                {item.letters ? <Text style={[styles.keyLetters, { color: colors.textMuted }]}>{item.letters}</Text> : null}
               </View>
             </TouchableOpacity>
           );

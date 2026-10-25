@@ -76,16 +76,16 @@ const MyLockerScreen = () => {
         {/* Tab Switcher */}
         <View style={[styles.tabContainer, { backgroundColor: mode === 'dark' ? colors.cardBackground : '#F3E5D8', borderColor: mode === 'dark' ? colors.border : '#F3E5D8', borderRadius: 25, padding: 4 }]}>
           <TouchableOpacity 
-            style={[styles.tabBtn, activeTab === 'COINS' && styles.activeTabBtn]} 
+            style={[styles.tabBtn, activeTab === 'COINS' && [styles.activeTabBtn, { backgroundColor: mode === 'dark' ? colors.primary : '#6D4C41' }]]} 
             onPress={() => setActiveTab('COINS')}
           >
-            <Text style={[styles.tabText, activeTab === 'COINS' && styles.activeTabText]}>Digi Coins</Text>
+            <Text style={[styles.tabText, { color: mode === 'dark' ? colors.textMuted : '#6D4C41' }, activeTab === 'COINS' && [styles.activeTabText, { color: mode === 'dark' ? '#221F1E' : '#FFF' }]]}>Digi Coins</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tabBtn, activeTab === 'PLANS' && styles.activeTabBtn]} 
+            style={[styles.tabBtn, activeTab === 'PLANS' && [styles.activeTabBtn, { backgroundColor: mode === 'dark' ? colors.primary : '#6D4C41' }]]} 
             onPress={() => setActiveTab('PLANS')}
           >
-            <Text style={[styles.tabText, activeTab === 'PLANS' && styles.activeTabText]}>Schemes</Text>
+            <Text style={[styles.tabText, { color: mode === 'dark' ? colors.textMuted : '#6D4C41' }, activeTab === 'PLANS' && [styles.activeTabText, { color: mode === 'dark' ? '#221F1E' : '#FFF' }]]}>Schemes</Text>
           </TouchableOpacity>
         </View>
 
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   exploreBtn: {
-    backgroundColor: '#6D4C41',
+    backgroundColor: '#D4AF37',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
