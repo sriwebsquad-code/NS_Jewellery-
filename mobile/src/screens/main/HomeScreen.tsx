@@ -138,7 +138,6 @@ const HomeScreen = () => {
             >
               NS Mahaveer Jewellery
             </Text>
-            <View style={styles.titleUnderline} />
           </View>
         </View>
         
@@ -472,13 +471,11 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
   titleWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  titleUnderline: {
-    height: 1.5,
-    backgroundColor: '#D4AF37',
-    width: '100%',
-    marginTop: 4,
-    borderRadius: 1,
+    alignSelf: 'center',
+    borderBottomWidth: 1.5,
+    borderBottomColor: '#D4AF37',
+    borderStyle: 'solid',
+    paddingBottom: 4,
   },
   ratesRow: {
     flexDirection: 'row',

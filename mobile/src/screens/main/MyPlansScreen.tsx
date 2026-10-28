@@ -655,14 +655,14 @@ const getStyles = (colors: any, mode: string) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: 20,
   },
   modalBtn: {
     paddingVertical: 10,
-    paddingHorizontal: 14,
-    minHeight: 40,
+    paddingHorizontal: 16,
+    minHeight: 44,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 16,
   },
   modalBtnText: {
     color: '#FFF',

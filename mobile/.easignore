@@ -1,2 +1,9 @@
-﻿/android
+node_modules/
+.expo/
+dist/
+web-build/
+.claude/
+.git/
+/android
 /ios
+*.tsbuildinfo
