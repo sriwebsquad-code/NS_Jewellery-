@@ -34,8 +34,44 @@ const createPaymentOrder = async (req, res) => {
         if (!userId)
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         const { amount, itemType, planId } = req.body;
-        if (!amount || amount <= 0) {
+        let finalAmount = parseFloat(amount);
+        if (planId) {
+            let userPlan = null;
+            // Try if planId is actually an enrollmentId
+            const userPlanDoc = await firebase_1.db.collection('userPlans').doc(planId).get();
+            if (userPlanDoc.exists && userPlanDoc.data()?.userId === userId && userPlanDoc.data()?.status === 'ACTIVE') {
+                userPlan = userPlanDoc.data();
+            }
+            else {
+                // Fallback: check if user is already enrolled in this base plan
+                const existingJoin = await firebase_1.db.collection('userPlans')
+                    .where('userId', '==', userId)
+                    .where('planId', '==', planId)
+                    .where('status', '==', 'ACTIVE')
+                    .get();
+                if (!existingJoin.empty) {
+                    userPlan = existingJoin.docs[0]?.data();
+                }
+            }
+            if (userPlan) {
+                if (userPlan.monthlyAmount && userPlan.monthlyAmount > 0) {
+                    finalAmount = userPlan.monthlyAmount;
+                }
+                if (userPlan.nextPaymentDate) {
+                    const nextDate = new Date(userPlan.nextPaymentDate);
+                    const now = new Date();
+                    if (nextDate > now) {
+                        return res.status(400).json({ success: false, message: 'You have already paid the installment for the current month. Please wait until the next cycle to pay.' });
+                    }
+                }
+            }
+        }
+        if (!finalAmount || finalAmount <= 0) {
             return res.status(400).json({ success: false, message: 'Invalid amount' });
+        }
+        // Enforce minimum installment of ₹1,000 ONLY for scheme types (where planId exists)
+        if (planId && finalAmount < 1000) {
+            return res.status(400).json({ success: false, message: 'Minimum installment amount is ₹1,000.' });
         }
         // Fetch user details for Cashfree
         const userDoc = await firebase_1.db.collection('users').doc(userId).get();
@@ -44,13 +80,13 @@ const createPaymentOrder = async (req, res) => {
         // Generate unique order ID
         const orderId = `ORDER_${userId.substring(0, 5)}_${Date.now()}`;
         // Call Cashfree API
-        const result = await cashfree_service_1.cashfreeService.createOrder(orderId, amount, userId, phone);
+        const result = await cashfree_service_1.cashfreeService.createOrder(orderId, finalAmount, userId, phone);
         if (result.success) {
             // Store pending order in DB
             await firebase_1.db.collection('orders').doc(orderId).set({
                 orderId,
                 userId,
-                amount,
+                amount: finalAmount,
                 itemType,
                 status: 'PENDING',
                 paymentSessionId: result.paymentSessionId,
@@ -155,7 +191,7 @@ const verifyPayment = async (req, res) => {
                                 startDate: startDate.toISOString(),
                                 endDate: endDate.toISOString(),
                                 nextPaymentDate: nextPaymentDate.toISOString(),
-                                monthlyAmount: basePlan.schemeType === 'WEIGHT_BASED' ? 0 : parseFloat(amount),
+                                monthlyAmount: parseFloat(amount),
                                 metalType: basePlan.schemeType === 'WEIGHT_BASED' ? itemType : null,
                                 accumulatedWeight: basePlan.schemeType === 'WEIGHT_BASED' ? 0 : null,
                                 completedMonths: 0
@@ -351,7 +387,7 @@ const verifyPayment = async (req, res) => {
 exports.verifyPayment = verifyPayment;
 const renderCheckoutPage = (req, res) => {
     const { sessionId } = req.params;
-    const isProd = process.env.NODE_ENV === 'production';
+    const isProd = cashfree_service_1.cashfreeService.getEnvironment() === 'PRODUCTION';
     const sdkUrl = isProd ? 'https://sdk.cashfree.com/js/v3/cashfree.js' : 'https://sdk.cashfree.com/js/v3/cashfree.js';
     const html = `
     <!DOCTYPE html>

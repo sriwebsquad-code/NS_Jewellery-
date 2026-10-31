@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminResetPassword = exports.adminLogin = exports.verifyOtpOnly = exports.sendEmailOTP = exports.resetMpin = exports.verifyMpinResetOtp = exports.requestMpinReset = exports.loginWithMPIN = exports.createMPIN = exports.verifyOTP = exports.sendOTP = void 0;
+exports.adminResetPassword = exports.adminGoogleLogin = exports.adminLogin = exports.verifyOtpOnly = exports.sendEmailOTP = exports.resetMpin = exports.verifyMpinResetOtp = exports.requestMpinReset = exports.loginWithMPIN = exports.createMPIN = exports.verifyOTP = exports.sendOTP = void 0;
 const firebase_1 = require("../config/firebase");
 const jwt_1 = require("../utils/jwt");
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -11,6 +11,7 @@ const whatsapp_service_1 = require("../services/whatsapp.service");
 const sms_service_1 = require("../services/sms.service");
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const counter_1 = require("../utils/counter");
+const google_auth_library_1 = require("google-auth-library");
 // Nodemailer configuration
 const transporter = nodemailer_1.default.createTransport({
     service: 'gmail',
@@ -394,6 +395,51 @@ const adminLogin = async (req, res) => {
     }
 };
 exports.adminLogin = adminLogin;
+const googleClient = new google_auth_library_1.OAuth2Client();
+const adminGoogleLogin = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+        if (!idToken) {
+            return res.status(400).json({ success: false, message: 'Google ID token is required' });
+        }
+        // Verify the Google ID token
+        const ticket = await googleClient.verifyIdToken({
+            idToken,
+            // audience: process.env.GOOGLE_CLIENT_ID // Optional: restrict to specific client ID
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+            return res.status(401).json({ success: false, message: 'Invalid Google token' });
+        }
+        const email = payload.email.toLowerCase();
+        // Check against authorized emails
+        const authorizedEmails = [
+            (process.env.ADMIN_EMAIL_1 || '').toLowerCase(),
+            (process.env.ADMIN_EMAIL_2 || '').toLowerCase(),
+            (process.env.ADMIN_EMAIL_3 || '').toLowerCase()
+        ].filter(e => e !== '');
+        if (!authorizedEmails.includes(email)) {
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied. This Google account is not authorized.'
+            });
+        }
+        // Generate Admin JWT
+        const token = (0, jwt_1.generateToken)({ userId: email, role: 'ADMIN' });
+        return res.status(200).json({
+            success: true,
+            data: {
+                token,
+                user: { id: email, name: payload.name || 'Admin', email, role: 'ADMIN' }
+            }
+        });
+    }
+    catch (error) {
+        console.error('Admin Google Login Error:', error);
+        res.status(401).json({ success: false, message: 'Google authentication failed', error: error.message });
+    }
+};
+exports.adminGoogleLogin = adminGoogleLogin;
 const adminResetPassword = async (req, res) => {
     try {
         const { newPassword } = req.body;

@@ -59,7 +59,7 @@
         "expo-build-properties",
         {
           "android": {
-            "usesCleartextTraffic": true,
+            "usesCleartextTraffic": false,
             "compileSdkVersion": 36,
             "targetSdkVersion": 36,
             "buildToolsVersion": "36.0.0"
@@ -70,9 +70,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "9852520a-baf6-4327-bd04-7a29fb027bc5"
+        "projectId": "9e6f7cb6-02b4-4e07-990f-41b5becff5b0"
       }
     },
-    "owner": "lovelysriram"
+    "owner": "sri_web"
   }
 }

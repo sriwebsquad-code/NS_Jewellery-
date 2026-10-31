@@ -18,11 +18,12 @@ class CashfreeService {
         // Support separate keys for Verification Suite, fallback to PG keys if not provided
         this.verifyAppId = process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId;
         this.verifySecretKey = process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey;
-        // Automatically detect Sandbox vs Production based on App ID or Environment variables
-        const isProd = process.env.CASHFREE_ENV === 'production' ||
-            (!process.env.CASHFREE_ENV && this.pgAppId && !this.pgAppId.startsWith('TEST'));
-        this.pgBaseUrl = isProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
-        this.verifyBaseUrl = isProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
+        // Automatically detect Sandbox vs Production based on App ID
+        // Cashfree Sandbox Secret Keys ALWAYS contain 'test'
+        const isPgProd = this.pgAppId && !this.pgSecretKey.includes('test');
+        const isVerifyProd = this.verifyAppId && !this.verifySecretKey.includes('test');
+        this.pgBaseUrl = isPgProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
+        this.verifyBaseUrl = isVerifyProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
     }
     getEnvironment() {
         return this.pgBaseUrl.includes('sandbox') ? 'SANDBOX' : 'PRODUCTION';
@@ -32,7 +33,7 @@ class CashfreeService {
             'x-client-id': this.pgAppId,
             'x-client-secret': this.pgSecretKey,
             'Content-Type': 'application/json',
-            'x-api-version': '2023-08-01'
+            'x-api-version': '2022-09-01'
         };
     }
     get verifyHeaders() {
@@ -40,7 +41,7 @@ class CashfreeService {
             'x-client-id': this.verifyAppId,
             'x-client-secret': this.verifySecretKey,
             'Content-Type': 'application/json',
-            'x-api-version': '2023-08-01'
+            'x-api-version': '2022-09-01'
         };
     }
     // ==========================================

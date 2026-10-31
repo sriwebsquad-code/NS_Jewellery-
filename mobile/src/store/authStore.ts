@@ -28,7 +28,7 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       hasMpin: false,
       token: null,
-      user: { name: 'Customer', phone: '+91 9876543210', kycStatus: 'PENDING', panStatus: 'PENDING' }, // Default mock user
+      user: null,
       lastActiveAt: null,
       setLogin: (token, hasMpin, user) => set((state) => ({ isLoggedIn: true, token, hasMpin, user: user || state.user, lastActiveAt: Date.now() })),
       setUser: (user) => set({ user }),

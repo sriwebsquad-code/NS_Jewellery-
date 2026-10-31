@@ -11,6 +11,7 @@ router.post('/verify-otp', auth_controller_1.verifyOTP);
 router.post('/verify-otp-only', auth_controller_1.verifyOtpOnly);
 // Admin Routes
 router.post('/admin/login', auth_controller_1.adminLogin);
+router.post('/admin/google', auth_controller_1.adminGoogleLogin);
 router.post('/admin/reset-password', auth_controller_1.adminResetPassword);
 // MPIN Routes
 router.post('/mpin/create', auth_middleware_1.authenticate, auth_controller_1.createMPIN);
