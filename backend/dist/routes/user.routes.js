@@ -7,6 +7,7 @@ const router = (0, express_1.Router)();
 router.use(auth_middleware_1.authenticate);
 router.get('/profile', user_controller_1.getProfile);
 router.put('/profile', user_controller_1.updateProfile);
+router.post('/profile', user_controller_1.updateProfile);
 // Admin routes
 router.get('/', auth_middleware_1.authorizeAdmin, user_controller_1.getAllUsers);
 exports.default = router;

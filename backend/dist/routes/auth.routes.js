@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const auth_controller_1 = require("../controllers/auth.controller");
 const auth_middleware_1 = require("../middlewares/auth.middleware");
+const user_controller_1 = require("../controllers/user.controller");
 const router = (0, express_1.Router)();
 // Endpoint for Fast2SMS phone authentication login
 router.post('/send-otp', auth_controller_1.sendOTP);
@@ -18,5 +19,8 @@ router.post('/mpin/create', auth_middleware_1.authenticate, auth_controller_1.cr
 router.post('/mpin/login', auth_controller_1.loginWithMPIN);
 router.post('/mpin/request-reset', auth_controller_1.requestMpinReset);
 router.post('/mpin/reset', auth_controller_1.resetMpin);
+// Profile Registration & Update Routes
+router.post('/profile', auth_middleware_1.authenticate, user_controller_1.updateProfile);
+router.put('/profile', auth_middleware_1.authenticate, user_controller_1.updateProfile);
 exports.default = router;
 //# sourceMappingURL=auth.routes.js.map
