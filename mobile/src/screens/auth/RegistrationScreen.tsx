@@ -52,8 +52,8 @@ const RegistrationScreen = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${ENV.API_URL}/auth/profile`, {
-        method: 'POST',
+      let response = await fetch(`${ENV.API_URL}/user/profile`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -69,9 +69,36 @@ const RegistrationScreen = () => {
         })
       });
 
-      const data = await response.json();
+      // Fallback to /auth/profile if needed
+      if (response.status === 404) {
+        response = await fetch(`${ENV.API_URL}/auth/profile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            address,
+            dob: dobStr,
+            gender,
+            state,
+            pincode
+          })
+        });
+      }
+
+      const text = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        alert('Server response error. Please try again.');
+        return;
+      }
       
-      if (data.success) {
+      if (data && data.success) {
         updateUser({ 
           name, 
           email, 
@@ -83,7 +110,7 @@ const RegistrationScreen = () => {
           isNewUser: false 
         });
       } else {
-        alert('Failed to save profile details.');
+        alert(data?.message || 'Failed to save profile details.');
       }
     } catch (error) {
       console.error(error);
