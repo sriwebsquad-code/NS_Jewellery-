@@ -2,7 +2,7 @@
   "expo": {
     "name": "NS MAHAVEER JEWELLERY",
     "slug": "ns-jewellery-mobile",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/new_logo.png",
     "userInterfaceStyle": "light",
@@ -28,7 +28,7 @@
     },
     "android": {
       "package": "com.nsjewellery.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/new_logo.png",
