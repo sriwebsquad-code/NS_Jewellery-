@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/Colors';
-import { Menu, User, Mail, FileText, CheckCircle2, Calendar, MapPin, UserCircle2, Edit2, X, Trash2 } from 'lucide-react-native';
+import { Menu, User, Mail, FileText, CheckCircle2, Calendar, MapPin, UserCircle2, Edit2, X } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { COLORS } from '../../constants/theme';
@@ -83,23 +83,6 @@ const MyAccountScreen = () => {
     }
   };
 
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      'Delete Account',
-      'Are you sure you want to delete your account? All your personal information and profile details will be permanently removed.\n\nIf you have active schemes or investments, our support team (nsjewellery@gmail.com) will assist you.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete & Logout', 
-          style: 'destructive', 
-          onPress: () => {
-            logout();
-            Alert.alert('Account Deletion Requested', 'Your account deletion request has been submitted and you have been logged out.');
-          } 
-        }
-      ]
-    );
-  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
@@ -247,14 +230,6 @@ const MyAccountScreen = () => {
           </View>
 
         </View>
-        <TouchableOpacity 
-          style={[styles.deleteAccountBtn, { borderColor: '#E53935' }]} 
-          onPress={handleDeleteAccount}
-          activeOpacity={0.7}
-        >
-          <Trash2 color="#E53935" size={18} style={{ marginRight: 8 }} />
-          <Text style={{ color: '#E53935', fontWeight: 'bold', fontSize: 14 }}>Delete Account</Text>
-        </TouchableOpacity>
       </ScrollView>
 
       {/* Edit Profile Modal */}
