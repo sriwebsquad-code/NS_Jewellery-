@@ -13,15 +13,15 @@ class CashfreeService {
     pgBaseUrl;
     verifyBaseUrl;
     constructor() {
-        this.pgAppId = process.env.CASHFREE_APP_ID || '';
-        this.pgSecretKey = process.env.CASHFREE_SECRET_KEY || '';
+        this.pgAppId = (process.env.CASHFREE_APP_ID || '').trim();
+        this.pgSecretKey = (process.env.CASHFREE_SECRET_KEY || '').trim();
         // Support separate keys for Verification Suite, fallback to PG keys if not provided
-        this.verifyAppId = process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId;
-        this.verifySecretKey = process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey;
-        // Automatically detect Sandbox vs Production based on App ID
-        // Cashfree Sandbox Secret Keys ALWAYS contain 'test'
-        const isPgProd = this.pgAppId && !this.pgSecretKey.includes('test');
-        const isVerifyProd = this.verifyAppId && !this.verifySecretKey.includes('test');
+        this.verifyAppId = (process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId || '').trim();
+        this.verifySecretKey = (process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey || '').trim();
+        // Check if Sandbox vs Production
+        const isPgProd = this.pgAppId && !this.pgSecretKey.toLowerCase().includes('test');
+        const isVerifyProd = process.env.CASHFREE_VERIFY_ENV === 'PRODUCTION' ||
+            (this.verifyAppId && !this.verifySecretKey.toLowerCase().includes('test'));
         this.pgBaseUrl = isPgProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
         this.verifyBaseUrl = isVerifyProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
     }
@@ -74,7 +74,12 @@ class CashfreeService {
         }
     }
     async requestAadhaarOTP(aadhaarNumber) {
+        // Bypass for demo and testing accounts
+        if (aadhaarNumber === '123412341234' || aadhaarNumber === '999999999999' || aadhaarNumber === '000000000000') {
+            return { success: true, ref_id: 'mock_aadhaar_ref_123456', message: 'OTP sent to registered mobile number (Demo Bypass)' };
+        }
         try {
+            console.log(`[CASHFREE KYC] Requesting Aadhaar OTP via ${this.verifyBaseUrl}. AppId: ${this.verifyAppId ? this.verifyAppId.slice(0, 8) + '...' : 'EMPTY'} (len: ${this.verifyAppId.length})`);
             const response = await fetch(`${this.verifyBaseUrl}/offline-aadhaar/otp`, {
                 method: 'POST',
                 headers: this.verifyHeaders,
@@ -84,6 +89,7 @@ class CashfreeService {
             if (response.ok) {
                 return { success: true, ref_id: data.ref_id, message: data.message };
             }
+            console.error(`[CASHFREE KYC ERROR ${response.status}]`, data);
             return { success: false, message: data.message || 'Failed to send Aadhaar OTP' };
         }
         catch (error) {
@@ -92,6 +98,17 @@ class CashfreeService {
         }
     }
     async verifyAadhaarOTP(refId, otp) {
+        // Bypass for demo and testing accounts
+        if (refId === 'mock_aadhaar_ref_123456' && (otp === '123456' || otp === '1234')) {
+            return {
+                success: true,
+                data: {
+                    status: 'VALID',
+                    name: 'Parthiban',
+                    message: 'Aadhaar verified successfully (Demo Bypass)'
+                }
+            };
+        }
         try {
             const response = await fetch(`${this.verifyBaseUrl}/offline-aadhaar/verify`, {
                 method: 'POST',
