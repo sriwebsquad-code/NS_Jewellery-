@@ -4,6 +4,9 @@ import helmet from 'helmet';
 
 const app: Application = express();
 
+// Enable trust proxy for Render / Cloudflare reverse proxy
+app.set('trust proxy', 1);
+
 
 // Security Middleware
 app.use(helmet());
@@ -36,15 +39,19 @@ app.use(express.json());
 // Set up rate limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  max: 1000, // Limit each IP to 1000 requests per 15 minutes
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' }
 });
 
 const authLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 1000, // Limit each IP to 1000 login/OTP requests per hour (increased for testing)
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: { success: false, message: 'Too many authentication attempts, please try again later' }
 });
 

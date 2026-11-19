@@ -8,6 +8,7 @@ router.use(authenticate);
 
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
+router.post('/profile', updateProfile);
 
 // Admin routes
 router.get('/', authorizeAdmin, getAllUsers);

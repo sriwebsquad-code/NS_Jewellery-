@@ -7,3 +7,8 @@ web-build/
 /android
 /ios
 *.tsbuildinfo
+*.aab
+*.apk
+aabfiles/
+../backend/
+../admin/

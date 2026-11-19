@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { sendOTP, verifyOTP, verifyOtpOnly, sendEmailOTP, createMPIN, loginWithMPIN, requestMpinReset, resetMpin, adminLogin, adminGoogleLogin, adminResetPassword } from '../controllers/auth.controller';
 import { authenticate } from '../middlewares/auth.middleware';
+import { updateProfile } from '../controllers/user.controller';
 
 const router = Router();
 
@@ -20,5 +21,9 @@ router.post('/mpin/create', authenticate, createMPIN);
 router.post('/mpin/login', loginWithMPIN);
 router.post('/mpin/request-reset', requestMpinReset);
 router.post('/mpin/reset', resetMpin);
+
+// Profile Registration & Update Routes
+router.post('/profile', authenticate, updateProfile);
+router.put('/profile', authenticate, updateProfile);
 
 export default router;

@@ -53,6 +53,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     if (pincode) dataToUpdate.pincode = pincode;
     if (dob) dataToUpdate.dob = dob;
     if (gender) dataToUpdate.gender = gender;
+    dataToUpdate.isNewUser = false;
 
     await db.collection('users').doc(userId).set(dataToUpdate, { merge: true });
 
