@@ -18,12 +18,15 @@ class CashfreeService {
         // Support separate keys for Verification Suite, fallback to PG keys if not provided
         this.verifyAppId = (process.env.CASHFREE_VERIFY_APP_ID || this.pgAppId || '').trim();
         this.verifySecretKey = (process.env.CASHFREE_VERIFY_SECRET_KEY || this.pgSecretKey || '').trim();
+        // Explicit production switch support
+        const forceProd = process.env.CASHFREE_ENV === 'PRODUCTION' || process.env.NODE_ENV === 'production';
         // Check if Sandbox vs Production
-        const isPgProd = this.pgAppId && !this.pgSecretKey.toLowerCase().includes('test');
-        const isVerifyProd = process.env.CASHFREE_VERIFY_ENV === 'PRODUCTION' ||
+        const isPgProd = forceProd || (this.pgAppId && !this.pgSecretKey.toLowerCase().includes('test'));
+        const isVerifyProd = forceProd || process.env.CASHFREE_VERIFY_ENV === 'PRODUCTION' ||
             (this.verifyAppId && !this.verifySecretKey.toLowerCase().includes('test'));
         this.pgBaseUrl = isPgProd ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg';
         this.verifyBaseUrl = isVerifyProd ? 'https://api.cashfree.com/verification' : 'https://sandbox.cashfree.com/verification';
+        console.log(`[CASHFREE READY] PG URL: ${this.pgBaseUrl} | SecureID/Verify URL: ${this.verifyBaseUrl}`);
     }
     getEnvironment() {
         return this.pgBaseUrl.includes('sandbox') ? 'SANDBOX' : 'PRODUCTION';
