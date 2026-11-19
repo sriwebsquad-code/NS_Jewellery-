@@ -555,9 +555,9 @@ const MyPlansScreen = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: '#D4AF37' }]}>
-            <Text style={styles.modalTitle}>Important Notice</Text>
+            <Text style={styles.modalTitle}>IMPORTANT NOTICE</Text>
             <Text style={styles.modalBody}>
-              The amount will be converted to weight as per the rate on the payment date. If paid between 12:00 AM and the next morning, when the rate is updated, it will be calculated using the next morning's rate, not the previous day's rate.
+              the amount will be converted to weight as per the rate on the payment date. if paid between 12:00 am and the next morning, when the rate is updated, it will be calculated using the next morning's rate, not the previous day's rate.
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity 
@@ -565,7 +565,7 @@ const MyPlansScreen = () => {
                 style={styles.modalBtn}
                 activeOpacity={0.7}
               >
-                <Text style={styles.modalBtnText}>CANCEL</Text>
+                <Text style={styles.modalBtnText}>cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 onPress={() => {
@@ -582,7 +582,7 @@ const MyPlansScreen = () => {
                 style={styles.modalBtn}
                 activeOpacity={0.7}
               >
-                <Text style={styles.modalBtnText}>PROCEED</Text>
+                <Text style={styles.modalBtnText}>proceed</Text>
               </TouchableOpacity>
             </View>
           </View>

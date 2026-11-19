@@ -290,20 +290,20 @@ const DigitalSilverScreen = () => {
         onRequestClose={() => setShowImportantNotice(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: '#D4AF37' }]}>
-            <Text style={styles.modalTitle}>Important Notice</Text>
+          <View style={[styles.modalContent, { backgroundColor: '#5C6370' }]}>
+            <Text style={styles.modalTitle}>IMPORTANT NOTICE</Text>
             <Text style={styles.modalBody}>
-              THE AMOUNT WILL BE CONVERTED TO WEIGHT AS PER RATE OF SILVER ON THE PAYMENT DATE IF PAID BETWEEN 12.00AM TO THE NEXT MORNING WHEN THE RATE IS UPDATED. IT WILL CALCULATE ON THE NEXT MORNING RATE. NOT ON PREVIOUS DATE RATE.
+              the amount will be converted to weight as per rate of silver on the payment date if paid between 12.00am to the next morning when the rate is updated. it will calculate on the next morning rate. not on previous date rate.
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity onPress={() => setShowImportantNotice(false)} style={styles.modalBtn}>
-                <Text style={styles.modalBtnText}>CANCEL</Text>
+                <Text style={styles.modalBtnText}>cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {
                 setShowImportantNotice(false);
                 navigation.navigate('Payment', { amount: parseFloat(amount), planName: 'Digital Silver', planType: 'SILVER' });
               }} style={styles.modalBtn}>
-                <Text style={styles.modalBtnText}>PROCEED</Text>
+                <Text style={styles.modalBtnText}>proceed</Text>
               </TouchableOpacity>
             </View>
           </View>
